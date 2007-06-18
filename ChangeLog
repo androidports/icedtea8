@@ -1,0 +1,92 @@
+2007-06-18  Francis Kung  <fkung@redhat.com>
+
+	* patches/icedtea-ecj-bootstrap.patch: Fix typo.
+
+2007-06-18  Francis Kung  <fkung@redhat.com>
+
+	* patches/icedtea-ecj-bootstrap.patch: Revert changes from 2007-06-15.
+
+2007-06-15  Lillian Angel  <langel@redhat.com>
+
+	* patches/icedtea-ports.patch: Removed ChangeLog patch.
+
+2007-06-15  Francis Kung  <fkung@redhat.com>
+
+	* Makefile.am: Update patch locations.
+	* Makefile.in: Regenerated.
+	* icedtea-copy-plugs.patch: Moved to...
+	* patches/icedtea-copy-plugs.patch: Here.
+        * icedtea-ecj-bootstrap.patch: Moved to...
+        * patches/icedtea-ecj-bootstrap.patch: Here, and updated icon generation.
+        * icedtea-lesstif: Moved to...
+        * patches/icedtea-lesstif.patch: Here.
+        * icedtea-ports.patch: Moved to...
+        * patches/icedtea-ports.patch: Here.
+        * icedtea-version.patch: Moved to...
+        * patches/icedtea-version.patch: Here.
+        * patches/icedtea-graphics.patch: New file.
+
+2007-06-14  Lillian Angel  <langel@redhat.com>
+
+	* icedtea-version.patch: Changes LAUNCHER_NAME to "java" instead of
+	"openjdk". Also, removes -MILESTONE from RELEASE string. "java 
+	-version" now outputs the expected string.
+	* Makefile.am: Added new patch to list.
+
+2007-06-14  Kyle Galloway  <kgallowa@redhat.com>
+
+	* javac.in: Add -bootclasspath option to supply libgcj-x.x.x.jar to
+	ecj by default.
+
+2007-06-10  Thomas Fitzsimmons  <fitzsim@redhat.com>
+
+	* Makefile.am (OPENJDK_URL): Update for b13 bundle.
+	(OPENJDK_SRC_ZIP): Likewise.
+	(OPENJDK_MD5SUM): Likewise.
+	(ICEDTEA_COPY_DIRS): Add rt/com/sun/tools and
+	rt/com/sun/tools/jdi.
+	(ICEDTEA_COPY_SRC): Add com/sun/tools/jdi/LinkedHashMap.java.
+	* Makefile.in: Regenerate.
+	* .hgignore: Add rt/com/sun/tools/jdi/LinkedHashMap.java.
+
+2007-06-08  Gary Benson  <gbenson@redhat.com>
+
+	* icedtea-ports.patch (control/make/hotspot-rules.gmk):
+	Correctly recognize ix86.
+
+2007-06-08  Gary Benson  <gbenson@redhat.com>
+
+	* acinclude.m4 (SET_ARCH_DIRS):
+	Deal with platforms other than ix86 and x86_64.
+	* configure: Regenerated.
+
+	* icedtea-ports.patch: New file.
+	* Makefile.am (ICEDTEA_PATCHES): Add the above.
+	* Makefile.in: Regenerated.
+
+2007-06-07  Francis Kung  <fkung@redhat.com>
+
+	* acinclude.m4: Add explicit xalan/xerces checks.
+	* configure.ac: Likewise.
+	* Makefile.am: Use explicit xalan/xerces locations;
+	use dummy file when creating empty jars.
+	* Makefile.in: Regenerated.
+	* configure: Likewise.
+
+2007-06-07  Francis Kung  <fkung@redhat.com>
+
+	* acinclude.m4: Cleaned up header checks.
+	* configure: Regenerated.
+
+2007-06-07  Lillian Angel  <langel@redhat.com>
+
+	* .hgignore: New file.
+
+2007-06-07  Thomas Fitzsimmons  <fitzsim@redhat.com>
+
+	* README: Fix typo.
+
+2007-06-07  Andrew Haley  <aph@redhat.com>
+
+	* Makefile.am (ICEDTEA_ENV): Unset LD_LIBRARY_PATH.
+
