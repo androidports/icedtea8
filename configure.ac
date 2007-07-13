@@ -1,0 +1,41 @@
+AC_PREREQ([2.61])
+AC_INIT([icedtea], [1.1], [fitzsim@redhat.com])
+AM_INIT_AUTOMAKE([tar-pax])
+AC_CONFIG_FILES([Makefile])
+AC_CONFIG_FILES([javac], [chmod +x javac])
+AC_CONFIG_FILES([javap], [chmod +x javap])
+AC_CANONICAL_HOST
+
+AC_PREFIX_DEFAULT([bootstrap])
+
+AC_PROG_CC([gcc])
+
+# Essential tools that are used in the build (harness)
+FIND_TOOL([FIND], [find])
+FIND_TOOL([MD5SUM], [md5sum])
+FIND_TOOL([PATCH], [patch])
+FIND_TOOL([UNZIP], [unzip])
+FIND_TOOL([WGET], [wget])
+
+# See bug #36, we might just be able to use AC_PROG_AWK
+FIND_TOOL([GAWK], [gawk])
+
+SET_ARCH_DIRS
+FIND_JAVA
+FIND_JAVAC
+FIND_JAVAH
+FIND_JAR
+FIND_RMIC
+FIND_ECJ_JAR
+FIND_LIBGCJ_JAR
+FIND_XALAN2_JAR
+FIND_XALAN2_SERIALIZER_JAR
+FIND_XERCES2_JAR
+WITH_OPENJDK_SRC_ZIP
+WITH_OPENJDK_SRC_DIR
+ENABLE_FAST_BUILD
+ENABLE_CCACHE
+
+CHECK_HEADERS
+
+AC_OUTPUT
