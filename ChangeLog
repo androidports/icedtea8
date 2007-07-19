@@ -1,0 +1,1204 @@
+2007-07-19  Lillian Angel  <langel@redhat.com>
+
+	* jce/gnu/javax/crypto/jce/cipher/CipherAdapter.java: Fixed incorrect
+	buffer sizes.
+
+2007-07-19  Lillian Angel  <langel@redhat.com>
+
+	* .hgignore: Ignore .* directories/files.
+
+2007-07-19  Lillian Angel  <langel@redhat.com>
+
+	* jce/gnu/javax/crypto/jce/GnuCrypto.java: Fixed typo. DiffieHellman
+	is now recognized as a algorithm.
+
+2007-07-18  Casey Marshall  <csm@gnu.org>
+
+	Fixes PR 39.
+	* jce/gnu/java/security/icedtea/CertBundleKeyStoreImpl.java:
+	new file.
+	* jce/gnu/java/security/icedtea/IcedTls.java: add
+	`CertBundleKeyStoreImpl' to provider.
+	
+2007-07-18  Thomas Fitzsimmons  <fitzsim@redhat.com>
+
+	* configure.ac: Bump version to 1.2.
+	* configure: Regenerate.
+
+2007-07-18  Francis Kung  <fkung@redhat.com>
+
+	* INSTALL: Add instructions for enabling graphics.
+
+2007-07-18  Francis Kung  <fkung@redhat.com>
+
+	* patches/icedtea-graphics.patch: Check for null scalers.
+
+2007-07-18  Lillian Angel  <langel@redhat.com>
+
+	* jce/gnu/javax/crypto/jce/PBESecretKeyFactory.java: Reformatted (GNU
+	style).
+	* jce/gnu/javax/crypto/jce/cipher/PBE.java: Likewise.
+	* jce/gnu/javax/crypto/key/GnuPBEKey.java: Likewise.
+
+2007-07-18  Lillian Angel  <langel@redhat.com>
+
+	* jce/gnu/javax/crypto/jce/GnuCrypto.java: Added PBEWithMD5AndDES and
+	PBE providers.
+	* jce/gnu/javax/crypto/jce/cipher/CipherAdapter.java: 
+	(engineUpdate): Fixed blockCount and buffer size.
+	(engineUpdate): Fixed blockCount.
+	* jce/gnu/javax/crypto/key/GnuPBEKey.java
+	(getFormat): Implemented.
+	(getEncoded): Implemented.
+	* jce/gnu/javax/crypto/jce/PBESecretKeyFactory.java: New file.
+	* jce/gnu/javax/crypto/jce/cipher/PBE.java: New file.
+
+2007-07-18  Francis Kung  <fkung@redhat.com>
+
+	* patches/icedtea-graphics.patch: Patch OpenJDK makefiles.
+
+2007-07-17  Francis Kung  <fkung@redhat.com>
+
+	* Makefile.am: Fix compile flags for Freetype.
+	* Makefile.in: Regenerated.
+	* patches/icedtea-graphics.patch: Patch OpenJDK makefiles for
+	Freetype support.
+
+2007-07-17  Francis Kung  <fkung@redhat.com>
+
+	* Makefile.am: Add compile flags for Freetype.
+	* acinclude.m4: Fix check for Freetype.
+	* Makefile.in: Regenerated.
+	* configure: Likewise.
+	* patches/icedtea-graphics.patch: Add Freetype support.
+
+2007-07-17  Kyle Galloway  <kgallowa@redhat.com>
+
+	* acinclude.m4: Added FIND_FREETYPE macro to check for Freetype libs
+	and headers and sets FREETYPE_INC_DIR.
+	* configure.ac: Call FIND_FREETYPE macro.
+	* configure: Regenerated.
+
+2007-07-14  Thomas Fitzsimmons  <fitzsim@redhat.com>
+
+	* Makefile.am, acinclude.m4, configure.ac: Remove ccache
+	knowledge.
+	* patches/icedtea-ccache.patch: Remove file.
+	* Makefile.in, configure: Regenerate.
+
+2007-07-13  Lillian Angel  <langel@redhat.com>
+
+	* AUTHORS: Added Mark Wielaard.
+
+2007-07-12  Thomas Fitzsimmons  <fitzsim@redhat.com>
+
+	* NEWS: Update for 1.1 release.
+
+2007-07-11  Andrew Haley  <aph@redhat.com>
+
+	* Makefile.am (patch): Set fuzziness to zero.
+
+2007-07-11  Andrew Haley  <aph@redhat.com>
+
+	* patches/icedtea-assembler_amd64.patch: New file.
+	* Makefile.am (ICEDTEA_PATCHES): Add icedtea-assembler_amd64.patch.
+	(icedtea-debug): New target 
+
+2007-07-08  Mark Wielaard  <mark@klomp.org>
+
+	* acinclude.m4 (FIND_TOOL): New macro.
+	* configure.ac: Use FIND_TOOL for essential tools, add gawk check.
+	* configure: Regenerated.
+	* Makefile.in: Likewise.
+
+2007-07-08  Mark Wielaard  <mark@klomp.org>
+
+	* acinclude.m4 (CHECK_HEADERS): Add check for alsa/asoundlib.h.
+	* configure: Regenerated.
+
+2007-07-06  Kyle Galloway <kgallowa@redhat.com>
+
+	* patches/icedtea-buildfix.patch: Add amd64 build fix as well.
+
+2007-07-06  Francis Kung  <fkung@redhat.com>
+
+	* Makefile.am: Update for b15.
+	* Makefile.in: Regenerated.
+	* patches/icedtea-copy-plugs.patch: Update for b15.
+	* patches/icedtea-debuginfo.patch: Update for b15.
+	* patches/icedtea-buildfix.patch: New file.
+
+2007-07-05  Thomas Fitzsimmons  <fitzsim@redhat.com>
+
+	* Makefile.am (snapshot): New target.
+	(.PHONY): Add snapshot.
+
+2007-07-05  Lillian Angel  <langel@redhat.com>
+
+	* .hgignore: Updated.
+	* AUTHORS: Added Casey Marshall.
+	* Makefile.am: Added new patch.
+	* Makefile.in: Regenerated.
+	* jce/javax/crypto/KeyGenerator.java: Removed unnecessary functions.
+	* patches/icedtea-java.security.patch: Updated with new ssl provider.
+	* patches/icedtea-ssl.patch: New patch.
+
+2007-07-05  Lillian Angel  <langel@redhat.com>
+
+	* jce/gnu/javax/net/ssl/AbstractSessionContext.java: Removed.
+	* jce/gnu/javax/net/ssl/EntropySource.java: Removed.
+	* jce/gnu/javax/net/ssl/NullManagerParameters.java: Removed.
+	* jce/gnu/javax/net/ssl/PreSharedKeyManager.class
+	* jce/gnu/javax/net/ssl/PreSharedKeyManager.java: Removed.
+	* jce/gnu/javax/net/ssl/PreSharedKeyManagerParameters.java: Removed.
+	* jce/gnu/javax/net/ssl/PrivateCredentials.java: Removed.
+	* jce/gnu/javax/net/ssl/SRPManagerParameters.java: Removed.
+	* jce/gnu/javax/net/ssl/SRPTrustManager.java: Removed.
+	* jce/gnu/javax/net/ssl/SSLCipherSuite.java: Removed.
+	* jce/gnu/javax/net/ssl/SSLProtocolVersion.java: Removed.
+	* jce/gnu/javax/net/ssl/SSLRecordHandler.java: Removed.
+	* jce/gnu/javax/net/ssl/Session.java: Removed.
+	* jce/gnu/javax/net/ssl/SessionStoreException.java: Removed.
+	* jce/gnu/javax/net/ssl/StaticTrustAnchors.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/AbstractHandshake.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/Alert.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/AlertException.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/Builder.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/Certificate.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/CertificateBuilder.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/CertificateRequest.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/CertificateRequestBuilder.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/CertificateStatusRequest.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/CertificateStatusType.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/CertificateType.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/CertificateURL.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/CertificateVerify.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/CipherAlgorithm.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/CipherSuite.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/CipherSuiteList.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/ClientCertificateTypeList.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/ClientDHE_PSKParameters.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/ClientDiffieHellmanPublic.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/ClientHandshake.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/ClientHello.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/ClientHelloBuilder.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/ClientHelloV2.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/ClientKeyExchange.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/ClientKeyExchangeBuilder.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/ClientPSKParameters.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/ClientRSA_PSKParameters.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/CompressionMethod.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/CompressionMethodList.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/Constructed.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/ContentType.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/Debug.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/DelegatedTask.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/DiffieHellman.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/EmptyExchangeKeys.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/EncryptedPreMasterSecret.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/ExchangeKeys.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/Extension.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/ExtensionList.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/Finished.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/Handshake.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/HelloRequest.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/InputSecurityParameters.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/Jessie.class
+	* jce/gnu/javax/net/ssl/provider/Jessie.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/KeyExchangeAlgorithm.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/MacAlgorithm.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/MacException.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/MaxFragmentLength.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/OutputSecurityParameters.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/PreSharedKeyManagerFactoryImpl.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/ProtocolVersion.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/Random.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/Record.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/SRPTrustManagerFactory.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/SSLContextImpl.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/SSLEngineImpl.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/SSLHMac.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/SSLRSASignatureImpl.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/SSLRandom.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/SSLServerSocketFactoryImpl.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/SSLServerSocketImpl.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/SSLSocketFactoryImpl.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/SSLSocketImpl.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/SSLv3HMacMD5Impl.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/SSLv3HMacSHAImpl.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/ServerDHE_PSKParameters.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/ServerDHParams.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/ServerHandshake.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/ServerHello.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/ServerHelloBuilder.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/ServerHelloDone.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/ServerKeyExchange.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/ServerKeyExchangeBuilder.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/ServerKeyExchangeParams.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/ServerNameList.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/ServerPSKParameters.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/ServerRSAParams.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/ServerRSA_PSKParameters.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/SessionImpl.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/Signature.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/SignatureAlgorithm.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/SimpleSessionContext.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/TLSHMac.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/TLSRandom.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/TruncatedHMAC.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/TrustedAuthorities.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/UnresolvedExtensionValue.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/Util.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/X500PrincipalList.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/X509KeyManagerFactory.java: Removed.
+	* jce/gnu/javax/net/ssl/provider/X509TrustManagerFactory.java: Removed.
+	* jce/javax/net/VanillaServerSocketFactory.java: Removed.
+	* jce/javax/net/VanillaSocketFactory.java: Removed.
+	* jce/javax/net/ssl/TrivialHostnameVerifier.java: Removed.
+	* rt/gnu/java/util/Base64.java: Removed.
+
+2007-07-05  Casey Marshall  <csm@gnu.org>
+
+	* jce/gnu/java/security/icedtea/IcedTls.java: New Class.
+	* jce/gnu/java/security/icedtea/GNUTlsRsaPreMasterSecretGeneratorImpl.java: 
+	New Class.
+	* jce/gnu/java/security/icedtea/GNUTlsPrfGeneratorImpl.java: New Class.
+	* jce/gnu/java/security/icedtea/GNUTlsMasterSecretGenerator.java: New Class.
+	* jce/gnu/java/security/icedtea/GNUTlsKeyMaterialGeneratorImpl.java: New Class.
+	* jce/gnu/javax/crypto/RSACipherImpl.java
+	(engineSetMode): Implemented.
+	(engineSetPadding): Likewise.
+	(engineGetBlockSize): Added conditions.
+	(engineUpdate): Likewise.
+	(engineUnwrap): New function.
+	(engineWrap): Likewise.
+	* jce/gnu/javax/crypto/jce/GnuCrypto.java
+	(GnuCrypto): Updated cipher put into map.
+	* jce/sun/security/internal/spec/TlsKeyMaterialParameterSpec.java: Implemented.
+	* jce/sun/security/internal/spec/TlsKeyMaterialSpec.java: Implemented.
+	* jce/sun/security/internal/spec/TlsMasterSecretParameterSpec.java: Implemented.
+	* jce/sun/security/internal/spec/TlsPrfParameterSpec.java: Implemented.
+	* jce/sun/security/internal/spec/TlsRsaPremasterSecretParameterSpec.java:
+	Implemented.
+
+2007-07-05  Gary Benson  <gbenson@redhat.com>
+
+	* .hgignore: List bootstrap directory instead of individual files,
+	and don't list .hgignore.
+
+2007-07-04  Thomas Fitzsimmons  <fitzsim@redhat.com>
+
+	* Makefile.am (patch): Add debugging messages.
+	(unpatch): Likewise.
+	(patchecj): Likewise.
+	(unpatchecj): Likewise.
+	* Makefile.in: Regenerate.
+
+2007-07-04  Gary Benson  <gbenson@redhat.com>
+
+	* patches/icedtea-ports.patch: Removed.
+	* Makefile.in: Regenerated.
+
+2007-07-04  Gary Benson  <gbenson@redhat.com>
+
+	* acinclude.m4 (SET_ARCH_DIRS): Fix library paths on ppc64 and s390x.
+	* configure: Regenerated.
+
+2007-07-02  Lillian Angel  <langel@redhat.com>
+
+	* Makefile.am: Changed to use -source and -target flags instead of
+	-1.5. Not supported by Sun's JDK.
+	* Makefile.in: Regenerated.
+
+2007-06-29  Lillian Angel  <langel@redhat.com>
+
+	* Makefile.am: Fixed typo.
+	* Makefile.in: Regenerated.
+
+2007-06-29  Lillian Angel  <langel@redhat.com>
+
+	* patches/icedtea-java.security.patch: Fixed patch line numbers.
+
+2007-06-29  Lillian Angel  <langel@redhat.com>
+
+	* Makefile.am: Added checks to prevent make error after make
+	bootstrap.
+	* Makefile.in: Regenerated.
+
+2007-06-27  Lillian Angel  <langel@redhat.com>
+
+	* .hgignore: Updated.
+
+2007-06-27  Lillian Angel  <langel@redhat.com>
+
+	* patches/icedtea-ports.patch: Removed ChangeLog entry.
+
+2007-06-27  Lillian Angel  <langel@redhat.com>
+
+	* Makefile.am: Added to ICEDTEA_COPY_DIRS and ICEDTEA_COPY_SRC
+	* Makefile.in: Regenerated.
+	* jce/gnu/javax/net/ssl/AbstractSessionContext.java,
+	jce/gnu/javax/net/ssl/EntropySource.java,
+	jce/gnu/javax/net/ssl/NullManagerParameters.java,
+	jce/gnu/javax/net/ssl/PreSharedKeyManager.class,
+	jce/gnu/javax/net/ssl/PreSharedKeyManager.java,
+	jce/gnu/javax/net/ssl/PreSharedKeyManagerParameters.java,
+	jce/gnu/javax/net/ssl/PrivateCredentials.java,
+	jce/gnu/javax/net/ssl/SRPManagerParameters.java,
+	jce/gnu/javax/net/ssl/SRPTrustManager.java,
+	jce/gnu/javax/net/ssl/SSLCipherSuite.java,
+	jce/gnu/javax/net/ssl/SSLProtocolVersion.java,
+	jce/gnu/javax/net/ssl/SSLRecordHandler.java,
+	jce/gnu/javax/net/ssl/Session.java,
+	jce/gnu/javax/net/ssl/SessionStoreException.java,
+	jce/gnu/javax/net/ssl/StaticTrustAnchors.java,
+	jce/gnu/javax/net/ssl/provider/AbstractHandshake.java,
+	jce/gnu/javax/net/ssl/provider/Alert.java,
+	jce/gnu/javax/net/ssl/provider/AlertException.java,
+	jce/gnu/javax/net/ssl/provider/Builder.java,
+	jce/gnu/javax/net/ssl/provider/Certificate.java,
+	jce/gnu/javax/net/ssl/provider/CertificateBuilder.java,
+	jce/gnu/javax/net/ssl/provider/CertificateRequest.java,
+	jce/gnu/javax/net/ssl/provider/CertificateRequestBuilder.java,
+	jce/gnu/javax/net/ssl/provider/CertificateStatusRequest.java,
+	jce/gnu/javax/net/ssl/provider/CertificateStatusType.java,
+	jce/gnu/javax/net/ssl/provider/CertificateType.java,
+	jce/gnu/javax/net/ssl/provider/CertificateURL.java,
+	jce/gnu/javax/net/ssl/provider/CertificateVerify.java,
+	jce/gnu/javax/net/ssl/provider/CipherAlgorithm.java,
+	jce/gnu/javax/net/ssl/provider/CipherSuite.java,
+	jce/gnu/javax/net/ssl/provider/CipherSuiteList.java,
+	jce/gnu/javax/net/ssl/provider/ClientCertificateTypeList.java,
+	jce/gnu/javax/net/ssl/provider/ClientDHE_PSKParameters.java,
+	jce/gnu/javax/net/ssl/provider/ClientDiffieHellmanPublic.java,
+	jce/gnu/javax/net/ssl/provider/ClientHandshake.java,
+	jce/gnu/javax/net/ssl/provider/ClientHello.java,
+	jce/gnu/javax/net/ssl/provider/ClientHelloBuilder.java,
+	jce/gnu/javax/net/ssl/provider/ClientHelloV2.java,
+	jce/gnu/javax/net/ssl/provider/ClientKeyExchange.java,
+	jce/gnu/javax/net/ssl/provider/ClientKeyExchangeBuilder.java,
+	jce/gnu/javax/net/ssl/provider/ClientPSKParameters.java,
+	jce/gnu/javax/net/ssl/provider/ClientRSA_PSKParameters.java,
+	jce/gnu/javax/net/ssl/provider/CompressionMethod.java,
+	jce/gnu/javax/net/ssl/provider/CompressionMethodList.java,
+	jce/gnu/javax/net/ssl/provider/Constructed.java,
+	jce/gnu/javax/net/ssl/provider/ContentType.java,
+	jce/gnu/javax/net/ssl/provider/Debug.java,
+	jce/gnu/javax/net/ssl/provider/DelegatedTask.java,
+	jce/gnu/javax/net/ssl/provider/DiffieHellman.java,
+	jce/gnu/javax/net/ssl/provider/EmptyExchangeKeys.java,
+	jce/gnu/javax/net/ssl/provider/EncryptedPreMasterSecret.java,
+	jce/gnu/javax/net/ssl/provider/ExchangeKeys.java,
+	jce/gnu/javax/net/ssl/provider/Extension.java,
+	jce/gnu/javax/net/ssl/provider/ExtensionList.java,
+	jce/gnu/javax/net/ssl/provider/Finished.java,
+	jce/gnu/javax/net/ssl/provider/Handshake.java,
+	jce/gnu/javax/net/ssl/provider/HelloRequest.java,
+	jce/gnu/javax/net/ssl/provider/InputSecurityParameters.java,
+	jce/gnu/javax/net/ssl/provider/Jessie.class,
+	jce/gnu/javax/net/ssl/provider/Jessie.java,
+	jce/gnu/javax/net/ssl/provider/KeyExchangeAlgorithm.java,
+	jce/gnu/javax/net/ssl/provider/MacAlgorithm.java,
+	jce/gnu/javax/net/ssl/provider/MacException.java,
+	jce/gnu/javax/net/ssl/provider/MaxFragmentLength.java,
+	jce/gnu/javax/net/ssl/provider/OutputSecurityParameters.java,
+	jce/gnu/javax/net/ssl/provider/PreSharedKeyManagerFactoryImpl.java,
+	jce/gnu/javax/net/ssl/provider/ProtocolVersion.java,
+	jce/gnu/javax/net/ssl/provider/Random.java,
+	jce/gnu/javax/net/ssl/provider/Record.java,
+	jce/gnu/javax/net/ssl/provider/SRPTrustManagerFactory.java,
+	jce/gnu/javax/net/ssl/provider/SSLContextImpl.java,
+	jce/gnu/javax/net/ssl/provider/SSLEngineImpl.java,
+	jce/gnu/javax/net/ssl/provider/SSLHMac.java,
+	jce/gnu/javax/net/ssl/provider/SSLRSASignatureImpl.java,
+	jce/gnu/javax/net/ssl/provider/SSLRandom.java,
+	jce/gnu/javax/net/ssl/provider/SSLServerSocketFactoryImpl.java,
+	jce/gnu/javax/net/ssl/provider/SSLServerSocketImpl.java,
+	jce/gnu/javax/net/ssl/provider/SSLSocketFactoryImpl.java,
+	jce/gnu/javax/net/ssl/provider/SSLSocketImpl.java,
+	jce/gnu/javax/net/ssl/provider/SSLv3HMacMD5Impl.java,
+	jce/gnu/javax/net/ssl/provider/SSLv3HMacSHAImpl.java,
+	jce/gnu/javax/net/ssl/provider/ServerDHE_PSKParameters.java,
+	jce/gnu/javax/net/ssl/provider/ServerDHParams.java,
+	jce/gnu/javax/net/ssl/provider/ServerHandshake.java,
+	jce/gnu/javax/net/ssl/provider/ServerHello.java,
+	jce/gnu/javax/net/ssl/provider/ServerHelloBuilder.java,
+	jce/gnu/javax/net/ssl/provider/ServerHelloDone.java,
+	jce/gnu/javax/net/ssl/provider/ServerKeyExchange.java,
+	jce/gnu/javax/net/ssl/provider/ServerKeyExchangeBuilder.java,
+	jce/gnu/javax/net/ssl/provider/ServerKeyExchangeParams.java,
+	jce/gnu/javax/net/ssl/provider/ServerNameList.java,
+	jce/gnu/javax/net/ssl/provider/ServerPSKParameters.java,
+	jce/gnu/javax/net/ssl/provider/ServerRSAParams.java,
+	jce/gnu/javax/net/ssl/provider/ServerRSA_PSKParameters.java,
+	jce/gnu/javax/net/ssl/provider/SessionImpl.java,
+	jce/gnu/javax/net/ssl/provider/Signature.java,
+	jce/gnu/javax/net/ssl/provider/SignatureAlgorithm.java,
+	jce/gnu/javax/net/ssl/provider/SimpleSessionContext.java,
+	jce/gnu/javax/net/ssl/provider/TLSHMac.java,
+	jce/gnu/javax/net/ssl/provider/TLSRandom.java,
+	jce/gnu/javax/net/ssl/provider/TruncatedHMAC.java,
+	jce/gnu/javax/net/ssl/provider/TrustedAuthorities.java,
+	jce/gnu/javax/net/ssl/provider/UnresolvedExtensionValue.java,
+	jce/gnu/javax/net/ssl/provider/Util.java,
+	jce/gnu/javax/net/ssl/provider/X500PrincipalList.java,
+	jce/gnu/javax/net/ssl/provider/X509KeyManagerFactory.java,
+	jce/gnu/javax/net/ssl/provider/X509TrustManagerFactory.java,
+	jce/javax/net/VanillaServerSocketFactory.java,
+	jce/javax/net/VanillaSocketFactory.java,
+	jce/javax/net/ssl/TrivialHostnameVerifier.java,
+	rt/gnu/java/util/Base64.java: New file
+
+2007-06-27  Lillian Angel  <langel@redhat.com>
+
+	* Makefile.am: Added new rt dirs.
+	* Makefile.in: Regenerated.
+
+2007-06-27  Lillian Angel  <langel@redhat.com>
+
+	* rt/java/util/Timer.java 
+	rt/javax/security/auth/callback/ChoiceCallback.java 
+	rt/javax/security/auth/callback/ConfirmationCallback.java 
+	rt/javax/security/auth/callback/LanguageCallback.java 
+	rt/javax/security/auth/callback/NameCallback.java 
+	rt/javax/security/auth/callback/TextInputCallback.java 
+	rt/javax/security/auth/callback/TextOutputCallback.java 
+	rt/javax/security/sasl/AuthenticationException.java 
+	rt/javax/security/sasl/Sasl.java 
+	rt/javax/security/sasl/SaslClient.java 
+	rt/javax/security/sasl/SaslClientFactory.java 
+	rt/javax/security/sasl/SaslException.java 
+	rt/javax/security/sasl/SaslServer.java 
+	rt/javax/security/sasl/SaslServerFactory.java: Removed from repo. They
+	are being copied from the openjdk src anyways.
+
+2007-06-27  Francis Kung  <fkung@redhat.com>
+
+	* patches/icedtea-graphics.patch: Stub out libt2k.
+
+2007-06-26  Lillian Angel  <langel@redhat.com>
+
+	* AUTHORS: Added aph.
+	* INSTALL: Added clarification.
+
+2007-06-26  Andrew Haley  <aph@redhat.com>
+
+	* Makefile.am (ICEDTEA_PATCHES): Add icedtea-java.security.patch.
+
+2007-06-26  Andrew Haley  <aph@redhat.com>
+
+	* Makefile.am (ICEDTEA_PATCHES): Add icedtea-debuginfo.patch.
+	Add -g option to all Java compilations.
+	(ICEDTEA_COPY_SRC): Copy a bunch of files needed to build GNU
+	crypto.
+	* jce/gnu/java/security/hash/BaseHash.java,
+	jce/gnu/java/security/hash/HashFactory.java,
+	jce/gnu/java/security/hash/Haval.java,
+	jce/gnu/java/security/hash/IMessageDigest.java,
+	jce/gnu/java/security/hash/MD2.java,
+	jce/gnu/java/security/hash/MD4.java,
+	jce/gnu/java/security/hash/MD5.java,
+	jce/gnu/java/security/hash/RipeMD128.java,
+	jce/gnu/java/security/hash/RipeMD160.java,
+	jce/gnu/java/security/hash/Sha160.java,
+	jce/gnu/java/security/hash/Sha256.java,
+	jce/gnu/java/security/hash/Sha384.java,
+	jce/gnu/java/security/hash/Sha512.java,
+	jce/gnu/java/security/hash/Tiger.java,
+	jce/gnu/java/security/hash/Whirlpool.java,
+	jce/gnu/java/security/jce/hash/HavalSpi.java,
+	jce/gnu/java/security/jce/hash/MD2Spi.java,
+	jce/gnu/java/security/jce/hash/MD4Spi.java,
+	jce/gnu/java/security/jce/hash/MD5Spi.java,
+	jce/gnu/java/security/jce/hash/MessageDigestAdapter.java,
+	jce/gnu/java/security/jce/hash/RipeMD128Spi.java,
+	jce/gnu/java/security/jce/hash/RipeMD160Spi.java,
+	jce/gnu/java/security/jce/hash/Sha160Spi.java,
+	jce/gnu/java/security/jce/hash/Sha256Spi.java,
+	jce/gnu/java/security/jce/hash/Sha384Spi.java,
+	jce/gnu/java/security/jce/hash/Sha512Spi.java,
+	jce/gnu/java/security/jce/hash/TigerSpi.java,
+	jce/gnu/java/security/jce/hash/WhirlpoolSpi.java,
+	jce/gnu/java/security/jce/prng/HavalRandomSpi.java,
+	jce/gnu/java/security/jce/prng/MD2RandomSpi.java,
+	jce/gnu/java/security/jce/prng/MD4RandomSpi.java,
+	jce/gnu/java/security/jce/prng/MD5RandomSpi.java,
+	jce/gnu/java/security/jce/prng/RipeMD128RandomSpi.java,
+	jce/gnu/java/security/jce/prng/RipeMD160RandomSpi.java,
+	jce/gnu/java/security/jce/prng/SecureRandomAdapter.java,
+	jce/gnu/java/security/jce/prng/Sha160RandomSpi.java,
+	jce/gnu/java/security/jce/prng/Sha256RandomSpi.java,
+	jce/gnu/java/security/jce/prng/Sha384RandomSpi.java,
+	jce/gnu/java/security/jce/prng/Sha512RandomSpi.java,
+	jce/gnu/java/security/jce/prng/TigerRandomSpi.java,
+	jce/gnu/java/security/jce/prng/WhirlpoolRandomSpi.java,
+	jce/gnu/java/security/jce/sig/DSSKeyFactory.java,
+	jce/gnu/java/security/jce/sig/DSSKeyPairGeneratorSpi.java,
+	jce/gnu/java/security/jce/sig/DSSParameters.java,
+	jce/gnu/java/security/jce/sig/DSSParametersGenerator.java,
+	jce/gnu/java/security/jce/sig/DSSRawSignatureSpi.java,
+	jce/gnu/java/security/jce/sig/EncodedKeyFactory.java,
+	jce/gnu/java/security/jce/sig/KeyPairGeneratorAdapter.java,
+	jce/gnu/java/security/jce/sig/MD2withRSA.java,
+	jce/gnu/java/security/jce/sig/MD5withRSA.java,
+	jce/gnu/java/security/jce/sig/RSAKeyFactory.java,
+	jce/gnu/java/security/jce/sig/RSAKeyPairGeneratorSpi.java,
+	jce/gnu/java/security/jce/sig/RSAPSSRawSignatureSpi.java,
+	jce/gnu/java/security/jce/sig/SHA160withDSS.java,
+	jce/gnu/java/security/jce/sig/SHA160withRSA.java,
+	jce/gnu/java/security/jce/sig/SHA256withRSA.java,
+	jce/gnu/java/security/jce/sig/SHA384withRSA.java,
+	jce/gnu/java/security/jce/sig/SHA512withRSA.java,
+	jce/gnu/java/security/jce/sig/SignatureAdapter.java,
+	jce/gnu/java/security/key/IKeyPairCodec.java,
+	jce/gnu/java/security/key/IKeyPairGenerator.java,
+	jce/gnu/java/security/key/KeyPairCodecFactory.java,
+	jce/gnu/java/security/key/KeyPairGeneratorFactory.java,
+	jce/gnu/java/security/key/dss/DSSKey.java,
+	jce/gnu/java/security/key/dss/DSSKeyPairGenerator.java,
+	jce/gnu/java/security/key/dss/DSSKeyPairPKCS8Codec.java,
+	jce/gnu/java/security/key/dss/DSSKeyPairRawCodec.java,
+	jce/gnu/java/security/key/dss/DSSKeyPairX509Codec.java,
+	jce/gnu/java/security/key/dss/DSSPrivateKey.java,
+	jce/gnu/java/security/key/dss/DSSPublicKey.java,
+	jce/gnu/java/security/key/dss/FIPS186.java,
+	jce/gnu/java/security/key/rsa/GnuRSAKey.java,
+	jce/gnu/java/security/key/rsa/GnuRSAPrivateKey.java,
+	jce/gnu/java/security/key/rsa/GnuRSAPublicKey.java,
+	jce/gnu/java/security/key/rsa/RSAKeyPairGenerator.java,
+	jce/gnu/java/security/key/rsa/RSAKeyPairPKCS8Codec.java,
+	jce/gnu/java/security/key/rsa/RSAKeyPairRawCodec.java,
+	jce/gnu/java/security/key/rsa/RSAKeyPairX509Codec.java,
+	jce/gnu/java/security/prng/BasePRNG.java,
+	jce/gnu/java/security/prng/EntropySource.java,
+	jce/gnu/java/security/prng/IRandom.java,
+	jce/gnu/java/security/prng/LimitReachedException.java,
+	jce/gnu/java/security/prng/MDGenerator.java,
+	jce/gnu/java/security/prng/PRNGFactory.java,
+	jce/gnu/java/security/prng/RandomEvent.java,
+	jce/gnu/java/security/prng/RandomEventListener.java,
+	jce/gnu/java/security/provider/CollectionCertStoreImpl.java,
+	jce/gnu/java/security/provider/DefaultPolicy.java,
+	jce/gnu/java/security/provider/Gnu.java,
+	jce/gnu/java/security/provider/PKIXCertPathValidatorImpl.java,
+	jce/gnu/java/security/provider/X509CertificateFactory.java,
+	jce/gnu/java/security/provider/package.html,
+	jce/gnu/java/security/sig/BaseSignature.java,
+	jce/gnu/java/security/sig/ISignature.java,
+	jce/gnu/java/security/sig/ISignatureCodec.java,
+	jce/gnu/java/security/sig/SignatureCodecFactory.java,
+	jce/gnu/java/security/sig/SignatureFactory.java,
+	jce/gnu/java/security/sig/dss/DSSSignature.java,
+	jce/gnu/java/security/sig/dss/DSSSignatureRawCodec.java,
+	jce/gnu/java/security/sig/dss/DSSSignatureX509Codec.java,
+	jce/gnu/java/security/sig/rsa/EME_PKCS1_V1_5.java,
+	jce/gnu/java/security/sig/rsa/EMSA_PKCS1_V1_5.java,
+	jce/gnu/java/security/sig/rsa/EMSA_PSS.java,
+	jce/gnu/java/security/sig/rsa/RSA.java,
+	jce/gnu/java/security/sig/rsa/RSAPKCS1V1_5Signature.java,
+	jce/gnu/java/security/sig/rsa/RSAPKCS1V1_5SignatureRawCodec.java,
+	jce/gnu/java/security/sig/rsa/RSAPKCS1V1_5SignatureX509Codec.java,
+	jce/gnu/java/security/sig/rsa/RSAPSSSignature.java,
+	jce/gnu/java/security/sig/rsa/RSAPSSSignatureRawCodec.java,
+	jce/gnu/java/security/sig/rsa/RSASignatureFactory.java,
+	jce/gnu/java/security/util/ByteArray.java,
+	jce/gnu/java/security/util/ByteBufferOutputStream.java,
+	jce/gnu/java/security/util/DerUtil.java,
+	jce/gnu/java/security/util/ExpirableObject.java,
+	jce/gnu/java/security/util/FormatUtil.java,
+	jce/gnu/java/security/util/IntegerUtil.java,
+	jce/gnu/java/security/util/PRNG.java,
+	jce/gnu/java/security/util/Prime.java,
+	jce/gnu/java/security/util/Sequence.java,
+	jce/gnu/java/security/util/SimpleList.java,
+	jce/gnu/java/security/util/Util.java,
+	jce/gnu/java/security/util/package.html,
+	jce/gnu/java/security/x509/GnuPKIExtension.java,
+	jce/gnu/java/security/x509/PolicyNodeImpl.java,
+	jce/gnu/java/security/x509/X500DistinguishedName.java,
+	jce/gnu/java/security/x509/X509CRL.java,
+	jce/gnu/java/security/x509/X509CRLEntry.java,
+	jce/gnu/java/security/x509/X509CRLSelectorImpl.java,
+	jce/gnu/java/security/x509/X509CertPath.java,
+	jce/gnu/java/security/x509/X509CertSelectorImpl.java,
+	jce/gnu/java/security/x509/X509Certificate.java,
+	jce/gnu/java/security/x509/ext/AuthorityKeyIdentifier.java,
+	jce/gnu/java/security/x509/ext/BasicConstraints.java,
+	jce/gnu/java/security/x509/ext/CRLNumber.java,
+	jce/gnu/java/security/x509/ext/CertificatePolicies.java,
+	jce/gnu/java/security/x509/ext/ExtendedKeyUsage.java,
+	jce/gnu/java/security/x509/ext/Extension.java,
+	jce/gnu/java/security/x509/ext/GeneralName.java,
+	jce/gnu/java/security/x509/ext/GeneralNames.java,
+	jce/gnu/java/security/x509/ext/GeneralSubtree.java,
+	jce/gnu/java/security/x509/ext/IssuerAlternativeNames.java,
+	jce/gnu/java/security/x509/ext/KeyUsage.java,
+	jce/gnu/java/security/x509/ext/NameConstraints.java,
+	jce/gnu/java/security/x509/ext/PolicyConstraint.java,
+	jce/gnu/java/security/x509/ext/PolicyMappings.java,
+	jce/gnu/java/security/x509/ext/PrivateKeyUsagePeriod.java,
+	jce/gnu/java/security/x509/ext/ReasonCode.java,
+	jce/gnu/java/security/x509/ext/SubjectAlternativeNames.java,
+	jce/gnu/java/security/x509/ext/SubjectKeyIdentifier.java,
+	jce/gnu/java/security/x509/ext/package.html,
+	jce/gnu/java/security/x509/package.html,
+	jce/gnu/javax/crypto/RSACipherImpl.java,
+	jce/gnu/javax/crypto/assembly/Assembly.java,
+	jce/gnu/javax/crypto/assembly/Cascade.java,
+	jce/gnu/javax/crypto/assembly/CascadeStage.java,
+	jce/gnu/javax/crypto/assembly/CascadeTransformer.java,
+	jce/gnu/javax/crypto/assembly/DeflateTransformer.java,
+	jce/gnu/javax/crypto/assembly/Direction.java,
+	jce/gnu/javax/crypto/assembly/LoopbackTransformer.java,
+	jce/gnu/javax/crypto/assembly/ModeStage.java,
+	jce/gnu/javax/crypto/assembly/Operation.java,
+	jce/gnu/javax/crypto/assembly/PaddingTransformer.java,
+	jce/gnu/javax/crypto/assembly/Stage.java,
+	jce/gnu/javax/crypto/assembly/Transformer.java,
+	jce/gnu/javax/crypto/assembly/TransformerException.java,
+	jce/gnu/javax/crypto/cipher/Anubis.java,
+	jce/gnu/javax/crypto/cipher/BaseCipher.java,
+	jce/gnu/javax/crypto/cipher/Blowfish.java,
+	jce/gnu/javax/crypto/cipher/Cast5.java,
+	jce/gnu/javax/crypto/cipher/CipherFactory.java,
+	jce/gnu/javax/crypto/cipher/DES.java,
+	jce/gnu/javax/crypto/cipher/IBlockCipher.java,
+	jce/gnu/javax/crypto/cipher/IBlockCipherSpi.java,
+	jce/gnu/javax/crypto/cipher/Khazad.java,
+	jce/gnu/javax/crypto/cipher/NullCipher.java,
+	jce/gnu/javax/crypto/cipher/Rijndael.java,
+	jce/gnu/javax/crypto/cipher/Serpent.java,
+	jce/gnu/javax/crypto/cipher/Square.java,
+	jce/gnu/javax/crypto/cipher/TripleDES.java,
+	jce/gnu/javax/crypto/cipher/Twofish.java,
+	jce/gnu/javax/crypto/cipher/WeakKeyException.java,
+	jce/gnu/javax/crypto/jce/DiffieHellmanImpl.java,
+	jce/gnu/javax/crypto/jce/GnuCrypto.java,
+	jce/gnu/javax/crypto/jce/GnuSasl.java,
+	jce/gnu/javax/crypto/jce/PBKDF2SecretKeyFactory.java,
+	jce/gnu/javax/crypto/jce/cipher/AES128KeyWrapSpi.java,
+	jce/gnu/javax/crypto/jce/cipher/AES192KeyWrapSpi.java,
+	jce/gnu/javax/crypto/jce/cipher/AES256KeyWrapSpi.java,
+	jce/gnu/javax/crypto/jce/cipher/AESKeyWrapSpi.java,
+	jce/gnu/javax/crypto/jce/cipher/AESSpi.java,
+	jce/gnu/javax/crypto/jce/cipher/ARCFourSpi.java,
+	jce/gnu/javax/crypto/jce/cipher/AnubisSpi.java,
+	jce/gnu/javax/crypto/jce/cipher/BlowfishSpi.java,
+	jce/gnu/javax/crypto/jce/cipher/Cast5Spi.java,
+	jce/gnu/javax/crypto/jce/cipher/CipherAdapter.java,
+	jce/gnu/javax/crypto/jce/cipher/DESSpi.java,
+	jce/gnu/javax/crypto/jce/cipher/KeyWrappingAlgorithmAdapter.java,
+	jce/gnu/javax/crypto/jce/cipher/KhazadSpi.java,
+	jce/gnu/javax/crypto/jce/cipher/NullCipherSpi.java,
+	jce/gnu/javax/crypto/jce/cipher/PBES2.java,
+	jce/gnu/javax/crypto/jce/cipher/RijndaelSpi.java,
+	jce/gnu/javax/crypto/jce/cipher/SerpentSpi.java,
+	jce/gnu/javax/crypto/jce/cipher/SquareSpi.java,
+	jce/gnu/javax/crypto/jce/cipher/TripleDESKeyWrapSpi.java,
+	jce/gnu/javax/crypto/jce/cipher/TripleDESSpi.java,
+	jce/gnu/javax/crypto/jce/cipher/TwofishSpi.java,
+	jce/gnu/javax/crypto/jce/key/AnubisKeyGeneratorImpl.java,
+	jce/gnu/javax/crypto/jce/key/AnubisSecretKeyFactoryImpl.java,
+	jce/gnu/javax/crypto/jce/key/BlowfishKeyGeneratorImpl.java,
+	jce/gnu/javax/crypto/jce/key/BlowfishSecretKeyFactoryImpl.java,
+	jce/gnu/javax/crypto/jce/key/Cast5KeyGeneratorImpl.java,
+	jce/gnu/javax/crypto/jce/key/Cast5SecretKeyFactoryImpl.java,
+	jce/gnu/javax/crypto/jce/key/DESKeyGeneratorImpl.java,
+	jce/gnu/javax/crypto/jce/key/DESSecretKeyFactoryImpl.java,
+	jce/gnu/javax/crypto/jce/key/DESedeSecretKeyFactoryImpl.java,
+	jce/gnu/javax/crypto/jce/key/KhazadKeyGeneratorImpl.java,
+	jce/gnu/javax/crypto/jce/key/KhazadSecretKeyFactoryImpl.java,
+	jce/gnu/javax/crypto/jce/key/RijndaelKeyGeneratorImpl.java,
+	jce/gnu/javax/crypto/jce/key/RijndaelSecretKeyFactoryImpl.java,
+	jce/gnu/javax/crypto/jce/key/SecretKeyFactoryImpl.java,
+	jce/gnu/javax/crypto/jce/key/SecretKeyGeneratorImpl.java,
+	jce/gnu/javax/crypto/jce/key/SerpentKeyGeneratorImpl.java,
+	jce/gnu/javax/crypto/jce/key/SerpentSecretKeyFactoryImpl.java,
+	jce/gnu/javax/crypto/jce/key/SquareKeyGeneratorImpl.java,
+	jce/gnu/javax/crypto/jce/key/SquareSecretKeyFactoryImpl.java,
+	jce/gnu/javax/crypto/jce/key/TripleDESKeyGeneratorImpl.java,
+	jce/gnu/javax/crypto/jce/key/TwofishKeyGeneratorImpl.java,
+	jce/gnu/javax/crypto/jce/key/TwofishSecretKeyFactoryImpl.java,
+	jce/gnu/javax/crypto/jce/keyring/GnuKeyring.java,
+	jce/gnu/javax/crypto/jce/mac/HMacHavalSpi.java,
+	jce/gnu/javax/crypto/jce/mac/HMacMD2Spi.java,
+	jce/gnu/javax/crypto/jce/mac/HMacMD4Spi.java,
+	jce/gnu/javax/crypto/jce/mac/HMacMD5Spi.java,
+	jce/gnu/javax/crypto/jce/mac/HMacRipeMD128Spi.java,
+	jce/gnu/javax/crypto/jce/mac/HMacRipeMD160Spi.java,
+	jce/gnu/javax/crypto/jce/mac/HMacSHA160Spi.java,
+	jce/gnu/javax/crypto/jce/mac/HMacSHA256Spi.java,
+	jce/gnu/javax/crypto/jce/mac/HMacSHA384Spi.java,
+	jce/gnu/javax/crypto/jce/mac/HMacSHA512Spi.java,
+	jce/gnu/javax/crypto/jce/mac/HMacTigerSpi.java,
+	jce/gnu/javax/crypto/jce/mac/HMacWhirlpoolSpi.java,
+	jce/gnu/javax/crypto/jce/mac/MacAdapter.java,
+	jce/gnu/javax/crypto/jce/mac/OMacAnubisImpl.java,
+	jce/gnu/javax/crypto/jce/mac/OMacBlowfishImpl.java,
+	jce/gnu/javax/crypto/jce/mac/OMacCast5Impl.java,
+	jce/gnu/javax/crypto/jce/mac/OMacDESImpl.java,
+	jce/gnu/javax/crypto/jce/mac/OMacImpl.java,
+	jce/gnu/javax/crypto/jce/mac/OMacKhazadImpl.java,
+	jce/gnu/javax/crypto/jce/mac/OMacRijndaelImpl.java,
+	jce/gnu/javax/crypto/jce/mac/OMacSerpentImpl.java,
+	jce/gnu/javax/crypto/jce/mac/OMacSquareImpl.java,
+	jce/gnu/javax/crypto/jce/mac/OMacTripleDESImpl.java,
+	jce/gnu/javax/crypto/jce/mac/OMacTwofishImpl.java,
+	jce/gnu/javax/crypto/jce/mac/TMMH16Spi.java,
+	jce/gnu/javax/crypto/jce/mac/UHash32Spi.java,
+	jce/gnu/javax/crypto/jce/mac/UMac32Spi.java,
+	jce/gnu/javax/crypto/jce/params/BlockCipherParameters.java,
+	jce/gnu/javax/crypto/jce/params/DEREncodingException.java,
+	jce/gnu/javax/crypto/jce/params/DERReader.java,
+	jce/gnu/javax/crypto/jce/params/DERWriter.java,
+	jce/gnu/javax/crypto/jce/prng/ARCFourRandomSpi.java,
+	jce/gnu/javax/crypto/jce/prng/CSPRNGSpi.java,
+	jce/gnu/javax/crypto/jce/prng/FortunaImpl.java,
+	jce/gnu/javax/crypto/jce/prng/ICMRandomSpi.java,
+	jce/gnu/javax/crypto/jce/prng/UMacRandomSpi.java,
+	jce/gnu/javax/crypto/jce/sig/DHKeyFactory.java,
+	jce/gnu/javax/crypto/jce/sig/DHKeyPairGeneratorSpi.java,
+	jce/gnu/javax/crypto/jce/sig/DHParameters.java,
+	jce/gnu/javax/crypto/jce/sig/DHParametersGenerator.java,
+	jce/gnu/javax/crypto/jce/spec/BlockCipherParameterSpec.java,
+	jce/gnu/javax/crypto/jce/spec/TMMHParameterSpec.java,
+	jce/gnu/javax/crypto/jce/spec/UMac32ParameterSpec.java,
+	jce/gnu/javax/crypto/key/BaseKeyAgreementParty.java,
+	jce/gnu/javax/crypto/key/GnuPBEKey.java,
+	jce/gnu/javax/crypto/key/GnuSecretKey.java,
+	jce/gnu/javax/crypto/key/IKeyAgreementParty.java,
+	jce/gnu/javax/crypto/key/IncomingMessage.java,
+	jce/gnu/javax/crypto/key/KeyAgreementException.java,
+	jce/gnu/javax/crypto/key/KeyAgreementFactory.java,
+	jce/gnu/javax/crypto/key/OutgoingMessage.java,
+	jce/gnu/javax/crypto/key/dh/DHKeyPairPKCS8Codec.java,
+	jce/gnu/javax/crypto/key/dh/DHKeyPairRawCodec.java,
+	jce/gnu/javax/crypto/key/dh/DHKeyPairX509Codec.java,
+	jce/gnu/javax/crypto/key/dh/DiffieHellmanKeyAgreement.java,
+	jce/gnu/javax/crypto/key/dh/DiffieHellmanReceiver.java,
+	jce/gnu/javax/crypto/key/dh/DiffieHellmanSender.java,
+	jce/gnu/javax/crypto/key/dh/ElGamalKeyAgreement.java,
+	jce/gnu/javax/crypto/key/dh/ElGamalReceiver.java,
+	jce/gnu/javax/crypto/key/dh/ElGamalSender.java,
+	jce/gnu/javax/crypto/key/dh/GnuDHKey.java,
+	jce/gnu/javax/crypto/key/dh/GnuDHKeyPairGenerator.java,
+	jce/gnu/javax/crypto/key/dh/GnuDHPrivateKey.java,
+	jce/gnu/javax/crypto/key/dh/GnuDHPublicKey.java,
+	jce/gnu/javax/crypto/key/dh/RFC2631.java,
+	jce/gnu/javax/crypto/key/srp6/SRP6Host.java,
+	jce/gnu/javax/crypto/key/srp6/SRP6KeyAgreement.java,
+	jce/gnu/javax/crypto/key/srp6/SRP6SaslClient.java,
+	jce/gnu/javax/crypto/key/srp6/SRP6SaslServer.java,
+	jce/gnu/javax/crypto/key/srp6/SRP6TLSClient.java,
+	jce/gnu/javax/crypto/key/srp6/SRP6TLSServer.java,
+	jce/gnu/javax/crypto/key/srp6/SRP6User.java,
+	jce/gnu/javax/crypto/key/srp6/SRPAlgorithm.java,
+	jce/gnu/javax/crypto/key/srp6/SRPKey.java,
+	jce/gnu/javax/crypto/key/srp6/SRPKeyPairGenerator.java,
+	jce/gnu/javax/crypto/key/srp6/SRPKeyPairRawCodec.java,
+	jce/gnu/javax/crypto/key/srp6/SRPPrivateKey.java,
+	jce/gnu/javax/crypto/key/srp6/SRPPublicKey.java,
+	jce/gnu/javax/crypto/keyring/AuthenticatedEntry.java,
+	jce/gnu/javax/crypto/keyring/BaseKeyring.java,
+	jce/gnu/javax/crypto/keyring/BinaryDataEntry.java,
+	jce/gnu/javax/crypto/keyring/CertPathEntry.java,
+	jce/gnu/javax/crypto/keyring/CertificateEntry.java,
+	jce/gnu/javax/crypto/keyring/CompressedEntry.java,
+	jce/gnu/javax/crypto/keyring/EncryptedEntry.java,
+	jce/gnu/javax/crypto/keyring/Entry.java,
+	jce/gnu/javax/crypto/keyring/EnvelopeEntry.java,
+	jce/gnu/javax/crypto/keyring/GnuPrivateKeyring.java,
+	jce/gnu/javax/crypto/keyring/GnuPublicKeyring.java,
+	jce/gnu/javax/crypto/keyring/IKeyring.java,
+	jce/gnu/javax/crypto/keyring/IPrivateKeyring.java,
+	jce/gnu/javax/crypto/keyring/IPublicKeyring.java,
+	jce/gnu/javax/crypto/keyring/MalformedKeyringException.java,
+	jce/gnu/javax/crypto/keyring/MaskableEnvelopeEntry.java,
+	jce/gnu/javax/crypto/keyring/MeteredInputStream.java,
+	jce/gnu/javax/crypto/keyring/PasswordAuthenticatedEntry.java,
+	jce/gnu/javax/crypto/keyring/PasswordEncryptedEntry.java,
+	jce/gnu/javax/crypto/keyring/PasswordProtectedEntry.java,
+	jce/gnu/javax/crypto/keyring/PrimitiveEntry.java,
+	jce/gnu/javax/crypto/keyring/PrivateKeyEntry.java,
+	jce/gnu/javax/crypto/keyring/Properties.java,
+	jce/gnu/javax/crypto/keyring/PublicKeyEntry.java,
+	jce/gnu/javax/crypto/kwa/AESKeyWrap.java,
+	jce/gnu/javax/crypto/kwa/BaseKeyWrappingAlgorithm.java,
+	jce/gnu/javax/crypto/kwa/IKeyWrappingAlgorithm.java,
+	jce/gnu/javax/crypto/kwa/KeyUnwrappingException.java,
+	jce/gnu/javax/crypto/kwa/KeyWrappingAlgorithmFactory.java,
+	jce/gnu/javax/crypto/kwa/TripleDESKeyWrap.java,
+	jce/gnu/javax/crypto/mac/BaseMac.java,
+	jce/gnu/javax/crypto/mac/HMac.java,
+	jce/gnu/javax/crypto/mac/HMacFactory.java,
+	jce/gnu/javax/crypto/mac/IMac.java,
+	jce/gnu/javax/crypto/mac/MacFactory.java,
+	jce/gnu/javax/crypto/mac/MacInputStream.java,
+	jce/gnu/javax/crypto/mac/MacOutputStream.java,
+	jce/gnu/javax/crypto/mac/OMAC.java,
+	jce/gnu/javax/crypto/mac/TMMH16.java,
+	jce/gnu/javax/crypto/mac/UHash32.java,
+	jce/gnu/javax/crypto/mac/UMac32.java,
+	jce/gnu/javax/crypto/mode/BaseMode.java,
+	jce/gnu/javax/crypto/mode/CBC.java,
+	jce/gnu/javax/crypto/mode/CFB.java,
+	jce/gnu/javax/crypto/mode/CTR.java,
+	jce/gnu/javax/crypto/mode/EAX.java,
+	jce/gnu/javax/crypto/mode/ECB.java,
+	jce/gnu/javax/crypto/mode/IAuthenticatedMode.java,
+	jce/gnu/javax/crypto/mode/ICM.java,
+	jce/gnu/javax/crypto/mode/IMode.java,
+	jce/gnu/javax/crypto/mode/ModeFactory.java,
+	jce/gnu/javax/crypto/mode/OFB.java,
+	jce/gnu/javax/crypto/pad/BasePad.java,
+	jce/gnu/javax/crypto/pad/IPad.java,
+	jce/gnu/javax/crypto/pad/ISO10126.java,
+	jce/gnu/javax/crypto/pad/PKCS1_V1_5.java,
+	jce/gnu/javax/crypto/pad/PKCS7.java,
+	jce/gnu/javax/crypto/pad/PadFactory.java,
+	jce/gnu/javax/crypto/pad/SSL3.java,
+	jce/gnu/javax/crypto/pad/TBC.java,
+	jce/gnu/javax/crypto/pad/TLS1.java,
+	jce/gnu/javax/crypto/pad/WrongPaddingException.java,
+	jce/gnu/javax/crypto/prng/ARCFour.java,
+	jce/gnu/javax/crypto/prng/CSPRNG.java,
+	jce/gnu/javax/crypto/prng/Fortuna.java,
+	jce/gnu/javax/crypto/prng/ICMGenerator.java,
+	jce/gnu/javax/crypto/prng/IPBE.java,
+	jce/gnu/javax/crypto/prng/PBKDF2.java,
+	jce/gnu/javax/crypto/prng/PRNGFactory.java,
+	jce/gnu/javax/crypto/prng/UMacGenerator.java,
+	jce/gnu/javax/crypto/sasl/AuthInfo.java,
+	jce/gnu/javax/crypto/sasl/AuthInfoProviderFactory.java,
+	jce/gnu/javax/crypto/sasl/ClientFactory.java,
+	jce/gnu/javax/crypto/sasl/ClientMechanism.java,
+	jce/gnu/javax/crypto/sasl/ConfidentialityException.java,
+	jce/gnu/javax/crypto/sasl/IAuthInfoProvider.java,
+	jce/gnu/javax/crypto/sasl/IAuthInfoProviderFactory.java,
+	jce/gnu/javax/crypto/sasl/IllegalMechanismStateException.java,
+	jce/gnu/javax/crypto/sasl/InputBuffer.java,
+	jce/gnu/javax/crypto/sasl/IntegrityException.java,
+	jce/gnu/javax/crypto/sasl/NoSuchMechanismException.java,
+	jce/gnu/javax/crypto/sasl/NoSuchUserException.java,
+	jce/gnu/javax/crypto/sasl/OutputBuffer.java,
+	jce/gnu/javax/crypto/sasl/SaslEncodingException.java,
+	jce/gnu/javax/crypto/sasl/SaslInputStream.java,
+	jce/gnu/javax/crypto/sasl/SaslOutputStream.java,
+	jce/gnu/javax/crypto/sasl/SaslUtil.java,
+	jce/gnu/javax/crypto/sasl/ServerFactory.java,
+	jce/gnu/javax/crypto/sasl/ServerMechanism.java,
+	jce/gnu/javax/crypto/sasl/UserAlreadyExistsException.java,
+	jce/gnu/javax/crypto/sasl/anonymous/AnonymousClient.java,
+	jce/gnu/javax/crypto/sasl/anonymous/AnonymousServer.java,
+	jce/gnu/javax/crypto/sasl/anonymous/AnonymousUtil.java,
+	jce/gnu/javax/crypto/sasl/crammd5/CramMD5AuthInfoProvider.java,
+	jce/gnu/javax/crypto/sasl/crammd5/CramMD5Client.java,
+	jce/gnu/javax/crypto/sasl/crammd5/CramMD5Registry.java,
+	jce/gnu/javax/crypto/sasl/crammd5/CramMD5Server.java,
+	jce/gnu/javax/crypto/sasl/crammd5/CramMD5Util.java,
+	jce/gnu/javax/crypto/sasl/crammd5/PasswordFile.java,
+	jce/gnu/javax/crypto/sasl/plain/PasswordFile.java,
+	jce/gnu/javax/crypto/sasl/plain/PlainAuthInfoProvider.java,
+	jce/gnu/javax/crypto/sasl/plain/PlainClient.java,
+	jce/gnu/javax/crypto/sasl/plain/PlainRegistry.java,
+	jce/gnu/javax/crypto/sasl/plain/PlainServer.java,
+	jce/gnu/javax/crypto/sasl/srp/CALG.java,
+	jce/gnu/javax/crypto/sasl/srp/ClientStore.java,
+	jce/gnu/javax/crypto/sasl/srp/IALG.java,
+	jce/gnu/javax/crypto/sasl/srp/KDF.java,
+	jce/gnu/javax/crypto/sasl/srp/PasswordFile.java,
+	jce/gnu/javax/crypto/sasl/srp/SRP.java,
+	jce/gnu/javax/crypto/sasl/srp/SRPAuthInfoProvider.java,
+	jce/gnu/javax/crypto/sasl/srp/SRPClient.java,
+	jce/gnu/javax/crypto/sasl/srp/SRPRegistry.java,
+	jce/gnu/javax/crypto/sasl/srp/SRPServer.java,
+	jce/gnu/javax/crypto/sasl/srp/SecurityContext.java,
+	jce/gnu/javax/crypto/sasl/srp/ServerStore.java,
+	jce/gnu/javax/crypto/sasl/srp/StoreEntry.java,
+	jce/gnu/javax/security/auth/Password.java,
+	jce/gnu/javax/security/auth/callback/AbstractCallbackHandler.java,
+	jce/gnu/javax/security/auth/callback/CertificateCallback.java,
+	jce/gnu/javax/security/auth/callback/ConsoleCallbackHandler.java,
+	jce/gnu/javax/security/auth/callback/DefaultCallbackHandler.java,
+	jce/gnu/javax/security/auth/callback/GnuCallbacks.java,
+	jce/gnu/javax/security/auth/login/ConfigFileParser.java,
+	jce/gnu/javax/security/auth/login/ConfigFileTokenizer.java,
+	jce/gnu/javax/security/auth/login/GnuConfiguration.java,
+	lib/rt/gnu/java/security/provider/Gnu.java,
+	rt/gnu/java/io/Base64InputStream.java,
+	rt/gnu/java/security/provider/Gnu.java,
+	rt/java/util/Timer.java,
+	rt/javax/security/auth/callback/ChoiceCallback.java,
+	rt/javax/security/auth/callback/ConfirmationCallback.java,
+	rt/javax/security/auth/callback/LanguageCallback.java,
+	rt/javax/security/auth/callback/NameCallback.java,
+	rt/javax/security/auth/callback/TextInputCallback.java,
+	rt/javax/security/auth/callback/TextOutputCallback.java,
+	rt/javax/security/sasl/AuthenticationException.java,
+	rt/javax/security/sasl/Sasl.java,
+	rt/javax/security/sasl/SaslClient.java,
+	rt/javax/security/sasl/SaslClientFactory.java,
+	rt/javax/security/sasl/SaslException.java,
+	rt/javax/security/sasl/SaslServer.java,
+	rt/javax/security/sasl/SaslServerFactory.java: New files
+
+2007-06-26  Andrew Haley  <aph@redhat.com>
+
+	* Makefile (ICEDTEA_PATCHES): Add icedtea-debuginfo.patch.
+	patches/icedtea-debuginfo.patch: New file.
+
+2007-06-25  Kyle Galloway  <kgallowa@redhat.com>
+
+	* rt/java/awt/color/ICC_Profile.java(isRGBProfile): Add tags parameter to
+	allow tags to be checked by this method in Java code.
+	(isGreyProfile): Ditto.
+	(createTags): New method.
+	(getInstance): Call createTags to create tags then pass to isXXXXProfile
+	functions.
+
+2007-06-25  Francis Kung  <fkung@redhat.com>
+
+	* patches/icedtea-graphics.patch: Enable compilation of
+	sun.dc.DuctusRenderingEngine.
+	* rt/sun/dc/pr/PathStroker.java: Add constructor.
+	* rt/sun/dc/pr/Rasterizer.java: Implement AATilGenerator interface
+	and stub necessary methods.
+
+2007-06-25  Thomas Fitzsimmons  <fitzsim@redhat.com>
+
+	* Makefile.am (OPENJDK_VERSION): New variable.
+	(OPENJDK_DATE): Likewise.
+	(OPENJDK_SRC_ZIP): Use new variables.
+	* Makefile.in: Regenerate.
+
+2007-06-25  Francis Kung  <fkung@redhat.com>
+
+	* Makefile.am: Upgrade to OpenJDK b14.
+	* generated/sun/util/CoreResourceBundleControl.java: Regenerated.
+	* patches/icedtea-copy-plugs.patch: Update line numbers for b14.
+	* patches/icedtea-ports.patch: Likewise.
+	* patches/icedtea-speed.patch: Likewise.
+	* patches/icedtea-gcc.patch: New file.
+	* Makefile.in: Regenerated.
+
+2007-06-25  Kyle Galloway <kgallowa@redhat.com>
+
+	* acinclude.m4: Autodetect jars and ecj on different distributions.
+	* Makefile.am: Fix for case where javac is used.
+	* Makefile.in: Regenerated.
+	* configure: Ditto.
+
+2007-06-22  Thomas Fitzsimmons  <fitzsim@redhat.com>
+
+	* .hgignore: Update.
+	* patches/icedtea-copy-plugs.patch: Remove SnmpSession sections.
+	* rt/com/sun/jmx/snmp/SnmpSession.java: Move to...
+	* rt/com/sun/jmx/snmp/daemon/SnmpSession.java: New file.
+
+2007-06-22  Francis Kung  <fkung@redhat.com>
+
+	* patches/icedtea-graphics.patch: Remove debug messages.
+	* rt/java/awt/color/ICC_Profile.java: Likewise.
+
+2007-06-22  Francis Kung  <fkung@redhat.com>
+
+	* patches/icedtea-ecj-bootstrap.patch: Patch ToBin.java file.
+	* patches/icedtea-graphics.patch: Stub out Tracker and Stealer
+	code in sun.awt.image.SunWritableRaster.
+	* rt/java/awt/color/ICC_Profile.java: Modify for use with Sun's
+	pluggable colour management and LittleCMS.
+	* rt/java/awt/image/Raster.java: Create Sun-specific Rasters.
+	* rt/java/awt/image/WritableRaster.java: Likewise.
+
+2007-06-22  Francis Kung  <fkung@redhat.com>
+
+	* Makefile.in: Regnerated.
+
+2007-06-22  Francis Kung  <fkung@redhat.com>
+
+	* Makefile.am: Specify default openjdk zip file.
+	* acinclude.m4: Remove openjdk zip file name constant.
+	* Makefile.in: Regenerated.
+	* configure: Likewise.
+
+2007-06-22  Gary Benson  <gbenson@redhat.com>
+
+	* icedtea-ports.patch: Update.
+
+2007-06-21  Lillian Angel  <langel@redhat.com>
+
+	* patches/icedtea-ecj-bootstrap.patch: Edited xawt patch for ecj
+	3.3.0.
+
+2007-06-21  Kyle Galloway  <kgallowa@redhat.com>
+
+	* acinclude.m4: Added ENABLE_CCACHE option to enable ccache unless
+	it is disabled by --disable-ccache, or cannot be found.
+	* configure.ac: Use ENABLE_CCACHE macro.
+	* Makefile.am: Added conditional ccache patch to ICEDTEA_PATCHES.
+	* patches/icedtea-ccache.patch: New file.
+	* configure: Regenerated.
+	* Makefile.in: Ditto.
+
+2007-06-20  Lillian Angel  <langel@redhat.com>
+
+	* .hgignore: Updated.
+
+2007-06-20  Francis Kung  <fkung@redhat.com>
+
+	* Makefile.am: Clean up fast-build option.
+	* acinclude.m4: Likewise.
+	* patches/icedtea-speed.patch: Add -g option.
+	* Makefile.in: Regenerated.
+	* configure: Likewise.
+
+2007-06-20  Lillian Angel  <langel@redhat.com>
+	
+	* patches/icedtea-copy-plugs.patch: Fixed paths.
+
+2007-06-20  Lillian Angel  <langel@redhat.com>
+
+	* Makefile.am: Added file to copy.
+	* Makefile.in: Regenerated.
+	* patches/icedtea-copy-plugs.patch: Added MetaData.java patch for
+	ConstructorsProperties cast.
+	* rt/com/sun/jmx/snmp/agent/AcmChecker.java: removed file.
+
+2007-06-20  Kyle Galloway  <kgallowa@redhat.com>
+
+	* Makefile.am: Only generate sources if necessary.
+	* Makefile.in: Regnerated.
+
+2007-06-19  Thomas Fitzsimmons  <fitzsim@redhat.com>
+
+	* configure.ac: Bump version to 1.1.
+	* configure: Regenerate.
+
+2007-06-19  Francis Kung  <fkung@redhat.com>
+
+	* Makefile.in: Regenerated.
+	* patches/icedtea-speed.patch: Update for hotspot build.
+
+2007-06-18  Francis Kung  <fkung@redhat.com>
+
+	* Makefile.am: Apply icedtea-speed patch during fast build.
+	* acinclude.m4: Add fast build option.
+	* configure.ac: Likewise.
+	* patches/icedtea-speed.patch: New file.
+	* Makefile.in: Regenerated.
+	* configure: Likewise.
+
+2007-06-18  Lillian Angel  <langel@redhat.com>
+
+	* Makefile.am: Removed OPENJDK_SRC_ZIP.
+	* Makefile.in: Regenerated.
+	* acinclude.m4: Added with-openjdk-src-zip option
+	* configure: Regenerated.
+	* configure.ac: Added new function.
+
+2007-06-18  Thomas Fitzsimmons  <fitzsim@redhat.com>
+
+	* Makefile.am (ICEDTEA_PATCHES): Add
+	icedtea-text-relocations.patch.
+	* Makefile.in: Regenerate.
+	* patches/icedtea-text-relocations.patch: New file.
+
+	* Makefile.am (patch, unpatch, patchecj, unpatchecj): Show
+	--dry-run output.
+	* Makefile.in: Regenerate.
+
+	* patches/icedtea-ports.patch: Update for b13.
+
+2007-06-18  Francis Kung  <fkung@redhat.com>
+
+	* patches/icedtea-ecj-bootstrap.patch: Fix typo.
+
+2007-06-18  Francis Kung  <fkung@redhat.com>
+
+	* patches/icedtea-ecj-bootstrap.patch: Revert changes from 2007-06-15.
+
+2007-06-15  Lillian Angel  <langel@redhat.com>
+
+	* patches/icedtea-ports.patch: Removed ChangeLog patch.
+
+2007-06-15  Francis Kung  <fkung@redhat.com>
+
+	* Makefile.am: Update patch locations.
+	* Makefile.in: Regenerated.
+	* icedtea-copy-plugs.patch: Moved to...
+	* patches/icedtea-copy-plugs.patch: Here.
+	* icedtea-ecj-bootstrap.patch: Moved to...
+	* patches/icedtea-ecj-bootstrap.patch: Here, and updated icon
+	generation.
+	* icedtea-lesstif: Moved to...
+	* patches/icedtea-lesstif.patch: Here.
+	* icedtea-ports.patch: Moved to...
+	* patches/icedtea-ports.patch: Here.
+	* icedtea-version.patch: Moved to...
+	* patches/icedtea-version.patch: Here.
+	* patches/icedtea-graphics.patch: New file.
+
+2007-06-14  Lillian Angel  <langel@redhat.com>
+
+	* icedtea-version.patch: Changes LAUNCHER_NAME to "java" instead of
+	"openjdk". Also, removes -MILESTONE from RELEASE string. "java 
+	-version" now outputs the expected string.
+	* Makefile.am: Added new patch to list.
+
+2007-06-14  Kyle Galloway  <kgallowa@redhat.com>
+
+	* javac.in: Add -bootclasspath option to supply libgcj-x.x.x.jar to
+	ecj by default.
+
+2007-06-10  Thomas Fitzsimmons  <fitzsim@redhat.com>
+
+	* Makefile.am (OPENJDK_URL): Update for b13 bundle.
+	(OPENJDK_SRC_ZIP): Likewise.
+	(OPENJDK_MD5SUM): Likewise.
+	(ICEDTEA_COPY_DIRS): Add rt/com/sun/tools and
+	rt/com/sun/tools/jdi.
+	(ICEDTEA_COPY_SRC): Add com/sun/tools/jdi/LinkedHashMap.java.
+	* Makefile.in: Regenerate.
+	* .hgignore: Add rt/com/sun/tools/jdi/LinkedHashMap.java.
+
+2007-06-08  Gary Benson  <gbenson@redhat.com>
+
+	* icedtea-ports.patch (control/make/hotspot-rules.gmk):
+	Correctly recognize ix86.
+
+2007-06-08  Gary Benson  <gbenson@redhat.com>
+
+	* acinclude.m4 (SET_ARCH_DIRS):
+	Deal with platforms other than ix86 and x86_64.
+	* configure: Regenerated.
+
+	* icedtea-ports.patch: New file.
+	* Makefile.am (ICEDTEA_PATCHES): Add the above.
+	* Makefile.in: Regenerated.
+
+2007-06-07  Francis Kung  <fkung@redhat.com>
+
+	* acinclude.m4: Add explicit xalan/xerces checks.
+	* configure.ac: Likewise.
+	* Makefile.am: Use explicit xalan/xerces locations;
+	use dummy file when creating empty jars.
+	* Makefile.in: Regenerated.
+	* configure: Likewise.
+
+2007-06-07  Francis Kung  <fkung@redhat.com>
+
+	* acinclude.m4: Cleaned up header checks.
+	* configure: Regenerated.
+
+2007-06-07  Lillian Angel  <langel@redhat.com>
+
+	* .hgignore: New file.
+
+2007-06-07  Thomas Fitzsimmons  <fitzsim@redhat.com>
+
+	* README: Fix typo.
+
+2007-06-07  Andrew Haley  <aph@redhat.com>
+
+	* Makefile.am (ICEDTEA_ENV): Unset LD_LIBRARY_PATH.
+
