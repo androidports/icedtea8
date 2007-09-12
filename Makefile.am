@@ -316,7 +316,7 @@ stamps/bootstrap-directory-ecj.stamp:
 	touch stamps/bootstrap-directory-ecj.stamp
 
 clean-bootstrap-directory-ecj:
-	rm -f stamps/ootstrap-directory-ecj.stamp
+	rm -f stamps/bootstrap-directory-ecj.stamp
 	rm -rf bootstrap/ecj
 
 # bootstrap/jdk1.6.0 to bootstrap/ecj symlink.
