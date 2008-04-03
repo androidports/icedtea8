@@ -1,0 +1,135 @@
+diff -ru openjdk.orig/hotspot/src/share/vm/runtime/mutex.hpp openjdk/hotspot/src/share/vm/runtime/mutex.hpp
+--- openjdk.orig/hotspot/src/share/vm/runtime/mutex.hpp	2007-11-08 11:34:54.000000000 +0000
++++ openjdk/hotspot/src/share/vm/runtime/mutex.hpp	2007-11-08 11:36:15.000000000 +0000
+@@ -61,18 +61,10 @@ union SplitWord {   // full-word with se
+ } ;
+ 
+ // Endian-ness ... index of least-significant byte in SplitWord.Bytes[]
+-#ifdef AMD64        // little
++#ifdef VM_LITTLE_ENDIAN
+  #define _LSBINDEX 0
+ #else
+-#if IA32            // little
+- #define _LSBINDEX 0
+-#else
+-#ifdef SPARC        // big
+  #define _LSBINDEX (sizeof(intptr_t)-1)
+-#else
+- #error "unknown architecture"
+-#endif
+-#endif
+ #endif
+ 
+ class ParkEvent ;
+diff -ru openjdk/hotspot/src/os/linux/vm/os_linux.cpp openjdk/hotspot/src/os/linux/vm/os_linux.cpp
+--- openjdk/hotspot/src/os/linux/vm/os_linux.cpp	2008-03-13 13:57:48.000000000 +0000
++++ openjdk/hotspot/src/os/linux/vm/os_linux.cpp	2008-03-13 13:37:14.000000000 +0000
+@@ -159,7 +159,9 @@
+ #endif
+ 
+ // Cpu architecture string
+-#if   defined(IA64)
++#if   defined(ZERO)
++static char cpu_arch[] = ZERO_LIBARCH;
++#elif defined(IA64)
+ static char cpu_arch[] = "ia64";
+ #elif defined(IA32)
+ static char cpu_arch[] = "i386";
+@@ -2354,7 +2356,9 @@
+     // format has been changed), we'll use the largest page size supported by
+     // the processor.
+ 
++#ifndef ZERO
+     _large_page_size = IA32_ONLY(4 * M) AMD64_ONLY(2 * M) IA64_ONLY(256 * M) SPARC_ONLY(4 * M);
++#endif // ZERO
+ 
+     FILE *fp = fopen("/proc/meminfo", "r");
+     if (fp) {
+diff -ru openjdk/hotspot/src/share/vm/runtime/icache.cpp openjdk/hotspot/src/share/vm/runtime/icache.cpp
+--- openjdk/hotspot/src/share/vm/runtime/icache.cpp	2007-10-30 08:46:35.000000000 +0000
++++ openjdk/hotspot/src/share/vm/runtime/icache.cpp	2008-01-21 15:18:48.000000000 +0000
+@@ -78,6 +78,7 @@
+ }
+ 
+ void AbstractICache::invalidate_range(address start, int nbytes) {
++#ifndef ZERO
+   static bool firstTime = true;
+   if (firstTime) {
+     guarantee(start == CAST_FROM_FN_PTR(address, _flush_icache_stub),
+@@ -97,6 +98,7 @@
+   }
+   call_flush_stub(start, round_to(nbytes, ICache::line_size) >>
+                          ICache::log2_line_size);
++#endif // ZERO
+ }
+ 
+ // For init.cpp
+diff -ru openjdk/hotspot/src/share/vm/runtime/jniHandles.hpp openjdk/hotspot/src/share/vm/runtime/jniHandles.hpp
+--- openjdk/hotspot/src/share/vm/runtime/jniHandles.hpp	2007-10-30 08:46:35.000000000 +0000
++++ openjdk/hotspot/src/share/vm/runtime/jniHandles.hpp	2008-01-24 13:26:36.000000000 +0000
+@@ -126,9 +126,17 @@
+   // Fill block with bad_handle values
+   void zap();
+ 
++#ifdef ZERO
++ protected:
++  friend class CppInterpreter;
++#endif // ZERO
++
+   // No more handles in the both the current and following blocks
+   void clear() { _top = 0; }
+ 
++#ifdef ZERO
++ private:
++#endif // ZERO
+   // Free list computation
+   void rebuild_free_list();
+ 
+diff -ru openjdk/hotspot/src/share/vm/utilities/vmError.cpp openjdk/hotspot/src/share/vm/utilities/vmError.cpp
+--- openjdk/hotspot/src/share/vm/utilities/vmError.cpp	2008-01-24 13:17:27.000000000 +0000
++++ openjdk/hotspot/src/share/vm/utilities/vmError.cpp	2008-01-24 13:21:20.000000000 +0000
+@@ -25,6 +25,11 @@
+ # include "incls/_precompiled.incl"
+ # include "incls/_vmError.cpp.incl"
+ 
++# ifdef ZERO
++# include <interpreterRuntime.hpp>
++# include <stackPrinter_zero.hpp>
++# endif //
++
+ // List of environment variables that should be reported in error log file.
+ const char *env_list[] = {
+   // All platforms
+@@ -392,6 +397,7 @@
+        st->cr();
+      }
+ 
++#ifndef ZERO
+   STEP(110, "(printing stack bounds)" )
+ 
+      if (_verbose) {
+@@ -449,11 +455,16 @@
+           st->cr();
+        }
+      }
++#endif // !ZERO
+ 
+   STEP(130, "(printing Java stack)" )
+ 
+      if (_verbose && _thread && _thread->is_Java_thread()) {
+        JavaThread* jt = (JavaThread*)_thread;
++#ifdef ZERO
++       st->print_cr("Java stack:");
++       JavaStackPrinter(st, buf, sizeof(buf)).print(jt);
++#else
+        if (jt->has_last_Java_frame()) {
+          st->print_cr("Java frames: (J=compiled Java code, j=interpreted, Vv=VM code)");
+          for(StackFrameStream sfs(jt); !sfs.is_done(); sfs.next()) {
+@@ -461,6 +472,7 @@
+            st->cr();
+          }
+        }
++#endif // ZERO
+      }
+ 
+   STEP(140, "(printing VM operation)" )
