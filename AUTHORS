@@ -1,0 +1,26 @@
+The following people have made contibutions to this project.
+Please keep this list in alphabetical order.
+
+Lillian Angel <langel@redhat.com>
+Gary Benson <gbenson@redhat.com>
+Tania Bento <tbento@redhat.com>
+Thomas Fitzsimmons <fitzsim@redhat.com>
+Matthew Flaschen <matthew.flaschen@gatech.edu>
+Kyle Galloway <kgallowa@redhat.com>
+Andrew Haley <aph@redhat.com>
+Matthias Klose <doko@ubuntu.com>
+Francis Kung <fkung@redhat.com>
+Casey Marshall <csm@gnu.org>
+Dan Munckton <lists@munckfish.net>
+Raif Naffah <admin@naffah-raif.name>
+Bernhard Rosenkränzer <bero@arklinux.org>
+Keith Seitz <keiths@redhat.com>
+Joshua Sumali <jsumali@redhat.com>
+Christian Thalinger <twisti@complang.tuwien.ac.at>
+Dalibor Topic <robilad@kaffe.org>
+Mark Wielaard <mark@klomp.org>
+
+This project also includes code from the following projects:
+
+GNU Classpath <http://www.gnu.org/software/classpath/>
+OpenJDK <http://openjdk.java.net/>
