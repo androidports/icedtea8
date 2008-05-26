@@ -1,5 +1,6 @@
---- openjdk.orig/jdk/make/common/Release.gmk	2007-10-26 16:46:41.000000000 -0400
-+++ openjdk/jdk/make/common/Release.gmk	2007-11-07 11:46:22.000000000 -0500
+diff -Nru openjdk.orig/jdk/make/common/Release.gmk openjdk/jdk/make/common/Release.gmk
+--- openjdk.orig/jdk/make/common/Release.gmk	2008-05-23 22:40:01.000000000 +0100
++++ openjdk/jdk/make/common/Release.gmk	2008-05-23 22:41:52.000000000 +0100
 @@ -338,8 +338,6 @@
  # Bug 5008685 - exclude jconsole from sun/tools
  #
@@ -56,12 +57,3 @@
  	@($(CD) $(CLASSBINDIR) && $(java-vm-cleanup))
  
  # Create the rt.jar file list & non-class files list
-@@ -1006,6 +1000,8 @@
- 	    ($(CD) $$d && $(TAR) cf - -T $(ABS_TEMPDIR)/src-files.list ) \
- 	       | ($(CD) $(JDK_IMAGE_DIR)/src && $(TAR) xf -); \
- 	  fi; \
-+	  (($(CD) $$d && $(TAR) cf - -T $(ABS_TEMPDIR)/sun_sources_list ) \
-+		| ($(CD) $(JDK_IMAGE_DIR)/src && $(TAR) xf -)) > /dev/null 2>&1 ; \
- 	done
-   else
- 	for d in $(SOURCE_DIRS); do \
