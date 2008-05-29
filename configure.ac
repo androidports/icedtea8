@@ -1,5 +1,5 @@
 AC_PREREQ([2.61])
-AC_INIT([icedtea6], [1.2], [fitzsim@redhat.com])
+AC_INIT([icedtea], [1.6], [fitzsim@redhat.com])
 AM_INIT_AUTOMAKE([tar-pax])
 AC_CONFIG_FILES([Makefile])
 AC_CANONICAL_HOST
@@ -159,6 +159,7 @@ AC_ARG_WITH([parallel-jobs],
 AC_SUBST(PARALLEL_JOBS)
 	
 SET_ARCH_DIRS
+SET_OS
 if test "${with_openjdk}" == true
 then
   JAVA=$SYSTEM_OPENJDK_DIR/bin/java
@@ -209,7 +210,11 @@ ENABLE_ZERO_BUILD
 ENABLE_NETX_PLUGIN
 SET_CORE_BUILD
 
-dnl pkgconfig cannot be used to finid these headers and libraries.
+if test "$ALT_OPENJDK_SRC_ZIP" = "not specified"; then
+  FIND_TOOL([MERCURIAL],[hg])
+fi
+
+dnl pkgconfig cannot be used to find these headers and libraries.
 AC_CHECK_HEADERS([cups/cups.h cups/ppd.h],[]
 	,[AC_MSG_ERROR("CUPS headers were not found - 
 	try installing cups-devel.")])
