@@ -8,7 +8,6 @@ openjdk
 bootstrap
 debian
 lib
-tools
 stamps
 Makefile
 config.log
@@ -25,6 +24,7 @@ tools-source-files.txt
 platform_zero
 jvm.cfg
 ergo.c
+hotspot-tools/
 test/hotspot
 test/jdk
 test/langtools

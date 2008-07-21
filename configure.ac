@@ -1,5 +1,5 @@
 AC_PREREQ([2.61])
-AC_INIT([icedtea6], [1.3], [fitzsim@redhat.com])
+AC_INIT([icedtea], [1.8-pre], [distro-pkg-dev@openjdk.java.net])
 AM_INIT_AUTOMAKE([tar-pax])
 AC_CONFIG_FILES([Makefile])
 AC_CANONICAL_HOST
@@ -216,8 +216,13 @@ AC_CHECK_WITH_CACAO_SRC_ZIP
 ENABLE_OPTIMIZATIONS
 ENABLE_ZERO_BUILD
 SET_CORE_OR_SHARK_BUILD
+ENABLE_HG
 
-dnl pkgconfig cannot be used to finid these headers and libraries.
+if test "$ALT_OPENJDK_SRC_ZIP" = "not specified"; then
+  FIND_TOOL([MERCURIAL],[hg])
+fi
+
+dnl pkgconfig cannot be used to find these headers and libraries.
 AC_CHECK_HEADERS([cups/cups.h cups/ppd.h],[]
 	,[AC_MSG_ERROR("CUPS headers were not found -
 	try installing cups-devel.")])
