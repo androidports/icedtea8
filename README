@@ -1,0 +1,160 @@
+IcedTea
+=======
+
+The IcedTea project provides a harness to build the source code from
+openjdk.java.net using Free Software tools and dependencies.
+
+IcedTea addresses two problems: it eliminates the build requirement on
+proprietary build tools and it provides replacements for the
+"encumbered binary plugs".
+
+These plugs are described at http://openjdk.java.net: "Not all of the
+source code that makes up the JDK is available under an open-source
+license. In order to build an OpenJDK binary from source code, you
+must first download and install one or more of the following files
+from which the build process will copy over 'binary plugs' for these
+encumbered components."
+
+This project uses code from GNU Classpath, code generated during a
+build of the openjdk.java.net source code, and stub code written by
+Red Hat, to provide Free Software replacements for these encumbered
+binary plugs.
+
+IcedTea also provides build scripts and patches that allow the source
+code from openjdk.java.net to be built with IcedTea itself.
+
+See INSTALL for build instructions.
+
+Homepage (wiki):
+  http://icedtea.classpath.org/
+
+Bugs (bugzilla):
+  http://icedtea.classpath.org/bugzilla
+
+Mailing List: 
+  distro-pkg-dev@openjdk.java.net
+  http://mail.openjdk.java.net/mailman/listinfo/distro-pkg-dev
+
+FAQ:
+  http://icedtea.classpath.org/wiki/FrequentlyAskedQuestions
+
+Anonymous Mercurial checkout:
+  hg clone http://icedtea.classpath.org/hg/icedtea6
+
+Java compatibility
+------------------
+
+IcedTea is derived from OpenJDK, Sun's open-source implementation of
+the Java SE platform.  At this time the build from which IcedTea was
+constructed corresponds to an early build of JDK 7.  When JDK 7
+is complete it will implement the Java SE 7 Platform Specification.
+Any APIs in the JDK 7 implementation, whether new or old, are therefore 
+subject to minor adjustments, major revisions, or even outright removal
+between now and the time that the Java SE 7 Platform Specification is
+finalized.  Please take these facts into account before depending upon
+IcedTea.
+
+Recently, OpenJDK6 was released. This build (IcedTea6) is based on 
+that release. OpenJDK6 is approximately 99% complete in terms of encumberences.
+IcedTea provides autotools support, a portable interpreter for ppc and 
+ppc64 support, plugin support and Web Start support.
+
+How the Stub Replacements were Produced
+---------------------------------------
+
+To produce the plug replacements, we began by satisfying as many
+undefined references as possible using code from a completed build of
+the source code from openjdk.java.net.  Then we supplemented the
+resultant tree with more replacement code from GNU Classpath.
+Following that, we fixed each remaining build error by creating the
+simplest possible stub code.
+
+A Note About License Headers
+----------------------------
+
+Some sources downloaded from openjdk.java.net do not display the GPL
+license header.  Instances are:
+
+ - The files in openjdk/jdk/src/share/classes/javax/xml/stream/ seem to 
+   comprise the BEA-StAX source code
+
+   http://ftpna2.bea.com/pub/downloads/jsr173.jar
+
+   with some Sun-specific modifications.  We're assuming that Sun is
+   bundling BEA-StAX under the terms of the Apache License 2.0 and
+   that the modifications are owned by Sun.
+
+ - We are assuming that these files are owned by Sun:
+   openjdk/jdk/src/share/classes/**/resources/*.properties
+
+
+gcjwebplugin
+============
+
+gcjwebplugin provides basic support for running applets in
+Mozilla-based web browsers.  It does not support applet/Javascript
+communication (LiveConnect) and support for signed applets needs
+further testing.  The current applet security manager may be too
+strict and may require tuning to allow otherwise-legitimate calls by
+untrusted applets.
+
+gcjwebplugin itself is a shared object, gcjwebplugin.so, built from a
+single source file, gcjwebplugin.cc.  The IcedTea adaptation of
+gcjwebplugin communicates through named pipes with a modified version
+of IcedTea's appletviewer.  Two source files,
+openjdk/jdk/src/share/classes/sun/applet/PluginAppletViewer.java,
+openjdk/jdk/src/share/classes/sun/applet/PluginMain.java are added to
+rt.jar and tools.jar to provide gcjwebplugin with an interface into
+the appletviewer code.  This support code is provided in
+patches/icedtea-plugin.patch.
+
+Experimental LiveConnect support
+================================
+
+The configure option --enable-liveconnect enables experimental
+LiveConnect support, implemented by IcedTeaPlugin.cc and
+patches/icedtea-liveconnect.patch.  Currently IcedTeaPlugin.cc will
+only build against a very recent version of XULRunner, such as that
+available in Fedora Rawhide as of 2008-02-23.  The required
+development headers are provided by the xulrunner-devel package.
+
+To run IcedTeaPlugin you'll need to add
+/usr/lib/xulrunner-sdk-1.9pre/sdk/lib/ to LD_LIBRARY_PATH.
+
+NetX
+====
+
+NetX provides a drop-in replacement for javaws (Java Web Start). Since
+upstream NetX is dormant, we will be hosting and modifying the sources
+in the IcedTea repository, particularly in the rt/net/sourceforge/jnlp
+directory.
+
+The NetX sources are built into rt.jar
+
+IcedTea's NetX currently supports verification of signed jars, trusted
+certificate storing, system certificate store checking, and provides
+the services specified by the jnlp API.
+
+CACAO as VM
+===========
+
+The --with-cacao configure option replaces the libjvm.so from Sun's
+HotSpot with the one from the CACAO VM.  This enables the usage of
+IcedTea on architectures which are not supported by the HotSpot VM,
+besides the HotSpot zero port.  In contrast to the HotSpot zero port,
+CACAO provides a Just-In-Time compiler for various architectures.
+
+The environment variable CACAO_CONFIGURE_ARGS can be used to pass
+additional arguments to the cacao configure.
+
+VisualVM
+========
+
+Passing --enable-visualvm to configure will build the VisualVM profiling
+and troubleshooting tool. NetBeans platform7 and a modified version of
+NetBeans profiler2 (visualvm_preview2) are built from source before building
+VisualVM. A binary launcher jvisualvm is placed in the
+openjdk/control/build/arch/j2sdk-image/bin directory after the jdk is built.
+Other useful VisualVM configure options include --with-visualvm-src-zip,
+--with-netbeans-platform-src-zip, and --with-netbeans-profiler-src-zip which
+can be used to prevent re-downloading of the source zips.
