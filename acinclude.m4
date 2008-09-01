@@ -194,7 +194,7 @@ AC_DEFUN([WITH_OPENJDK_SRC_DIR],
     AC_MSG_RESULT(${OPENJDK_SRC_DIR})
   ])
   AC_SUBST(OPENJDK_SRC_DIR)
-  AM_CONDITIONAL(GNU_CLASSLIB_FOUND, test "x${conditional_with_openjdk_sources}" = xtrue)
+  AM_CONDITIONAL(OPENJDK_SRC_DIR_FOUND, test "x${conditional_with_openjdk_sources}" = xtrue)
 ])
 
 AC_DEFUN([FIND_ECJ_JAR],
@@ -240,7 +240,6 @@ AC_DEFUN([FIND_ECJ_JAR],
 
 AC_DEFUN([FIND_LIBGCJ_JAR],
 [
-  AM_CONDITIONAL(GCC_OLD, test x != x)
   AC_ARG_WITH([libgcj-jar],
               [AS_HELP_STRING(--with-libgcj-jar,specify location of the libgcj 4.3.x jar)],
   [
@@ -259,7 +258,6 @@ AC_DEFUN([FIND_LIBGCJ_JAR],
       LIBGCJ_JAR=/usr/share/java/libgcj-4.3.*.jar
       AC_MSG_RESULT(${LIBGCJ_JAR})
     else
-       AM_CONDITIONAL(GCC_OLD, test x = x)
        if test -e /usr/share/java/libgcj-4.2.*.jar; then
          LIBGCJ_JAR=/usr/share/java/libgcj-4.2.*.jar
          AC_MSG_RESULT(${LIBGCJ_JAR})
@@ -421,6 +419,7 @@ AC_DEFUN([WITH_OPENJDK_SRC_ZIP],
   [
     ALT_OPENJDK_SRC_ZIP=${withval}
     AM_CONDITIONAL(USE_ALT_OPENJDK_SRC_ZIP, test x = x)
+    AC_SUBST(ALT_OPENJDK_SRC_ZIP)
   ],
   [ 
     ALT_OPENJDK_SRC_ZIP="not specified"
@@ -861,4 +860,54 @@ AC_DEFUN([AC_CHECK_WITH_CACAO_SRC_ZIP],
   ])
   AC_MSG_RESULT(${ALT_CACAO_SRC_ZIP})
   AC_SUBST(ALT_CACAO_SRC_ZIP)
+])
+
+AC_DEFUN([ENABLE_HG],
+[
+  AC_MSG_CHECKING(whether to retrieve the source code from Mercurial)
+  AC_ARG_ENABLE([hg],
+                [AS_HELP_STRING(--enable-hg,download source code from Mercurial [[default=no]])],
+  [
+    case "${enableval}" in
+      no)
+	enable_hg=no
+        ;;
+      *)
+        enable_hg=yes
+        ;;
+    esac
+  ],
+  [
+    enable_hg=no
+  ])
+  AC_MSG_RESULT([${enable_hg}])
+  AM_CONDITIONAL([USE_HG], test x"${enable_hg}" = "xyes")
+])
+
+AC_DEFUN([WITH_PROJECT],
+[
+  AC_MSG_CHECKING(which OpenJDK project is being used)
+  AC_ARG_WITH([project],
+              [AS_HELP_STRING(--with-project,choose the OpenJDK project to use: jdk7 closures cvmi cacioavallo bsd [[default=jdk7]])],
+  [
+    case "${withval}" in
+      yes)
+	project=jdk7
+        ;;
+      no)
+	project=jdk7
+	;;
+      *)
+        project=${withval}
+        ;;
+    esac
+  ],
+  [
+    project=jdk7
+  ])
+  AC_MSG_RESULT([${project}])
+  AM_CONDITIONAL([USE_CLOSURES], test x"${project}" = "xclosures")
+  AM_CONDITIONAL([USE_CVMI], test x"${project}" = "xcvmi")
+  AM_CONDITIONAL([USE_CACIOCAVALLO], test x"${project}" = "xcaciocavallo")
+  AM_CONDITIONAL([USE_BSD], test x"${project}" = "xbsd")
 ])

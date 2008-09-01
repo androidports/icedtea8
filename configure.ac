@@ -1,5 +1,5 @@
 AC_PREREQ([2.61])
-AC_INIT([icedtea6], [1.3], [distro-pkg-dev@openjdk.java.net])
+AC_INIT([icedtea], [1.8-pre], [distro-pkg-dev@openjdk.java.net])
 AM_INIT_AUTOMAKE([1.10 tar-pax foreign])
 AC_CONFIG_FILES([Makefile])
 AC_CANONICAL_HOST
@@ -184,7 +184,6 @@ then
   AC_SUBST(JAR)
   RMIC=${SYSTEM_OPENJDK_DIR}/bin/rmic
   AC_SUBST(RMIC)
-  AM_CONDITIONAL(GCC_OLD, test x != x)
 else
 if test "${with_icedtea}" = true
 then
@@ -198,7 +197,6 @@ then
   AC_SUBST(JAR)
   RMIC=${SYSTEM_ICEDTEA_DIR}/bin/rmic
   AC_SUBST(RMIC)
-  AM_CONDITIONAL(GCC_OLD, test x != x)
 else
   FIND_JAVA
   FIND_JAVAC
@@ -227,8 +225,14 @@ AC_CHECK_WITH_CACAO_SRC_ZIP
 ENABLE_OPTIMIZATIONS
 ENABLE_ZERO_BUILD
 SET_CORE_OR_SHARK_BUILD
+ENABLE_HG
+WITH_PROJECT
 
-dnl pkgconfig cannot be used to finid these headers and libraries.
+if test "x${enable_hg}" = "xyes"; then
+  FIND_TOOL([MERCURIAL],[hg])
+fi
+
+dnl pkgconfig cannot be used to find these headers and libraries.
 AC_CHECK_HEADERS([cups/cups.h cups/ppd.h],[]
 	,[AC_MSG_ERROR("CUPS headers were not found -
 	try installing cups-devel.")])
