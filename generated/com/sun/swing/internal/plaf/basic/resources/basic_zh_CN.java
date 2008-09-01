@@ -65,6 +65,8 @@ public final class basic_zh_CN extends ListResourceBundle {
             { "FileChooser.openDialogTitleText", "\u6253\u5F00" },
             { "FileChooser.other.newFolder", "\u65B0\u5EFA\u6587\u4EF6\u5939" },
             { "FileChooser.other.newFolder.subsequent", "\u65B0\u5EFA\u6587\u4EF6\u5939.{0}" },
+            { "FileChooser.renameErrorText", "Cannot rename {0}" },
+            { "FileChooser.renameErrorTitleText", "Error Renaming File or Folder" },
             { "FileChooser.saveButtonMnemonic", "83" },
             { "FileChooser.saveButtonText", "\u4FDD\u5B58" },
             { "FileChooser.saveButtonToolTipText", "\u4FDD\u5B58\u9009\u62E9\u7684\u6587\u4EF6" },

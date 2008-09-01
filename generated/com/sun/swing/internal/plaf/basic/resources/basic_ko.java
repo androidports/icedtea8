@@ -65,6 +65,8 @@ public final class basic_ko extends ListResourceBundle {
             { "FileChooser.openDialogTitleText", "\uC5F4\uAE30" },
             { "FileChooser.other.newFolder", "\uC0C8 \uD3F4\uB354" },
             { "FileChooser.other.newFolder.subsequent", "\uC0C8 \uD3F4\uB354.{0}" },
+            { "FileChooser.renameErrorText", "Cannot rename {0}" },
+            { "FileChooser.renameErrorTitleText", "Error Renaming File or Folder" },
             { "FileChooser.saveButtonMnemonic", "83" },
             { "FileChooser.saveButtonText", "\uC800\uC7A5" },
             { "FileChooser.saveButtonToolTipText", "\uC120\uD0DD\uB41C \uD30C\uC77C \uC800\uC7A5" },

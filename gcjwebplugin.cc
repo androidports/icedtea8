@@ -83,7 +83,7 @@ exception statement from your version. */
               __LINE__, g_thread_self (), first, second, third)
 
 // Plugin information passed to about:plugins.
-#define PLUGIN_NAME "GCJ Web Browser Plugin"
+#define PLUGIN_NAME "GCJ Web Browser Plugin (using IcedTea)"
 #define PLUGIN_DESC "The " PLUGIN_NAME " executes Java applets."
 #define PLUGIN_MIME_DESC                                               \
   "application/x-java-vm:class,jar:IcedTea;"                           \
@@ -102,8 +102,7 @@ exception statement from your version. */
   "application/x-java-applet;version=1.4.2:class,jar:IcedTea;"         \
   "application/x-java-applet;version=1.5:class,jar:IcedTea;"           \
   "application/x-java-applet;version=1.6:class,jar:IcedTea;"           \
-  "application/x-java-applet;version=1.7:class,jar:IcedTea;"           \
-  "application/x-java-applet;jpi-version=1.7.0_00:class,jar:IcedTea;"  \
+  "application/x-java-applet;jpi-version=1.6.0_00:class,jar:IcedTea;"  \
   "application/x-java-bean:class,jar:IcedTea;"                         \
   "application/x-java-bean;version=1.1:class,jar:IcedTea;"             \
   "application/x-java-bean;version=1.1.1:class,jar:IcedTea;"           \
@@ -119,8 +118,7 @@ exception statement from your version. */
   "application/x-java-bean;version=1.4.2:class,jar:IcedTea;"           \
   "application/x-java-bean;version=1.5:class,jar:IcedTea;"             \
   "application/x-java-bean;version=1.6:class,jar:IcedTea;"             \
-  "application/x-java-bean;version=1.7:class,jar:IcedTea;"             \
-  "application/x-java-bean;jpi-version=1.7.0_00:class,jar:IcedTea;"
+  "application/x-java-bean;jpi-version=1.6.0_00:class,jar:IcedTea;"
 #define PLUGIN_URL NS_INLINE_PLUGIN_CONTRACTID_PREFIX NS_JVM_MIME_TYPE
 #define PLUGIN_MIME_TYPE "application/x-java-vm"
 #define PLUGIN_FILE_EXTS "class,jar,zip"
@@ -687,8 +685,10 @@ GCJ_SetWindow (NPP instance, NPWindow* window)
       g_mutex_lock (data->appletviewer_mutex);
 
       plugin_send_message_to_appletviewer (data, data->instance_string);
-      gchar *window_message = g_strdup_printf ("handle %ld",
-                                               (gulong) window->window);
+      gchar *window_message = g_strdup_printf ("handle %ld width %d height %d",
+                                               (gulong) window->window,
+						window->width,
+						window->height);
       plugin_send_message_to_appletviewer (data, window_message);
       g_free (window_message);
       window_message = NULL;

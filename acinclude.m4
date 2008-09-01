@@ -4,30 +4,62 @@ AC_DEFUN([SET_ARCH_DIRS],
     x86_64-*-*)
       BUILD_ARCH_DIR=amd64
       INSTALL_ARCH_DIR=amd64
+      JRE_ARCH_DIR=amd64
       ;;
     i?86-*-*)
       BUILD_ARCH_DIR=i586
       INSTALL_ARCH_DIR=i386
+      JRE_ARCH_DIR=i386
       ;;
+    alpha*-*-*)
+      BUILD_ARCH_DIR=alpha
+      INSTALL_ARCH_DIR=alpha
+      JRE_ARCH_DIR=alpha
+      ;;
+    arm*-*-*)
+      BUILD_ARCH_DIR=arm
+      INSTALL_ARCH_DIR=arm
+      JRE_ARCH_DIR=arm
+      ;;
+    mips-*-*)
+      BUILD_ARCH_DIR=mips
+      INSTALL_ARCH_DIR=mips
+      JRE_ARCH_DIR=mips
+       ;;
+    mipsel-*-*)
+      BUILD_ARCH_DIR=mipsel
+      INSTALL_ARCH_DIR=mipsel
+      JRE_ARCH_DIR=mipsel
+       ;;
     powerpc-*-*)
       BUILD_ARCH_DIR=ppc
       INSTALL_ARCH_DIR=ppc
-      ;;
+      JRE_ARCH_DIR=ppc
+       ;;
     powerpc64-*-*)
       BUILD_ARCH_DIR=ppc64
       INSTALL_ARCH_DIR=ppc64
-      ;;
-    s390*-*-*)
+      JRE_ARCH_DIR=ppc64
+       ;;
+    sparc64-*-*)
+      BUILD_ARCH_DIR=sparcv9
+      INSTALL_ARCH_DIR=sparcv9
+      JRE_ARCH_DIR=sparc64
+       ;;
+    s390-*-*)
       BUILD_ARCH_DIR=s390
       INSTALL_ARCH_DIR=s390
-      ;;
+      JRE_ARCH_DIR=s390
+       ;;
     *)
       BUILD_ARCH_DIR=`uname -m`
       INSTALL_ARCH_DIR=$BUILD_ARCH_DIR
+      JRE_ARCH_DIR=$INSTALL_ARCH_DIR
       ;;
   esac
   AC_SUBST(BUILD_ARCH_DIR)
   AC_SUBST(INSTALL_ARCH_DIR)
+  AC_SUBST(JRE_ARCH_DIR)
 ])
 
 AC_DEFUN([FIND_JAVAC],
@@ -208,8 +240,9 @@ AC_DEFUN([FIND_ECJ_JAR],
 
 AC_DEFUN([FIND_LIBGCJ_JAR],
 [
+  AM_CONDITIONAL(GCC_OLD, test x != x)
   AC_ARG_WITH([libgcj-jar],
-              [AS_HELP_STRING(--with-libgcj-jar,specify location of the libgcj jar)],
+              [AS_HELP_STRING(--with-libgcj-jar,specify location of the libgcj 4.3.x jar)],
   [
     if test -f "${withval}"; then
       AC_MSG_CHECKING(libgcj jar)
@@ -221,12 +254,21 @@ AC_DEFUN([FIND_LIBGCJ_JAR],
     LIBGCJ_JAR=
   ])
   if test -z "${LIBGCJ_JAR}"; then
-    AC_MSG_CHECKING(for libgcj-4.1.2.jar)
-    if test -e "/usr/share/java/libgcj-4.1.2.jar"; then
-      LIBGCJ_JAR=/usr/share/java/libgcj-4.1.2.jar
+    AC_MSG_CHECKING(for libgcj-4.3.*.jar, libgcj-4.2.*.jar or libgcj-4.1.*.jar)
+    if test -e /usr/share/java/libgcj-4.3.*.jar; then
+      LIBGCJ_JAR=/usr/share/java/libgcj-4.3.*.jar
       AC_MSG_RESULT(${LIBGCJ_JAR})
     else
-      AC_MSG_RESULT(no)
+       AM_CONDITIONAL(GCC_OLD, test x = x)
+       if test -e /usr/share/java/libgcj-4.2.*.jar; then
+         LIBGCJ_JAR=/usr/share/java/libgcj-4.2.*.jar
+         AC_MSG_RESULT(${LIBGCJ_JAR})
+       elif test -e /usr/share/java/libgcj-4.1.*.jar; then
+         LIBGCJ_JAR=/usr/share/java/libgcj-4.1.*.jar
+         AC_MSG_RESULT(${LIBGCJ_JAR})
+       else
+ 	AC_MSG_RESULT(no)
+       fi
     fi
   fi
   if test -z "${LIBGCJ_JAR}"; then
@@ -288,7 +330,21 @@ AC_DEFUN([FIND_JAR],
   if test -z "${JAR}"; then
     AC_MSG_ERROR("jar was not found.")
   fi
+  AC_MSG_CHECKING([wether jar supports @<file> argument])
+  touch _config.txt
+  cat >_config.list <<EOF
+_config.txt
+EOF
+  if $JAR cf _config.jar @_config.list 2>/dev/null; then
+    JAR_KNOWS_ATFILE=1
+    AC_MSG_RESULT(yes)
+  else
+    JAR_KNOWS_ATFILE=
+    AC_MSG_RESULT(no)
+  fi
+  rm -f _config.txt _config.list _config.jar
   AC_SUBST(JAR)
+  AC_SUBST(JAR_KNOWS_ATFILE)
 ])
 
 AC_DEFUN([FIND_RMIC],
@@ -372,6 +428,74 @@ AC_DEFUN([WITH_OPENJDK_SRC_ZIP],
   ])
   AC_MSG_RESULT(${ALT_OPENJDK_SRC_ZIP})
   AC_SUBST(ALT_OPENJDK_SRC_ZIP)
+])
+
+AC_DEFUN([WITH_VISUALVM_SRC_ZIP],
+[
+  AC_MSG_CHECKING(visualvm source zip)
+  AC_ARG_WITH([visualvm-src-zip],
+              [AS_HELP_STRING(--with-visualvm-src-zip, specify the location of the visualvm source zip)],
+  [
+    ALT_VISUALVM_SRC_ZIP=${withval}
+    AM_CONDITIONAL(USE_ALT_VISUALVM_SRC_ZIP, test x = x)
+  ],
+  [ 
+    ALT_VISUALVM_SRC_ZIP="not specified"
+    AM_CONDITIONAL(USE_ALT_VISUALVM_SRC_ZIP, test x != x)
+  ])
+  AC_MSG_RESULT(${ALT_VISUALVM_SRC_ZIP})
+  AC_SUBST(ALT_VISUALVM_SRC_ZIP)
+])
+
+AC_DEFUN([WITH_NETBEANS_PLATFORM_SRC_ZIP],
+[
+  AC_MSG_CHECKING(netbeans platform source zip)
+  AC_ARG_WITH([netbeans-platform-src-zip],
+              [AS_HELP_STRING(--with-netbeans-platform-src-zip, specify the location of the netbeans platform source zip)],
+  [
+    ALT_NETBEANS_PLATFORM_SRC_ZIP=${withval}
+    AM_CONDITIONAL(USE_ALT_NETBEANS_PLATFORM_SRC_ZIP, test x = x)
+  ],
+  [ 
+    ALT_NETBEANS_PLATFORM_SRC_ZIP="not specified"
+    AM_CONDITIONAL(USE_ALT_NETBEANS_PLATFORM_SRC_ZIP, test x != x)
+  ])
+  AC_MSG_RESULT(${ALT_NETBEANS_PLATFORM_SRC_ZIP})
+  AC_SUBST(ALT_NETBEANS_PLATFORM_SRC_ZIP)
+])
+
+AC_DEFUN([WITH_NETBEANS_PROFILER_SRC_ZIP],
+[
+  AC_MSG_CHECKING(netbeans profiler source zip)
+  AC_ARG_WITH([netbeans-profiler-src-zip],
+              [AS_HELP_STRING(--with-netbeans-src-zip, specify the location of the netbeans profiler source zip)],
+  [
+    ALT_NETBEANS_PROFILER_SRC_ZIP=${withval}
+    AM_CONDITIONAL(USE_ALT_NETBEANS_PROFILER_SRC_ZIP, test x = x)
+  ],
+  [ 
+    ALT_NETBEANS_PROFILER_SRC_ZIP="not specified"
+    AM_CONDITIONAL(USE_ALT_NETBEANS_PROFILER_SRC_ZIP, test x != x)
+  ])
+  AC_MSG_RESULT(${ALT_NETBEANS_PROFILER_SRC_ZIP})
+  AC_SUBST(ALT_NETBEANS_PROFILER_SRC_ZIP)
+])
+
+AC_DEFUN([WITH_ALT_JAR_BINARY],
+[
+  AC_MSG_CHECKING(alternate jar command)
+  AC_ARG_WITH([alt-jar],
+              [AS_HELP_STRING(--with-alt-jar, specify the location of an alternate jar binary to use for building)],
+  [
+    ALT_JAR_CMD=${withval}
+    AM_CONDITIONAL(USE_ALT_JAR, test x = x)
+  ],
+  [ 
+    ALT_JAR_CMD="not specified"
+    AM_CONDITIONAL(USE_ALT_JAR, test x != x)
+  ])
+  AC_MSG_RESULT(${ALT_JAR_CMD})
+  AC_SUBST(ALT_JAR_CMD)
 ])
 
 AC_DEFUN([FIND_XALAN2_JAR],
@@ -482,43 +606,69 @@ AC_DEFUN([FIND_XERCES2_JAR],
   AC_SUBST(XERCES2_JAR)
 ])
 
-AC_DEFUN([CHECK_HEADERS],
+AC_DEFUN([FIND_RHINO_JAR],
 [
-  AC_CHECK_HEADERS([cups/cups.h cups/ppd.h],[],[AC_MSG_ERROR("CUPS headers were not found - try installing cups-devel.")])
-  AC_CHECK_HEADERS([X11/X.h X11/Xproto.h],[],[AC_MSG_ERROR("xorg headers were not found - try installing xorg-x11-proto-devel.")])
-  AC_CHECK_HEADERS([X11/Xlib.h X11/Xutil.h],[],[AC_MSG_ERROR("libX11 headers were not found - try installing libX11-devel.")])
-  AC_CHECK_HEADERS([X11/Intrinsic.h X11/Shell.h X11/StringDefs.h],[],[AC_MSG_ERROR("libXt headers were not found - try installing libXt-devel.")])
-  AC_CHECK_HEADERS(X11/extensions/Print.h,[],[AC_MSG_ERROR("libXp headers were not found - try installing libXp-devel.")])
-  AC_CHECK_HEADERS([Xm/Xm.h Xm/XmP.h Xm/Display.h],[],[AC_MSG_ERROR("motif headers were not found - try installing lesstif-devel.")])
-  AC_CHECK_HEADERS([alsa/asoundlib.h],[],[AC_MSG_ERROR("ALSA headers were not found - try installing alsa-lib-devel.")])
-])
-
-AC_DEFUN([FIND_FREETYPE],
-[
-    AC_CHECK_LIB(freetype, FT_Init_FreeType, [], [AC_MSG_ERROR("Freetype not found - try installing freetype-devel")])
-    AC_MSG_CHECKING(for freetype header directory)
-    if test -d "/usr/include/freetype2"; then
-      FREETYPE2_INC_DIR=/usr/include/freetype2
-      AC_MSG_RESULT(${FREETYPE2_INC_DIR})
-    else
-      AC_MSG_RESULT(no)
-      AC_MSG_ERROR("Freetype headers not found - try installing freetype-devel")
-    fi
-    AC_SUBST(FREETYPE2_INC_DIR)
-])
-
-AC_DEFUN([ENABLE_FAST_BUILD],
-[
-  AC_ARG_ENABLE([fast-build],
-                [AS_HELP_STRING(--enable-fast-build,optimize for quick building: use -O0 and do not build documentation)],
+  AC_MSG_CHECKING(whether to include Javascript support via Rhino)
+  AC_ARG_WITH([rhino],
+              [AS_HELP_STRING(--with-rhino,specify location of the rhino jar)],
   [
-    AC_MSG_CHECKING(fast build)
-    AC_MSG_RESULT(will apply patches/icedtea-speed.patch)
-    AM_CONDITIONAL(FAST_BUILD, test x = x)
+    case "${withval}" in
+      yes)
+	RHINO_JAR=yes
+        ;;
+      no)
+        RHINO_JAR=no
+        ;;
+      *)
+    	if test -f "${withval}"; then
+          RHINO_JAR="${withval}"
+        else
+	  AC_MSG_RESULT([not found])
+          AC_MSG_ERROR("The rhino jar ${withval} was not found.")
+        fi
+	;;
+     esac
   ],
   [
-    AM_CONDITIONAL(FAST_BUILD, test x != x)
+    RHINO_JAR=yes
   ])
+  if test x"${RHINO_JAR}" = "xyes"; then
+    if test -e "/usr/share/java/rhino.jar"; then
+      RHINO_JAR=/usr/share/java/rhino.jar
+    elif test -e "/usr/share/java/js.jar"; then
+      RHINO_JAR=/usr/share/java/js.jar
+    fi
+    if test x"${RHINO_JAR}" = "xyes"; then
+      AC_MSG_RESULT([not found])
+      AC_MSG_ERROR("A rhino jar was not found in /usr/share/java as either rhino.jar or js.jar.")
+    fi
+  fi
+  AC_MSG_RESULT(${RHINO_JAR})
+  AM_CONDITIONAL(WITH_RHINO, test x"${RHINO_JAR}" != "xno")
+  AC_SUBST(RHINO_JAR)
+])
+
+AC_DEFUN([ENABLE_OPTIMIZATIONS],
+[
+  AC_MSG_CHECKING(whether to disable optimizations)
+  AC_ARG_ENABLE([optimizations],
+                [AS_HELP_STRING(--disable-optimizations,build with -O0 -g [[default=no]])],
+  [
+    case "${enableval}" in
+      no)
+        AC_MSG_RESULT([yes, building with -O0 -g])
+        enable_optimizations=no
+        ;;
+      *)
+        AC_MSG_RESULT([no])
+        enable_optimizations=yes
+        ;;
+    esac
+  ],
+  [
+    enable_optimizations=yes
+  ])
+  AM_CONDITIONAL([ENABLE_OPTIMIZATIONS], test x"${enable_optimizations}" = "xyes")
 ])
 
 AC_DEFUN([FIND_TOOL],
@@ -529,30 +679,186 @@ AC_DEFUN([FIND_TOOL],
  AC_SUBST([$1])
 ])
 
+AC_DEFUN([ENABLE_ZERO_BUILD],
+[
+  AC_MSG_CHECKING(whether to use the zero-assembler port)
+  use_zero=no
+  AC_ARG_ENABLE([zero],
+                [AS_HELP_STRING(--enable-zero,
+                               use zero-assembler port on non-zero platforms)],
+  [
+    case "${enableval}" in
+      no)
+        use_zero=no
+        ;;
+      *)
+        use_zero=yes
+        ;;
+    esac
+  ],
+  [
+    case "${host}" in
+      i?86-*-*) ;;
+      sparc*-*-*) ;;
+      x86_64-*-*) ;;
+      *)
+        if test "x${WITH_CACAO}" != xno; then
+          use_zero=no
+        else
+          use_zero=yes
+        fi
+        ;;
+    esac
+  ])
+  AC_MSG_RESULT($use_zero)
+  AM_CONDITIONAL(ZERO_BUILD, test "x${use_zero}" = xyes)
+
+  ZERO_LIBARCH=
+  ZERO_BITSPERWORD=
+  ZERO_ENDIANNESS=
+  ZERO_ARCHDEF=
+  ZERO_ARCHFLAG=
+  if test "x${use_zero}" = xyes; then
+    ZERO_LIBARCH="${INSTALL_ARCH_DIR}"
+    dnl can't use AC_CHECK_SIZEOF on multilib
+    case "${ZERO_LIBARCH}" in
+      i386|ppc|s390|sparc)
+        ZERO_BITSPERWORD=32
+        ;;
+      amd64|ppc64|s390x|sparc64)
+        ZERO_BITSPERWORD=64
+        ;;
+      *)
+        AC_CHECK_SIZEOF(void *)
+        ZERO_BITSPERWORD=`expr "${ac_cv_sizeof_void_p}" "*" 8`
+    esac
+    AC_C_BIGENDIAN([ZERO_ENDIANNESS="big"], [ZERO_ENDIANNESS="little"])
+    case "${ZERO_LIBARCH}" in
+      i386)
+        ZERO_ARCHDEF="IA32"
+        ;;
+      ppc*)
+        ZERO_ARCHDEF="PPC"
+        ;;
+      s390*)
+        ZERO_ARCHDEF="S390"
+        ;;
+      sparc*)
+        ZERO_ARCHDEF="SPARC"
+        ;;
+      *)
+        ZERO_ARCHDEF=`echo ${ZERO_LIBARCH} | tr a-z A-Z`
+    esac
+    dnl multilib machines need telling which mode to build for
+    case "${ZERO_LIBARCH}" in
+      i386|ppc|sparc)
+        ZERO_ARCHFLAG="-m32"
+        ;;
+      s390)
+        ZERO_ARCHFLAG="-m31"
+        ;;
+      amd64|ppc64|s390x|sparc64)
+        ZERO_ARCHFLAG="-m64"
+        ;;
+    esac
+  fi
+  AC_SUBST(ZERO_LIBARCH)
+  AC_SUBST(ZERO_BITSPERWORD)
+  AC_SUBST(ZERO_ENDIANNESS)
+  AC_SUBST(ZERO_ARCHDEF)
+  AC_SUBST(ZERO_ARCHFLAG)
+  AC_CONFIG_FILES([platform_zero])
+  AC_CONFIG_FILES([jvm.cfg])
+  AC_CONFIG_FILES([ergo.c])
+])
+
+AC_DEFUN([SET_CORE_OR_SHARK_BUILD],
+[
+  AC_MSG_CHECKING(whether to use the Shark JIT)
+  shark_selected=no
+  AC_ARG_ENABLE([shark], [AS_HELP_STRING(--enable-shark, use Shark JIT)],
+  [
+    case "${enableval}" in
+      no)
+        ;;
+      *)
+        shark_selected=yes
+        ;;
+    esac
+  ])
+
+  use_core=no
+  use_shark=no
+  if test "x${WITH_CACAO}" != "xno"; then
+    use_core=yes
+  elif test "x${use_zero}" = "xyes"; then
+    if test "x${shark_selected}" = "xyes"; then
+      use_shark=yes
+    else
+      use_core=yes
+    fi
+  fi
+  AC_MSG_RESULT($use_shark)
+
+  AM_CONDITIONAL(CORE_BUILD, test "x${use_core}" = xyes)
+  AM_CONDITIONAL(SHARK_BUILD, test "x${use_shark}" = xyes)
+])
 
 AC_DEFUN([AC_CHECK_WITH_CACAO],
 [
   AC_MSG_CHECKING(whether to use CACAO as VM)
   AC_ARG_WITH([cacao],
-	      [AS_HELP_STRING(--with-cacao,use CACAO as VM)],
+	      [AS_HELP_STRING(--with-cacao,use CACAO as VM [[default=no]])],
   [
-    case "${withval}" in
-      yes)
-        CACAO=/usr/local/cacao
-        ;;
-      no)
-        CACAO=no
-        ;;
-      *)
-      CACAO=${withval}
-        ;;
-    esac
+    WITH_CACAO=yes
   ],
   [
-    CACAO=no
+    WITH_CACAO=no
   ])
 
-  AC_MSG_RESULT(${CACAO})
-  AM_CONDITIONAL(WITH_CACAO, test x"${CACAO}" != "xno")
-  AC_SUBST(CACAO)
+  AC_MSG_RESULT(${WITH_CACAO})
+  AM_CONDITIONAL(WITH_CACAO, test x"${WITH_CACAO}" = "xyes")
+  AC_SUBST(WITH_CACAO)
+])
+
+AC_DEFUN([AC_CHECK_WITH_CACAO_HOME],
+[
+  AC_MSG_CHECKING(CACAO home directory)
+  AC_ARG_WITH([cacao-home],
+              [AS_HELP_STRING([--with-cacao-home],
+                              [CACAO home directory [[default=/usr/local/cacao]]])],
+              [
+                case "${withval}" in
+                yes)
+                  CACAO_IMPORT_PATH=/usr/local/cacao
+                  ;;
+                *)
+                  CACAO_IMPORT_PATH=${withval}
+                  ;;
+                esac
+                AM_CONDITIONAL(USE_SYSTEM_CACAO, true)
+              ],
+              [
+                CACAO_IMPORT_PATH="\$(abs_top_builddir)/cacao/install"
+                AM_CONDITIONAL(USE_SYSTEM_CACAO, false)
+              ])
+  AC_MSG_RESULT(${CACAO_IMPORT_PATH})
+  AC_SUBST(CACAO_IMPORT_PATH)
+])
+
+AC_DEFUN([AC_CHECK_WITH_CACAO_SRC_ZIP],
+[
+  AC_MSG_CHECKING(CACAO source zip)
+  AC_ARG_WITH([cacao-src-zip],
+              [AS_HELP_STRING(--with-cacao-src-zip,specify the location of the CACAO source zip)],
+  [
+    ALT_CACAO_SRC_ZIP=${withval}
+    AM_CONDITIONAL(USE_ALT_CACAO_SRC_ZIP, test x = x)
+  ],
+  [ 
+    ALT_CACAO_SRC_ZIP="not specified"
+    AM_CONDITIONAL(USE_ALT_CACAO_SRC_ZIP, test x != x)
+  ])
+  AC_MSG_RESULT(${ALT_CACAO_SRC_ZIP})
+  AC_SUBST(ALT_CACAO_SRC_ZIP)
 ])

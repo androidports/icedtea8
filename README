@@ -21,8 +21,7 @@ Red Hat, to provide Free Software replacements for these encumbered
 binary plugs.
 
 IcedTea also provides build scripts and patches that allow the source
-code from openjdk.java.net to be built with ecj running on libgcj or
-with IcedTea itself.
+code from openjdk.java.net to be built with IcedTea itself.
 
 See INSTALL for build instructions.
 
@@ -40,8 +39,25 @@ FAQ:
   http://icedtea.classpath.org/wiki/FrequentlyAskedQuestions
 
 Anonymous Mercurial checkout:
-  hg clone http://icedtea.classpath.org/hg/icedtea
+  hg clone http://icedtea.classpath.org/hg/icedtea6
 
+Java compatibility
+------------------
+
+IcedTea is derived from OpenJDK, Sun's open-source implementation of
+the Java SE platform.  At this time the build from which IcedTea was
+constructed corresponds to an early build of JDK 7.  When JDK 7
+is complete it will implement the Java SE 7 Platform Specification.
+Any APIs in the JDK 7 implementation, whether new or old, are therefore 
+subject to minor adjustments, major revisions, or even outright removal
+between now and the time that the Java SE 7 Platform Specification is
+finalized.  Please take these facts into account before depending upon
+IcedTea.
+
+Recently, OpenJDK6 was released. This build (IcedTea6) is based on 
+that release. OpenJDK6 is approximately 99% complete in terms of encumberences.
+IcedTea provides autotools support, a portable interpreter for ppc and 
+ppc64 support, plugin support and Web Start support.
 
 How the Stub Replacements were Produced
 ---------------------------------------
@@ -59,7 +75,7 @@ A Note About License Headers
 Some sources downloaded from openjdk.java.net do not display the GPL
 license header.  Instances are:
 
- - The files in openjdk/j2se/src/share/classes/javax/xml/stream/ seem to 
+ - The files in openjdk/jdk/src/share/classes/javax/xml/stream/ seem to 
    comprise the BEA-StAX source code
 
    http://ftpna2.bea.com/pub/downloads/jsr173.jar
@@ -69,15 +85,7 @@ license header.  Instances are:
    that the modifications are owned by Sun.
 
  - We are assuming that these files are owned by Sun:
-   openjdk/j2se/src/share/classes/**/resources/*.properties
-
-The downloaded sources include two scripts that insert proprietary
-license headers into the source files they generate.  The scripts
-themselves are GPL'd so we patched them to emit the GPL header.  These
-files are:
-
-  openjdk/j2se/make/java/nio/genExceptions.sh
-  openjdk/hotspot/src/share/vm/prims/jvmtiLib.xsl
+   openjdk/jdk/src/share/classes/**/resources/*.properties
 
 
 gcjwebplugin
@@ -94,8 +102,59 @@ gcjwebplugin itself is a shared object, gcjwebplugin.so, built from a
 single source file, gcjwebplugin.cc.  The IcedTea adaptation of
 gcjwebplugin communicates through named pipes with a modified version
 of IcedTea's appletviewer.  Two source files,
-openjdk/j2se/src/share/classes/sun/applet/PluginAppletViewer.java,
-openjdk/j2se/src/share/classes/sun/applet/PluginMain.java are added to
+openjdk/jdk/src/share/classes/sun/applet/PluginAppletViewer.java,
+openjdk/jdk/src/share/classes/sun/applet/PluginMain.java are added to
 rt.jar and tools.jar to provide gcjwebplugin with an interface into
 the appletviewer code.  This support code is provided in
 patches/icedtea-plugin.patch.
+
+Experimental LiveConnect support
+================================
+
+The configure option --enable-liveconnect enables experimental
+LiveConnect support, implemented by IcedTeaPlugin.cc and
+patches/icedtea-liveconnect.patch.  Currently IcedTeaPlugin.cc will
+only build against a very recent version of XULRunner, such as that
+available in Fedora Rawhide as of 2008-02-23.  The required
+development headers are provided by the xulrunner-devel package.
+
+To run IcedTeaPlugin you'll need to add
+/usr/lib/xulrunner-sdk-1.9pre/sdk/lib/ to LD_LIBRARY_PATH.
+
+NetX
+====
+
+NetX provides a drop-in replacement for javaws (Java Web Start). Since
+upstream NetX is dormant, we will be hosting and modifying the sources
+in the IcedTea repository, particularly in the rt/net/sourceforge/jnlp
+directory.
+
+The NetX sources are built into rt.jar
+
+IcedTea's NetX currently supports verification of signed jars, trusted
+certificate storing, system certificate store checking, and provides
+the services specified by the jnlp API.
+
+CACAO as VM
+===========
+
+The --with-cacao configure option replaces the libjvm.so from Sun's
+HotSpot with the one from the CACAO VM.  This enables the usage of
+IcedTea on architectures which are not supported by the HotSpot VM,
+besides the HotSpot zero port.  In contrast to the HotSpot zero port,
+CACAO provides a Just-In-Time compiler for various architectures.
+
+The environment variable CACAO_CONFIGURE_ARGS can be used to pass
+additional arguments to the cacao configure.
+
+VisualVM
+========
+
+Passing --enable-visualvm to configure will build the VisualVM profiling
+and troubleshooting tool. NetBeans platform7 and a modified version of
+NetBeans profiler2 (visualvm_preview2) are built from source before building
+VisualVM. A binary launcher jvisualvm is placed in the
+openjdk/control/build/arch/j2sdk-image/bin directory after the jdk is built.
+Other useful VisualVM configure options include --with-visualvm-src-zip,
+--with-netbeans-platform-src-zip, and --with-netbeans-profiler-src-zip which
+can be used to prevent re-downloading of the source zips.
