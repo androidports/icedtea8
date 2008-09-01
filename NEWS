@@ -1,28 +1,40 @@
-New in release 1.3 (2007-08-29)
+New in release UNRELEASED (2008-xx-xx)
 
-* Updated to OpenJDK b18 build.
-* Web browser plugin support using gcjwebplugin.
-* Now using Font supported included in b18.
-* Graphics fixes.
-* SSL/Crypto fixes.
-* Refactored build process.
+- Updated to b11 build.
 
-New in release 1.2 (2007-08-01)
+New in release 1.2 (2008-05-28)
 
-* Updated to OpenJDK b16 build.
-* Freetype font support fully replacing the encumbered libt2k.
-* Path widening imported from GNU Classpath.
-* Window decorations on x86_64 fixed.
-* Bug fixes in various graphics classes.
-* Anti-aliasing support explicitly disabled (instead of crashing).
-* OpenSSL certs read directly
-* Various crypto bug fixes.
+- Updated to b09 build.
+- Added the the lcms library with PYCC and LINEAR_RGB ICC
+  profiles.
+- Integrated Gervill to provide midi support.
+- JTreg integrated.
+- javaws/NetX fixes:
+  -improved security, namely catching Socket permissions during    
+  runtime
+  -implemented the remaining JNLP services api (PrintService, 
+  JNLPRandomAccessFile)
+  -applet focusing bug fixed
+- sparc/sparc64 port
+- Desktop file integration.
+- Various zero fixes.
+- Sound fixes.
+- Font fixes.
+- Several other bug fixes.
 
-New in release 1.1 (2007-07-12)
+New in release 1.1 (2008-04-04)
 
-* Color management and raster fixes for compatibility with LittleCMS.
-* Debuginfo is always generated.
-* Initial work to satisfy libt2k requirement with Freetype.
-* The GNU Crypto security providers have been imported from GNU
-  Classpath.
-* IcedTls security provider.
+- Zero builds on any architecture.
+- New features added to NetX:
+   - Certificate fingerprints now show as part 
+     of certificate details.
+   - gcjwebplugin can now run applets through NetX, 
+     taking advantage of NetX's sandboxing and application security.
+   - User trusted certificates can be managed by passing the -viewer 
+     option to NetX. 
+- Updated to b08.
+- Several bug fixes.
+
+New in release 1.0 (2008-02-15)
+
+- Initial release

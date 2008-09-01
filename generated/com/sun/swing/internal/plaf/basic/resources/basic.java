@@ -65,6 +65,8 @@ public final class basic extends ListResourceBundle {
             { "FileChooser.openDialogTitleText", "Open" },
             { "FileChooser.other.newFolder", "NewFolder" },
             { "FileChooser.other.newFolder.subsequent", "NewFolder.{0}" },
+            { "FileChooser.renameErrorText", "Cannot rename {0}" },
+            { "FileChooser.renameErrorTitleText", "Error Renaming File or Folder" },
             { "FileChooser.saveButtonMnemonic", "83" },
             { "FileChooser.saveButtonText", "Save" },
             { "FileChooser.saveButtonToolTipText", "Save selected file" },

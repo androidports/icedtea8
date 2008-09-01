@@ -65,6 +65,8 @@ public final class basic_sv extends ListResourceBundle {
             { "FileChooser.openDialogTitleText", "\u00D6ppna" },
             { "FileChooser.other.newFolder", "Ny mapp" },
             { "FileChooser.other.newFolder.subsequent", "Ny mapp.{0}" },
+            { "FileChooser.renameErrorText", "Cannot rename {0}" },
+            { "FileChooser.renameErrorTitleText", "Error Renaming File or Folder" },
             { "FileChooser.saveButtonMnemonic", "83" },
             { "FileChooser.saveButtonText", "Spara" },
             { "FileChooser.saveButtonToolTipText", "Spara markerad fil" },

@@ -65,6 +65,8 @@ public final class basic_ja extends ListResourceBundle {
             { "FileChooser.openDialogTitleText", "\u958B\u304F" },
             { "FileChooser.other.newFolder", "\u65B0\u898F\u30D5\u30A9\u30EB\u30C0" },
             { "FileChooser.other.newFolder.subsequent", "\u65B0\u898F\u30D5\u30A9\u30EB\u30C0.{0}" },
+            { "FileChooser.renameErrorText", "Cannot rename {0}" },
+            { "FileChooser.renameErrorTitleText", "Error Renaming File or Folder" },
             { "FileChooser.saveButtonMnemonic", "83" },
             { "FileChooser.saveButtonText", "\u4FDD\u5B58" },
             { "FileChooser.saveButtonToolTipText", "\u9078\u629E\u3057\u305F\u30D5\u30A1\u30A4\u30EB\u3092\u4FDD\u5B58" },
