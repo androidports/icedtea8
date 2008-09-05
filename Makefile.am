@@ -415,14 +415,6 @@ if USE_ALT_OPENJDK_SRC_ZIP
 else
 if !USE_HG
 else
-if !USE_CLOSURES
-else
-if !USE_CVMI
-else
-if !USE_CACIOCAVALLO
-else
-if !USE_BSD
-else
 	if ! hg fclone -h; \
           then \
           echo "No forest extension found. Please refer to" \
@@ -432,12 +424,11 @@ else
 endif
 endif
 endif
-endif
-endif
-endif
-endif
 	mkdir -p stamps 
 	touch stamps/hgforest.stamp
+
+clean-hgforest:
+	rm -f stamps/hgforest.stamp
 
 clean-extract:
 	rm -f stamps/extract.stamp
