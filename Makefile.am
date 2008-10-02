@@ -5,7 +5,7 @@ OPENJDK_VERSION = b12
 CACAO_VERSION = 0.99.3
 CACAO_MD5SUM = 80de3ad344c1a20c086ec5f1390bd1b8
 
-NETBEANS_PLATFORM_MD5SUM = 77c79b3a7d3dbe6a8858639f8d564a38
+NETBEANS_BASIC_CLUSTER = a7ea855f475fa3a982f094a45c155ab4
 NETBEANS_PROFILER_MD5SUM = ff8e8abc42df6c6749e6b02bcf7bb0a5
 VISUALVM_MD5SUM = 4b55bc623418818793392bb233da2927
 
@@ -26,6 +26,12 @@ else
 GCJWEBPLUGIN_CLEAN =
 GCJWEBPLUGIN_TARGET =
 endif
+endif
+
+if WITH_VISUALVM
+VISUALVM_PATCH = patches/icedtea-visualvm.patch
+else
+VISUALVM_PATCH = 
 endif
 
 # Top-Level Targets
@@ -52,13 +58,9 @@ if ENABLE_PLUGIN
 	rm -f gcjwebplugin.so
 endif
 endif
-if WITH_VISUALVM
+	rm -rf cacao
 	rm -rf visualvm
 	rm -rf netbeans
-endif
-if WITH_CACAO
-	rm -rf cacao
-endif
 
 install:
 
@@ -81,7 +83,7 @@ EXTRA_DIST = rt generated $(ICEDTEA_PATCHES) $(ICEDTEA_FSG_PATCHES) \
 	overlays extra jconsole.desktop policytool.desktop \
 	test/jtreg patches/icedtea-plugin.patch \
 	patches/icedtea-liveconnect.patch IcedTeaPlugin.cc \
-	HACKING
+	HACKING patches/icedtea-visualvm.patch
 
 # The Binary plugs directory is called jdk1.7.0 for historical reasons. The
 # name is completely irrelevant; only contains the plugs to build IcedTea.
@@ -278,13 +280,8 @@ else
   CACAO_SRC_ZIP = cacao-$(CACAO_VERSION).tar.gz
 endif
 
-NETBEANS_PLATFORM_URL = http://download.netbeans.org/netbeans/6.0/final/zip/
-
-if USE_ALT_NETBEANS_PLATFORM_SRC_ZIP
-  NETBEANS_PLATFORM_SRC_ZIP = $(ALT_NETBEANS_PLATFORM_SRC_ZIP)
-else
-  NETBEANS_PLATFORM_SRC_ZIP = netbeans-6.0.1-200801291616-platform-src.zip
-endif
+NETBEANS_BASIC_CLUSTER_URL = http://nbi.netbeans.org/files/documents/210/2056/
+NETBEANS_BASIC_CLUSTER_SRC_ZIP = netbeans-6.1-200805300101-basic_cluster-src.zip 
 
 NETBEANS_PROFILER_URL = http://icedtea.classpath.org/visualvm/
 
@@ -332,19 +329,17 @@ endif
 endif
 endif
 if WITH_VISUALVM
-if USE_ALT_NETBEANS_PLATFORM_SRC_ZIP
-else
-	if ! echo "$(NETBEANS_PLATFORM_MD5SUM) $(NETBEANS_PLATFORM_SRC_ZIP)" \
+	if ! echo "$(NETBEANS_BASIC_CLUSTER_MD5SUM) $(NETBEANS_BASIC_CLUSTER_SRC_ZIP)" \
 	  | $(MD5SUM) --check ; \
 	then \
-	  if [ $(NETBEANS_PLATFORM_SRC_ZIP) ] ; \
+	  if [ $(NETBEANS_BASIC_CLUSTER_SRC_ZIP) ] ; \
 	  then \
-	    mv $(NETBEANS_PLATFORM_SRC_ZIP) $(NETBEANS_PLATFORM_SRC_ZIP).old ; \
+	    mv $(NETBEANS_BASIC_CLUSTER_SRC_ZIP) $(NETBEANS_BASIC_CLUSTER_SRC_ZIP).old ; \
 	  fi ; \
-	  $(WGET) $(NETBEANS_PLATFORM_URL)$(NETBEANS_PLATFORM_SRC_ZIP) \
-	    -O $(NETBEANS_PLATFORM_SRC_ZIP) ; \
+	$(WGET) $(NETBEANS_BASIC_CLUSTER_URL)$(NETBEANS_BASIC_CLUSTER_SRC_ZIP) \
+	  -O $(NETBEANS_BASIC_CLUSTER_SRC_ZIP) ; \
 	fi
-endif
+
 if USE_ALT_NETBEANS_PROFILER_SRC_ZIP
 else
 	if ! echo "$(NETBEANS_PROFILER_MD5SUM) $(NETBEANS_PROFILER_SRC_ZIP)" \
@@ -382,8 +377,8 @@ if WITH_CACAO
 endif
 if WITH_VISUALVM
 	rm -f $(VISUALVM_SRC_ZIP) 
-	rm -f $(NETBEANS_PLATFORM_SRC_ZIP) 
 	rm -f $(NETBEANS_PROFILER_SRC_ZIP)
+	rm -rf $(NETBEANS_BASIC_CLUSTER_SRC_ZIP)
 endif
 
 # Link ports sources into tree
@@ -508,7 +503,8 @@ ICEDTEA_PATCHES = \
 	$(GCC_PATCH) \
 	patches/icedtea-arch.patch \
 	patches/icedtea-lc_ctype.patch \
-	patches/icedtea-messageutils.patch
+	patches/icedtea-messageutils.patch \
+	$(VISUALVM_PATCH)
 
 if WITH_RHINO
 ICEDTEA_PATCHES += \
@@ -548,8 +544,17 @@ if WITH_VISUALVM
 	if ! test -d netbeans ; \
 	then \
 	  mkdir netbeans ; \
-	  $(UNZIP) -q $(NETBEANS_PLATFORM_SRC_ZIP) -d netbeans ; \
 	  $(TAR) xf $(NETBEANS_PROFILER_SRC_ZIP) -C netbeans ; \
+	  $(UNZIP) -q $(NETBEANS_BASIC_CLUSTER_SRC_ZIP) nbbuild/* -d netbeans/ ; \
+	  mv netbeans/profiler/ netbeans/profiler.cvs/ ; \
+	  $(UNZIP) -q $(NETBEANS_BASIC_CLUSTER_SRC_ZIP) \
+	  api.java/* api.progress/* apisupport.harness/* editor.mimelookup/* \
+	  o.jdesktop.layout/* openide.actions/* openide.awt/* \
+	  openide.dialogs/* openide.execution/* openide.explorer/* \
+	  openide.filesystems/* openide.io/* openide.loaders/* \
+	  openide.modules/* openide.nodes/* openide.text/* openide.util/* \
+	  openide.windows/* options.api/* projectapi/* queries/* java.platform/* \
+	  -d netbeans/ ; \
 	fi
 endif
 	if [ ! -e $(abs_top_builddir)/generated ]; then \
@@ -932,6 +937,7 @@ endif
 endif
 if WITH_VISUALVM
 	mkdir -p $(BUILD_OUTPUT_DIR)/j2sdk-image/lib/visualvm/etc ; \
+	mkdir -p $(BUILD_OUTPUT_DIR)/j2sdk-image/lib/visualvm/visualvm ; \
 	sed "s/APPNAME=\`basename.*\`/APPNAME=visualvm/" \
 	  visualvm/visualvm/launcher/visualvm >> \
 	  $(BUILD_OUTPUT_DIR)/j2sdk-image/bin/jvisualvm ; \
@@ -940,18 +946,18 @@ if WITH_VISUALVM
 	  $(BUILD_OUTPUT_DIR)/j2sdk-image/lib/visualvm/etc ; \
 	echo visualvm >> \
 	  $(BUILD_OUTPUT_DIR)/j2sdk-image/lib/visualvm/etc/visualvm.clusters ; \
-	echo profiler2 >> \
+	echo profiler3 >> \
 	  $(BUILD_OUTPUT_DIR)/j2sdk-image/lib/visualvm/etc/visualvm.clusters ; \
-	cp -r visualvm/visualvm/build/cluster \
+	cp -r visualvm/visualvm/build/cluster/* \
 	  $(BUILD_OUTPUT_DIR)/j2sdk-image/lib/visualvm/visualvm ; \
-	cp -r netbeans/nbbuild/netbeans/platform7 \
+	cp -r netbeans/nbbuild/netbeans/platform8 \
 	  $(BUILD_OUTPUT_DIR)/j2sdk-image/lib/visualvm ; \
-	cp -r netbeans/nbbuild/netbeans/profiler2 \
+	cp -r netbeans/nbbuild/netbeans/profiler3 \
 	  $(BUILD_OUTPUT_DIR)/j2sdk-image/lib/visualvm
 endif
 	cp $(abs_top_srcdir)/rt/net/sourceforge/jnlp/resources/about.jnlp \
 	  extra-lib/about.jar \
-	  $(BUILD_OUTPUT_DIR)/j2re-image/lib
+	  $(BUILD_OUTPUT_DIR)/j2re-image/lib ; \
 	cp $(abs_top_srcdir)/rt/net/sourceforge/jnlp/resources/about.jnlp \
 	  extra-lib/about.jar \
 	  $(BUILD_OUTPUT_DIR)/j2sdk-image/jre/lib
@@ -981,9 +987,29 @@ if ENABLE_PLUGIN
 	  $(BUILD_OUTPUT_DIR)-debug/j2re-image/lib/$(INSTALL_ARCH_DIR)
 endif
 endif
+if WITH_VISUALVM
+	mkdir -p $(BUILD_OUTPUT_DIR)/j2sdk-image/lib/visualvm/etc ; \
+	mkdir -p $(BUILD_OUTPUT_DIR)/j2sdk-image/lib/visualvm/visualvm ; \
+	sed "s/APPNAME=\`basename.*\`/APPNAME=visualvm/" \
+	  visualvm/visualvm/launcher/visualvm >> \
+	  $(BUILD_OUTPUT_DIR)/j2sdk-image/bin/jvisualvm ; \
+	chmod a+x $(BUILD_OUTPUT_DIR)/j2sdk-image/bin/jvisualvm ; \
+	cp visualvm/visualvm/launcher/visualvm.conf \
+	  $(BUILD_OUTPUT_DIR)/j2sdk-image/lib/visualvm/etc ; \
+	echo visualvm >> \
+	  $(BUILD_OUTPUT_DIR)/j2sdk-image/lib/visualvm/etc/visualvm.clusters ; \
+	echo profiler3 >> \
+	  $(BUILD_OUTPUT_DIR)/j2sdk-image/lib/visualvm/etc/visualvm.clusters ; \
+	cp -r visualvm/visualvm/build/cluster/* \
+	  $(BUILD_OUTPUT_DIR)/j2sdk-image/lib/visualvm/visualvm ; \
+	cp -r netbeans/nbbuild/netbeans/platform8 \
+	  $(BUILD_OUTPUT_DIR)/j2sdk-image/lib/visualvm ; \
+	cp -r netbeans/nbbuild/netbeans/profiler3 \
+	  $(BUILD_OUTPUT_DIR)/j2sdk-image/lib/visualvm
+endif
 	cp $(abs_top_srcdir)/rt/net/sourceforge/jnlp/resources/default.jnlp \
 	  extra-lib/about.jar \
-	  $(BUILD_OUTPUT_DIR)-debug/j2re-image/lib
+	  $(BUILD_OUTPUT_DIR)-debug/j2re-image/lib ; \
 	cp $(abs_top_srcdir)/rt/net/sourceforge/jnlp/resources/default.jnlp \
 	  extra-lib/about.jar \
 	  $(BUILD_OUTPUT_DIR)-debug/j2sdk-image/jre/lib
@@ -1239,10 +1265,10 @@ bootstrap/jdk1.7.0/jre/lib/rt-closed.jar: stamps/rt-class-files.stamp
 	if ! test -d $(ICEDTEA_BOOT_DIR) ; \
 	then \
 	  $(JAR) cf $@ -C lib/rt com -C lib/rt java \
-            -C lib/rt javax $(LIVECONNECT_DIR) -C lib/rt net -C lib/rt sun ; \
+	    -C lib/rt javax $(LIVECONNECT_DIR) -C lib/rt net -C lib/rt sun ; \
 	else \
 	  $(ICEDTEA_BOOT_DIR)/bin/jar cf $@ -C lib/rt com -C lib/rt java \
-            -C lib/rt javax $(LIVECONNECT_DIR) -C lib/rt net -C lib/rt sun ; \
+	    -C lib/rt javax $(LIVECONNECT_DIR) -C lib/rt net -C lib/rt sun ; \
 	fi
 	if test -d bootstrap/ecj/jre/lib ; \
 	then \
@@ -1318,7 +1344,6 @@ IcedTeaPlugin.o: IcedTeaPlugin.cc
 	  $(GTK_CFLAGS) \
 	  $(XULRUNNER_CFLAGS) \
 	  -fPIC -c -o $@ $<
-
 IcedTeaPlugin.so: IcedTeaPlugin.o
 	$(CXX) $(CXXFLAGS) \
 	  $< \
@@ -1405,7 +1430,8 @@ stamps/visualvm.stamp: $(BOOTSTRAP_DIRECTORY_STAMP) stamps/download.stamp \
 	stamps/extract.stamp stamps/nbplatform.stamp
 if WITH_VISUALVM
 	cd visualvm/visualvm ; \
-	ln -s $(abs_top_srcdir)/netbeans/nbbuild/netbeans netbeans ; \
+	ln -s $(abs_top_srcdir)/netbeans/nbbuild/netbeans . ; \
+	rm netbeans/profiler3 && mv netbeans/extra netbeans/profiler3 ; \
 	JAVA_HOME=$(ICEDTEA_HOME) $(ANT) build
 endif
 	mkdir -p stamps
@@ -1420,10 +1446,18 @@ clean-visualvm:
 stamps/nbplatform.stamp: $(BOOTSTRAP_DIRECTORY_STAMP) stamps/extract.stamp \
 	stamps/download.stamp
 if WITH_VISUALVM
-	cd netbeans/nbbuild && JAVA_HOME=$(ICEDTEA_HOME) $(ANT) \
-	  -Dpermit.jdk6.builds=true build-platform ; \
-	cd ../profiler && find . -iname '*.so' | xargs rm ; \
-	cd libs/jfluid/native/build ; \
+	cd netbeans ; \
+	ln -s $(abs_top_srcdir)/netbeans/profiler.cvs/libs/jfluid/ lib.profiler ; \
+	ln -s $(abs_top_srcdir)/netbeans/profiler.cvs/libs/common/ lib.profiler.common ; \
+	ln -s $(abs_top_srcdir)/netbeans/profiler.cvs/libs/jfluid-ui/ lib.profiler.ui ; \
+	ln -s $(abs_top_srcdir)/netbeans/profiler.cvs/modules/nbmodule/ profiler.nbmodule ; \
+	mkdir -p ./nbbuild/netbeans/ ; \
+	ln -s $(SYSTEM_NETBEANS_DIR)/platform8/ ./nbbuild/netbeans/platform8 ; \
+	ln -s $(SYSTEM_NETBEANS_DIR)/apisupport1/ ./nbbuild/netbeans/apisupport1 ; \
+	ln -s $(SYSTEM_NETBEANS_DIR)/harness/ ./nbbuild/netbeans/harness ; \
+	ln -s $(SYSTEM_NETBEANS_DIR)/java2/ ./nbbuild/netbeans/java2 ; \
+	ln -s $(SYSTEM_NETBEANS_DIR)/ide9/ ./nbbuild/netbeans/ide9 ; \
+	cd profiler.cvs/libs/jfluid/native/build ; \
 	if ! (uname -a | grep x86_64) ; then \
 	  buildscript=./buildnative-linux-15.sh ; \
 	else \
@@ -1431,13 +1465,15 @@ if WITH_VISUALVM
 	fi ; \
 	JAVA_HOME_15=$(ICEDTEA_HOME) JAVA_HOME_16=$(ICEDTEA_HOME) \
 	  $$buildscript ; \
-	cd ../../../.. ; \
+	cd ../../../../.. ; \
+	ln -s $(abs_top_srcdir)/netbeans/nbbuild/netbeans/extra nbbuild/netbeans/profiler3 ; \
+	ln -s $(abs_top_srcdir)/netbeans/profiler.cvs/modules/main/ profiler ; \
 	for dir in jfluid jfluid-ui common ; do \
 	  JAVA_HOME=$(ICEDTEA_HOME) $(ANT) -Dpermit.jdk6.builds=true \
-	    -f libs/$$dir/build.xml ; \
+	    -f profiler.cvs/libs/$$dir/build.xml ; \
 	done ; \
 	JAVA_HOME=$(ICEDTEA_HOME) $(ANT) -Dpermit.jdk6.builds=true \
-	  -f modules/main/build.xml ;
+	  -f profiler.cvs/modules/main/build.xml ;
 endif
 	mkdir -p stamps
 	touch $@
