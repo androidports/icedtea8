@@ -1,5 +1,5 @@
 AC_PREREQ([2.61])
-AC_INIT([icedtea6], [1.3.1], [distro-pkg-dev@openjdk.java.net])
+AC_INIT([icedtea], [1.8-pre], [distro-pkg-dev@openjdk.java.net])
 AM_INIT_AUTOMAKE([1.10 tar-pax foreign])
 AC_CONFIG_FILES([Makefile])
 AC_CANONICAL_HOST
@@ -125,6 +125,7 @@ AC_ARG_WITH([ant-home],
             [
               SYSTEM_ANT_DIR=/usr/share/ant
             ])
+AC_MSG_RESULT(${SYSTEM_ANT_DIR})
 AC_SUBST(SYSTEM_ANT_DIR)
 AC_MSG_RESULT(${SYSTEM_ANT_DIR})
 
@@ -166,12 +167,14 @@ AC_ARG_ENABLE([visualvm],
 			                  [Enable compilation of visualvm.])],
               [enable_visualvm="${enableval}"], [enable_visualvm="no"])
 AM_CONDITIONAL(WITH_VISUALVM, test "x${enable_visualvm}" = "xyes")
+AC_MSG_RESULT(${enable_visualvm})
 
 if test "x${enable_visualvm}" = "xyes"
 then
   FIND_NETBEANS
 fi
 
+AC_MSG_CHECKING(whether to build using an existing installation of IcedTea)
 AC_ARG_WITH([icedtea],
         [AS_HELP_STRING([--with-icedtea],
                         [build IcedTea with system-installed IcedTea])],
@@ -261,7 +264,6 @@ then
   AC_SUBST(JAR)
   RMIC=${SYSTEM_OPENJDK_DIR}/bin/rmic
   AC_SUBST(RMIC)
-  AM_CONDITIONAL(GCC_OLD, test x != x)
 else
 if test "${with_icedtea}" = true
 then
@@ -275,7 +277,6 @@ then
   AC_SUBST(JAR)
   RMIC=${SYSTEM_ICEDTEA_DIR}/bin/rmic
   AC_SUBST(RMIC)
-  AM_CONDITIONAL(GCC_OLD, test x != x)
 else
   FIND_JAVA
   FIND_JAVAC
@@ -304,13 +305,27 @@ AC_CHECK_WITH_CACAO_SRC_ZIP
 ENABLE_OPTIMIZATIONS
 ENABLE_ZERO_BUILD
 SET_CORE_OR_SHARK_BUILD
+WITH_VERSION_SUFFIX
+WITH_PROJECT
+ENABLE_HG
+
+AC_PATH_TOOL([HG],[hg])
+if test "x${enable_hg}" = "xyes"; then
+  if test "x${HG}" = x; then
+    AC_MSG_ERROR([Mercurial not found; this is required for a hg build])
+  fi
+fi
+AC_SUBST([HG])
+
+AC_PATH_TOOL([GCJ],[gcj])
+AC_SUBST([GCJ])
 
 if test "x${enable_pulse_java}" = "xyes"
 then
   FIND_PULSEAUDIO
 fi
 
-dnl pkgconfig cannot be used to finid these headers and libraries.
+dnl pkgconfig cannot be used to find these headers and libraries.
 AC_CHECK_HEADERS([cups/cups.h cups/ppd.h],[]
 	,[AC_MSG_ERROR("CUPS headers were not found -
 	try installing cups-devel.")])

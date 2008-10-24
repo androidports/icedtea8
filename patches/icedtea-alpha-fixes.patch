@@ -1,5 +1,6 @@
---- openjdk/corba/make/common/Defs-linux.gmk.orig	2008-07-26 23:29:45.534791238 +0200
-+++ openjdk/corba/make/common/Defs-linux.gmk	2008-07-26 23:38:26.632651880 +0200
+diff -Nru openjdk.orig/corba/make/common/Defs-linux.gmk openjdk/corba/make/common/Defs-linux.gmk
+--- openjdk.orig/corba/make/common/Defs-linux.gmk	2008-09-01 01:43:43.000000000 +0100
++++ openjdk/corba/make/common/Defs-linux.gmk	2008-09-01 01:45:15.000000000 +0100
 @@ -176,7 +176,8 @@
    CXXFLAGS_DBG	+= $(CC_LOWER_OPT)
  endif
@@ -10,8 +11,9 @@
  		  -D_LARGEFILE64_SOURCE -D_GNU_SOURCE -D_REENTRANT
  
  ifeq ($(ARCH_DATA_MODEL), 64)
---- openjdk/hotspot/agent/src/os/linux/Makefile.orig	2008-07-26 23:29:45.244786863 +0200
-+++ openjdk/hotspot/agent/src/os/linux/Makefile	2008-07-26 23:38:26.632651880 +0200
+diff -Nru openjdk.orig/hotspot/agent/src/os/linux/Makefile openjdk/hotspot/agent/src/os/linux/Makefile
+--- openjdk.orig/hotspot/agent/src/os/linux/Makefile	2008-09-01 01:43:43.000000000 +0100
++++ openjdk/hotspot/agent/src/os/linux/Makefile	2008-09-01 01:45:15.000000000 +0100
 @@ -40,7 +40,7 @@
  
  LIBS     = -lthread_db
@@ -30,9 +32,10 @@
  
  test: test.o
  	$(GCC) -o test test.o -L$(ARCH) -lsaproc $(LIBS)
---- openjdk/hotspot/src/share/vm/oops/generateOopMap.cpp.orig	2008-07-10 22:04:33.000000000 +0200
-+++ openjdk/hotspot/src/share/vm/oops/generateOopMap.cpp	2008-07-26 23:38:26.632651880 +0200
-@@ -2128,7 +2128,7 @@
+diff -Nru openjdk.orig/hotspot/src/share/vm/oops/generateOopMap.cpp openjdk/hotspot/src/share/vm/oops/generateOopMap.cpp
+--- openjdk.orig/hotspot/src/share/vm/oops/generateOopMap.cpp	2008-08-14 08:40:11.000000000 +0100
++++ openjdk/hotspot/src/share/vm/oops/generateOopMap.cpp	2008-09-01 01:45:15.000000000 +0100
+@@ -2125,7 +2125,7 @@
    // We do not distinguish between different types of errors for verification
    // errors.  Let the verifier give a better message.
    const char *msg = "Illegal class file encountered. Try running with -Xverify:all";
@@ -41,8 +44,9 @@
  }
  
  //
---- openjdk/jaxp/make/build.properties.orig	2008-07-10 22:05:59.000000000 +0200
-+++ openjdk/jaxp/make/build.properties	2008-07-26 23:38:26.632651880 +0200
+diff -Nru openjdk.orig/jaxp/make/build.properties openjdk/jaxp/make/build.properties
+--- openjdk.orig/jaxp/make/build.properties	2008-08-14 08:40:25.000000000 +0100
++++ openjdk/jaxp/make/build.properties	2008-09-01 01:45:15.000000000 +0100
 @@ -41,6 +41,6 @@
  
  # JVM memory size
@@ -51,8 +55,9 @@
 +javac.memoryMaximumSize = 512m
  
  #------------------------------------------------------------
---- openjdk/jaxws/make/build.properties.orig	2008-07-10 22:07:18.000000000 +0200
-+++ openjdk/jaxws/make/build.properties	2008-07-26 23:38:26.632651880 +0200
+diff -Nru openjdk.orig/jaxws/make/build.properties openjdk/jaxws/make/build.properties
+--- openjdk.orig/jaxws/make/build.properties	2008-08-14 08:40:44.000000000 +0100
++++ openjdk/jaxws/make/build.properties	2008-09-01 01:45:15.000000000 +0100
 @@ -41,6 +41,6 @@
  
  # JVM memory size
@@ -61,10 +66,11 @@
 +javac.memoryMaximumSize = 512m
  
  #------------------------------------------------------------
---- openjdk/jdk/make/common/Defs-linux.gmk.orig	2008-07-26 23:29:45.524791087 +0200
-+++ openjdk/jdk/make/common/Defs-linux.gmk	2008-07-26 23:38:26.632651880 +0200
-@@ -184,7 +184,8 @@
-   CXXFLAGS_DBG	+= $(CC_LOWER_OPT)
+diff -Nru openjdk.orig/jdk/make/common/Defs-linux.gmk openjdk/jdk/make/common/Defs-linux.gmk
+--- openjdk.orig/jdk/make/common/Defs-linux.gmk	2008-09-01 01:43:43.000000000 +0100
++++ openjdk/jdk/make/common/Defs-linux.gmk	2008-09-01 01:45:15.000000000 +0100
+@@ -175,7 +175,8 @@
+   CXXFLAGS_DBG	+= $(CC_OPT/LOWER)
  endif
  
 -CPPFLAGS_COMMON = -D$(ARCH) -DARCH='"$(ARCH)"' -DLINUX $(VERSION_DEFINES) \

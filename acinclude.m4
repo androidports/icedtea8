@@ -194,7 +194,7 @@ AC_DEFUN([WITH_OPENJDK_SRC_DIR],
     AC_MSG_RESULT(${OPENJDK_SRC_DIR})
   ])
   AC_SUBST(OPENJDK_SRC_DIR)
-  AM_CONDITIONAL(GNU_CLASSLIB_FOUND, test "x${conditional_with_openjdk_sources}" = xtrue)
+  AM_CONDITIONAL(OPENJDK_SRC_DIR_FOUND, test "x${conditional_with_openjdk_sources}" = xtrue)
 ])
 
 AC_DEFUN([FIND_ECJ_JAR],
@@ -240,7 +240,6 @@ AC_DEFUN([FIND_ECJ_JAR],
 
 AC_DEFUN([FIND_LIBGCJ_JAR],
 [
-  AM_CONDITIONAL(GCC_OLD, test x != x)
   AC_ARG_WITH([libgcj-jar],
               [AS_HELP_STRING(--with-libgcj-jar,specify location of the libgcj 4.3.x jar)],
   [
@@ -261,7 +260,6 @@ AC_DEFUN([FIND_LIBGCJ_JAR],
     if test -n "${LIBGCJ_JAR}"; then
       AC_MSG_RESULT(${LIBGCJ_JAR})
     else
-      AM_CONDITIONAL(GCC_OLD, test x = x)
       for jar in /usr/share/java/libgcj-4.1*.jar /usr/share/java/libgcj-4.2*.jar; do
 	test -e $jar && LIBGCJ_JAR=$jar
       done
@@ -351,10 +349,20 @@ EOF
     JAR_ACCEPTS_STDIN_LIST=
     AC_MSG_RESULT(no)
   fi
-  rm -f _config.txt _config.list _config.jar
+  rm -f _config.list _config.jar
+  AC_MSG_CHECKING([whether jar supports -J options at the end])
+  if $JAR cf _config.jar _config.txt -J-Xmx896m 2>/dev/null; then
+    JAR_KNOWS_J_OPTIONS=1
+    AC_MSG_RESULT(yes)
+  else
+    JAR_KNOWS_J_OPTIONS=
+    AC_MSG_RESULT(no)
+  fi
+  rm -f _config.txt _config.jar
   AC_SUBST(JAR)
   AC_SUBST(JAR_KNOWS_ATFILE)
   AC_SUBST(JAR_ACCEPTS_STDIN_LIST)
+  AC_SUBST(JAR_KNOWS_J_OPTIONS)
 ])
 
 AC_DEFUN([FIND_RMIC],
@@ -433,6 +441,7 @@ AC_DEFUN([WITH_OPENJDK_SRC_ZIP],
   [
     ALT_OPENJDK_SRC_ZIP=${withval}
     AM_CONDITIONAL(USE_ALT_OPENJDK_SRC_ZIP, test x = x)
+    AC_SUBST(ALT_OPENJDK_SRC_ZIP)
   ],
   [ 
     ALT_OPENJDK_SRC_ZIP="not specified"
@@ -894,6 +903,92 @@ AC_DEFUN([AC_CHECK_WITH_CACAO_SRC_ZIP],
   ])
   AC_MSG_RESULT(${ALT_CACAO_SRC_ZIP})
   AC_SUBST(ALT_CACAO_SRC_ZIP)
+])
+
+AC_DEFUN([ENABLE_HG],
+[
+  AC_MSG_CHECKING(whether to retrieve the source code from Mercurial)
+  AC_ARG_ENABLE([hg],
+                [AS_HELP_STRING(--enable-hg,download source code from Mercurial [[default=no]])],
+  [
+    case "${enableval}" in
+      no)
+	enable_hg=no
+        ;;
+      *)
+        enable_hg=yes
+        ;;
+    esac
+  ],
+  [
+    case "${project}" in
+      jdk7)
+        enable_hg=no
+        ;;
+      *)
+        enable_hg=yes
+        ;;
+    esac
+  ])
+  AC_MSG_RESULT([${enable_hg}])
+  AM_CONDITIONAL([USE_HG], test x"${enable_hg}" = "xyes")
+])
+
+AC_DEFUN([WITH_VERSION_SUFFIX],
+[
+  AC_MSG_CHECKING(if a version suffix has been specified)
+  AC_ARG_WITH([version-suffix],
+              [AS_HELP_STRING(--with-version-suffix,appends the given text to the JDK version)],
+  [
+    case "${withval}" in
+      yes)
+	version_suffix=
+	AC_MSG_RESULT([no])
+        ;;
+      no)
+	version_suffix=
+	AC_MSG_RESULT([no])
+	;;
+      *)
+        version_suffix=${withval}
+	AC_MSG_RESULT([${version_suffix}])
+        ;;
+    esac
+  ],
+  [
+    version_suffix=
+    AC_MSG_RESULT([no])
+  ])
+  AC_SUBST(VERSION_SUFFIX, $version_suffix)
+])
+
+AC_DEFUN([WITH_PROJECT],
+[
+  AC_MSG_CHECKING(which OpenJDK project is being used)
+  AC_ARG_WITH([project],
+              [AS_HELP_STRING(--with-project,choose the OpenJDK project to use: jdk7 closures cvmi cacioavallo bsd [[default=jdk7]])],
+  [
+    case "${withval}" in
+      yes)
+	project=jdk7
+        ;;
+      no)
+	project=jdk7
+	;;
+      *)
+        project=${withval}
+        ;;
+    esac
+  ],
+  [
+    project=jdk7
+  ])
+  AC_MSG_RESULT([${project}])
+  AC_SUBST(PROJECT_NAME, $project)
+  AM_CONDITIONAL([USE_CLOSURES], test x"${project}" = "xclosures")
+  AM_CONDITIONAL([USE_CVMI], test x"${project}" = "xcvmi")
+  AM_CONDITIONAL([USE_CACIOCAVALLO], test x"${project}" = "xcaciocavallo")
+  AM_CONDITIONAL([USE_BSD], test x"${project}" = "xbsd")
 ])
 
 AC_DEFUN([AC_CHECK_WITH_GCJ],
