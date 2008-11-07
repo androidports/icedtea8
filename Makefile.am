@@ -316,7 +316,7 @@ VISUALVM_URL = http://icedtea.classpath.org/visualvm/
 if USE_ALT_VISUALVM_SRC_ZIP
   VISUALVM_SRC_ZIP = $(ALT_VISUALVM_SRC_ZIP)
 else
-  VISUALVM_SRC_ZIP = visualvm-20080728-src.tar.gz
+  VISUALVM_SRC_ZIP = visualvm-20081031-src.tar.gz
 endif
 
 stamps/download.stamp:
@@ -533,7 +533,12 @@ ICEDTEA_PATCHES = \
 	$(VISUALVM_PATCH) \
 	patches/icedtea-javac-debuginfo.patch \
 	patches/icedtea-xjc.patch \
-	patches/icedtea-renderer-crossing.patch
+	patches/icedtea-renderer-crossing.patch \
+	patches/icedtea-alsa-default-device.patch \
+	patches/icedtea-linker-libs-order.patch \
+	patches/icedtea-f2i-overflow.patch \
+	patches/icedtea-cc-interp-no-fer.patch \
+	patches/icedtea-6761856-freetypescaler.patch
 
 if WITH_RHINO
 ICEDTEA_PATCHES += \
@@ -638,7 +643,7 @@ stamps/patch.stamp: stamps/patch-fsg.stamp
 	fi
 
 	if [ -e $(abs_top_srcdir)/.hg ] && which $(HG) >/dev/null; then \
-	  revision="-r`(cd $(abs_top_srcdir); $(HG) tip --template '{rev}')`" ; \
+	  revision="-r`(cd $(abs_top_srcdir); $(HG) tip --template '{node|short}')`" ; \
 	fi ; \
 	icedtea_version="$(PACKAGE_VERSION)$${revision}" ; \
 	if [ -n "$(PKGVERSION)" ]; then \
@@ -1474,7 +1479,7 @@ if ENABLE_PULSE_JAVA
 	$(CC) $(LIBPULSE_CFLAGS) $(CFLAGS) -fPIC -c -I$(ICEDTEA_BOOT_DIR)/include/linux -I$(ICEDTEA_BOOT_DIR)/include $(PULSE_JAVA_NATIVE_SRCDIR)/org_classpath_icedtea_pulseaudio_Stream.c
 	$(CC) $(LIBPULSE_CFLAGS) $(CFLAGS) -fPIC -c -I$(ICEDTEA_BOOT_DIR)/include/linux -I$(ICEDTEA_BOOT_DIR)/include $(PULSE_JAVA_NATIVE_SRCDIR)/org_classpath_icedtea_pulseaudio_PulseAudioSourcePort.c 
 	$(CC) $(LIBPULSE_CFLAGS) $(CFLAGS) -fPIC -c -I$(ICEDTEA_BOOT_DIR)/include/linux -I$(ICEDTEA_BOOT_DIR)/include $(PULSE_JAVA_NATIVE_SRCDIR)/org_classpath_icedtea_pulseaudio_PulseAudioTargetPort.c
-	$(CC) $(LDFLAGS) -shared $(LIBPULSE_LIBS) -o libpulse-java.so org_*pulseaudio*.o jni-common.o
+	$(CC) $(LDFLAGS) -shared org_*pulseaudio*.o jni-common.o $(LIBPULSE_LIBS) -o libpulse-java.so 
 	mv org_classpath_icedtea_pulseaudio_*.o $(PULSE_JAVA_CLASS_DIR)
 	mv jni-common.o $(PULSE_JAVA_CLASS_DIR)
 endif
