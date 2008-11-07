@@ -1,9 +1,14 @@
+2008-11-07  Andrew John Hughes  <ahughes@redhat.com>
+
+	* Makefile.am: Use 'node|short' instead of 'rev'
+	for Mercurial revision number.
+
 2008-10-30  Andrew John Hughes  <ahughes@redhat.com>
 
 	* Makefile.am: Add bootstrap-directory-symlink
 	target to icedtea-ecj so it works as the user-specified
 	make target.
-	
+
 2008-10-22  Andrew John Hughes  <ahughes@redhat.com>
 
 	* Makefile.am: Pass JAR_KNOWS_J_OPTIONS	to ecj make.
@@ -12,6 +17,173 @@
 	* patches/icedtea-ecj-jopt.patch: Only add -J options
 	to jar in JDK and CORBA when supported.
 
+2008-10-29  Mark Wielaard  <mark@klomp.org>
+
+	* patches/icedtea-6761856-freetypescaler.patch: New patch.
+	* Makefile.am (ICEDTEA_PATCHES): Add new patch.
+	* HACKING: Document new patch.
+
+2008-11-07  Gary Benson  <gbenson@redhat.com>
+
+	* patches/icedtea-cc-interp-no-fer.patch: New file.
+	* Makefile.am (ICEDTEA_PATCHES): Apply the above.
+	* HACKING: Document the above.
+
+2008-11-07  Gary Benson  <gbenson@redhat.com>
+
+	* ports/hotspot/src/os_cpu/linux_zero/vm/atomic_linux_zero.inline.hpp
+	(Atomic::store_ptr): Implemented.
+
+2008-11-07  Gary Benson  <gbenson@redhat.com>
+
+	* ports/hotspot/src/cpu/zero/vm/frame_zero.cpp
+	(frame::interpreter_frame_result): Implemented.
+
+2008-11-06  Gary Benson  <gbenson@redhat.com>
+
+	* ports/hotspot/src/os_cpu/linux_zero/vm/os_linux_zero.cpp
+	(JVM_handle_linux_signal): Added signal chaining,
+	abort_if_unrecognised, and stack overflow recognition.
+
+2008-11-06  Gary Benson  <gbenson@redhat.com>
+
+	* ports/hotspot/src/cpu/zero/vm/globals_zero.hpp
+	(StackShadowPages): Increase for debug builds.
+
+2008-11-06  Gary Benson  <gbenson@redhat.com>
+
+	* ports/hotspot/src/cpu/zero/vm/cppInterpreter_zero.cpp
+	(CppInterpreter::native_entry): Unwind correctly if an
+	exception is thrown while setting up the call.
+
+2008-11-06  Gary Benson  <gbenson@redhat.com>
+
+	* ports/hotspot/src/cpu/zero/vm/cppInterpreter_zero.cpp
+	(CppInterpreter::native_entry): Add stack overflow check.
+
+2008-11-06  Gary Benson  <gbenson@redhat.com>
+
+	* ports/hotspot/src/cpu/zero/vm/cppInterpreter_zero.hpp
+	(CppInterpreter::stack_overflow_imminent): New method.
+
+	* ports/hotspot/src/cpu/zero/vm/cppInterpreter_zero.cpp
+	(CppInterpreter::stack_overflow_imminent): New method.
+	(CppInterpreter::normal_entry): Add stack overflow check.
+
+2008-11-05  Deepak Bhole  <dbhole@redhat.com>
+
+	* patches/icedtea-copy-plugs.patch: Add netscape.* classes to rt.jar when
+	building with an alternate jar application.
+
+2008-11-05  Deepak Bhole  <dbhole@redhat.com>
+
+	* rt/net/sourceforge/jnlp/runtime/JNLPClassLoader.java: Correct
+	indentation from last commit, remove debug output.
+
+2008-11-05  Andrew Haley  <aph@redhat.com>
+	    Gary Benson  <gbenson@redhat.com>
+
+	* contrib/mixtec-hacks.patch: new file.
+
+2008-11-04  Deepak Bhole  <dbhole@redhat.com>
+
+	* rt/net/sourceforge/jnlp/runtime/JNLPClassLoader.java: Dynamically load
+	files from the index.
+
+2008-11-04  Gary Benson  <gbenson@redhat.com>
+
+	* ports/hotspot/src/share/vm/shark/sharkRuntime.hpp
+	(SharkRuntime::_f2i): New constant.
+	(SharkRuntime::_f2l): Likewise.
+	(SharkRuntime::_d2i): Likewise.
+	(SharkRuntime::_d2l): Likewise.
+	(SharkRuntime::f2i): New accessor.
+	(SharkRuntime::f2l): Likewise.
+	(SharkRuntime::d2i): Likewise.
+	(SharkRuntime::d2l): Likewise.
+	* ports/hotspot/src/share/vm/shark/sharkRuntime.cpp
+	(SharkRuntime::_f2i): New constant.
+	(SharkRuntime::_f2l): Likewise.
+	(SharkRuntime::_d2i): Likewise.
+	(SharkRuntime::_d2l): Likewise.
+	(SharkRuntime::initialize): Initialize the above.
+	* ports/hotspot/src/share/vm/shark/sharkBlock.hpp
+	(SharkBlock::call_vm_leaf): New method.
+	* ports/hotspot/src/share/vm/shark/sharkBlock.cpp
+	(SharkBlock::parse): Use runtime calls for f2i, f2l, d2i and d2l.
+
+2008-11-04  Omair Majid  <omajid@redhat.com>
+
+	* Makefile.am (stamps/pulse-java.stamp): Link in libpulse.so after all
+	the object files that use it.
+	* pulseaudio/unittests/org/classpath/icedtea/pulseaudio/PulseAudioSourceDataLineTest.java
+	(testWriteIntegralNumberFrames): New function. Tests that a SourceDataLine
+	will only write an integral number of frames.
+	(testWriteNegativeLength): New function. Tests that a
+	SourceDataLine.write() wont accept a negative length.
+	(testWriteNegativeOffset): New function. Tests that a
+	SourceDataLine.write() will not accept a negative offset.
+	(testWriteMoreThanArrayLength): New function. Tests that
+	SourceDataLine.write() wont write more than the length of the array.
+	(testWriteMoreThanArrayLength2): Likewise.
+	(testWriteWithoutStart): Added a check to avoid throwing an
+	IllegalStateException.
+
+2008-11-04  Gary Benson  <gbenson@redhat.com>
+
+	* ports/hotspot/src/share/vm/shark/sharkBlock.cpp
+	(SharkBlock::parse): Fix syntax errors.
+
+2008-11-04  Gary Benson  <gbenson@redhat.com>
+
+	PR icedtea/244:
+	* patches/icedtea-f2i-overflow.patch: New file.
+	* Makefile.am (ICEDTEA_PATCHES): Apply the above.
+	* HACKING: Document the above.
+
+2008-11-03 Nix  <nix@esperi.org.uk>
+		   Omair Majid  <omajid@redhat.com>
+
+	* Makefile.am (ICEDTEA_PATCHES): Added icedtea-linker-libs-order.patch.
+	* patches/icedtea-linker-libs-order.patch: Fixes icedtea bug#237.
+
+2008-11-03  Omair Majid  <omajid@redhat.com>
+
+	* patches/icedtea-alsa-default-device.patch: New patch. Use the ALSA 
+	'default' device if possible. Makes Java play nice with PulseAudio.
+
+2008-11-03  Gary Benson  <gbenson@redhat.com>
+
+	* ports/hotspot/src/share/vm/shark/sharkBlock.cpp
+	(SharkBlock::parse): Fix shift instructions to use only the
+	lower order bits of the second argument.
+
+2008-11-03  Gary Benson  <gbenson@redhat.com>
+
+	* ports/hotspot/src/cpu/zero/vm/bytecodeInterpreter_zero.inline.hpp
+	(BytecodeInterpreter::VMintShl): Only shift by the lower five bits.
+	(BytecodeInterpreter::VMintShr): Likewise.
+	(BytecodeInterpreter::VMintUshr): Likewise.
+
+2008-10-31  Deepak Bhole  <dbhole@redhat.com>
+
+	* IcedTeaPlugin.cc: Fix potential DoS issue when dealing with very long
+	URL/target addresses.
+	* plugin/icedtea/sun/applet/PluginAppletViewer.java: Decode param values
+	correctly.
+	* rt/net/sourceforge/jnlp/runtime/JNLPSecurityManager.java: Bypass
+	authentication check when origin matches.
+	* rt/net/sourceforge/jnlp/security/AccessWarningPane.java: Show proper
+	Name/Publisher/Origin values when no certificate is associated.
+
+
+2008-10-31  Lillian Angel  <langel@redhat.com>
+
+	* Makefile.am: Updated for new visualvm 1.0.1.
+	* patches/icedtea-visualvm.patch: Updated.
+
+=======
+>>>>>>> other
 2008-10-29  Gary Benson  <gbenson@redhat.com>
 
 	PR icedtea/238:
