@@ -1842,6 +1842,7 @@ ICEDTEA_PATCHES = \
 	patches/icedtea-snmp.patch \
 	patches/icedtea-sound.patch \
 	patches/icedtea-tests-jdk.patch \
+	patches/icedtea-stroker-finish.patch \
 	patches/icedtea-alsa-default-device.patch \
 	patches/icedtea-linker-libs-order.patch \
 	patches/icedtea-f2i-overflow.patch \
@@ -1851,7 +1852,18 @@ ICEDTEA_PATCHES = \
 	patches/icedtea-testenv.patch \
 	patches/icedtea-format-warnings.patch \
 	patches/icedtea-fortify-source.patch \
-	$(ZERO_PATCHES_COND)
+	$(ZERO_PATCHES_COND) \
+	patches/icedtea-samejvm-safe.patch \
+        patches/icedtea-6484091.patch \
+        patches/icedtea-6497740.patch \
+        patches/icedtea-6588160.patch \
+        patches/icedtea-6592792.patch \
+        patches/icedtea-6721753.patch \
+        patches/icedtea-6726779.patch \
+        patches/icedtea-6733959.patch \
+        patches/icedtea-6734167.patch \
+        patches/icedtea-6755943.patch \
+        patches/icedtea-6766136.patch
 
 if WITH_RHINO
 ICEDTEA_PATCHES += \
@@ -1868,6 +1880,11 @@ endif
 if ENABLE_PULSE_JAVA
 ICEDTEA_PATCHES += \
 	patches/icedtea-pulse-soundproperties.patch
+endif
+
+if ENABLE_XRENDER
+XRENDER_PATCHES = patches/icedtea-xrender-???.patch
+ICEDTEA_PATCHES += $(sort $(wildcard $(XRENDER_PATCHES)))
 endif
 
 if !USE_CVMI
@@ -2142,7 +2159,8 @@ stamps/ports-ecj.stamp: stamps/clone-ecj.stamp
 # Patch OpenJDK for plug replacements and ecj.
 ICEDTEA_ECJ_PATCHES = patches/icedtea-ecj.patch \
 	patches/icedtea-ecj-spp.patch \
-	patches/icedtea-ecj-jopt.patch
+	patches/icedtea-ecj-jopt.patch \
+	patches/icedtea-ecj-pr261.patch
 
 stamps/patch-ecj.stamp: stamps/clone-ecj.stamp
 	mkdir -p stamps; \
@@ -2472,7 +2490,7 @@ icedtea-debug-against-icedtea: \
 stamps/native-ecj.stamp:
 	mkdir -p stamps 
 if BUILD_NATIVE_ECJ
-	${GCJ} ${CFLAGS} -Wl,-Bsymbolic -o native-ecj \
+	${GCJ} ${CFLAGS} -Wl,-Bsymbolic -findirect-dispatch -o native-ecj \
 	    --main=org.eclipse.jdt.internal.compiler.batch.Main ${ECJ_JAR}
 endif
 	touch stamps/native-ecj.stamp
@@ -2931,7 +2949,7 @@ check-jdk: stamps/jtreg.stamp
 	mkdir -p test/jdk/JTwork test/jdk/JTreport
 	$(ICEDTEA_BOOT_DIR)/bin/java -jar test/jtreg.jar -v1 -a -ignore:quiet \
 		-w:test/jdk/JTwork -r:test/jdk/JTreport \
-		-jdk:`pwd`/$(BUILD_OUTPUT_DIR)/j2sdk-image \
+		-s -jdk:`pwd`/$(BUILD_OUTPUT_DIR)/j2sdk-image \
 		-exclude:$(abs_top_srcdir)/test/jtreg/excludelist.jdk.jtx \
 		`pwd`/openjdk/jdk/test \
 	    | tee test/$@.log
@@ -2950,7 +2968,7 @@ jtreg_pids = ps x --no-headers -ww -o pid,ppid,args \
 jtregcheck: jtreg check-hotspot check-langtools check-jdk
 	for i in hotspot langtools jdk; do \
 	  echo "--------------- jtreg console summary for $$i ---------------"; \
-	  egrep -v '^(Passed:|Directory)' test/check-$$i.log; \
+	  egrep -v '^(Passed:|Directory|Re[a-z]+\ written\ to)' test/check-$$i.log; \
 	done | tee test/jtreg-summary.log
 
 	: # kill testsuite processes still hanging
