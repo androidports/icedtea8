@@ -1,0 +1,21 @@
+diff -Nru openjdk.orig/hotspot/src/share/vm/runtime/vm_version.cpp openjdk/hotspot/src/share/vm/runtime/vm_version.cpp
+--- openjdk.orig/hotspot/src/share/vm/runtime/vm_version.cpp	2008-10-30 17:10:16.000000000 +0000
++++ openjdk/hotspot/src/share/vm/runtime/vm_version.cpp	2008-10-30 17:11:34.000000000 +0000
+@@ -88,9 +88,6 @@
+   #define VMLP ""
+ #endif
+ 
+-#ifdef KERNEL
+-  #define VMTYPE "Kernel"
+-#else // KERNEL
+ #ifdef TIERED
+   #define VMTYPE "Server"
+ #else
+@@ -101,7 +98,6 @@
+   #define VMTYPE "Core"
+ #endif // COMPILER1 || COMPILER2
+ #endif // TIERED
+-#endif // KERNEL
+ 
+ #ifndef HOTSPOT_VM_DISTRO
+   #error HOTSPOT_VM_DISTRO must be defined
