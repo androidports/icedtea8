@@ -1,4 +1,3 @@
-AC_PREREQ([2.61])
 AC_INIT([icedtea], [1.9-pre], [distro-pkg-dev@openjdk.java.net])
 AM_INIT_AUTOMAKE([1.10 tar-pax foreign])
 AC_CONFIG_FILES([Makefile])
@@ -34,6 +33,7 @@ AC_PATH_TOOL([HG],[hg])
 AC_SUBST([HG])
 AC_PATH_TOOL([LSB_RELEASE],[lsb_release])
 AC_CHECK_WITH_GCJ
+AC_CHECK_WITH_HOTSPOT_BUILD
 
 AC_MSG_CHECKING([for a JDK home directory])
 AC_ARG_WITH([gcj-home],
@@ -151,6 +151,14 @@ AC_ARG_ENABLE([docs],
 	      [ENABLE_DOCS="${enableval}"], [ENABLE_DOCS='yes'])
 AM_CONDITIONAL([ENABLE_DOCS], [test x$ENABLE_DOCS = xyes])
 AC_MSG_RESULT(${ENABLE_DOCS})
+
+AC_MSG_CHECKING([whether to include the XRender pipeline])
+AC_ARG_ENABLE([xrender],
+	      [AS_HELP_STRING([--disable-xrender],
+	      		      [Disable inclusion of xrender pipeline])],
+	      [ENABLE_XRENDER="${enableval}"], [ENABLE_XRENDER='yes'])
+AM_CONDITIONAL([ENABLE_XRENDER], [test x$ENABLE_XRENDER = xyes])
+AC_MSG_RESULT(${ENABLE_XRENDER})
 
 AC_MSG_CHECKING([whether to build VisualVM])
 AC_ARG_ENABLE([visualvm],
@@ -285,6 +293,7 @@ fi
 fi
 FIND_RHINO_JAR
 WITH_OPENJDK_SRC_ZIP
+WITH_HOTSPOT_SRC_ZIP
 WITH_OPENJDK_SRC_DIR
 WITH_VISUALVM_SRC_ZIP
 WITH_NETBEANS_PROFILER_SRC_ZIP
@@ -380,6 +389,16 @@ then
 fi
 AC_SUBST(XINERAMA_CFLAGS)
 AC_SUBST(XINERAMA_LIBS)
+
+if test "x${ENABLE_XRENDER}" = "xyes"
+then
+  PKG_CHECK_MODULES(XRENDER, xrender, [XRENDER_FOUND=yes], [XRENDER_FOUND=no])
+  if test "x${XRENDER_FOUND}" = xno
+  then
+    AC_MSG_ERROR([Could not find Xrender extension - \
+Try installing libXrender-devel or configure --disable-xrender.])
+  fi
+fi
 
 dnl Check for libpng headers and libraries.
 PKG_CHECK_MODULES(LIBPNG, libpng,[LIBPNG_FOUND=yes]
