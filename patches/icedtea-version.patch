@@ -1,0 +1,28 @@
+diff -Nru openjdk.orig/jdk/make/common/shared/Defs.gmk openjdk/jdk/make/common/shared/Defs.gmk
+--- openjdk.orig/jdk/make/common/shared/Defs.gmk	2008-10-15 15:36:07.000000000 +0100
++++ openjdk/jdk/make/common/shared/Defs.gmk	2008-10-15 15:36:53.000000000 +0100
+@@ -194,8 +194,8 @@
+ 
+ # Default names
+ ifdef OPENJDK
+-  LAUNCHER_NAME = openjdk
+-  PRODUCT_NAME = OpenJDK
++  LAUNCHER_NAME = java
++  PRODUCT_NAME = IcedTea6
+   PRODUCT_SUFFIX = Runtime Environment
+   JDK_RC_PLATFORM_NAME = Platform
+   COMPANY_NAME = N/A
+--- openjdk/langtools/make/Makefile.orig
++++ openjdk/langtools/make/Makefile
+@@ -82,7 +82,11 @@
+ endif 
+ 
+ ifdef MILESTONE
++ifneq ($(MILESTONE),fcs)
+   ANT_OPTIONS += -Dmilestone=$(MILESTONE)
++else
++  ANT_OPTIONS += -Drelease=$(JDK_VERSION)
++endif
+ endif
+ 
+ ifdef BUILD_NUMBER
