@@ -1,0 +1,15 @@
+diff -Nru openjdk.orig/jdk/make/common/shared/Defs.gmk openjdk/jdk/make/common/shared/Defs.gmk
+--- openjdk.orig/jdk/make/common/shared/Defs.gmk	2008-11-06 08:44:09.000000000 +0000
++++ openjdk/jdk/make/common/shared/Defs.gmk	2008-11-19 12:15:54.000000000 +0000
+@@ -189,8 +189,8 @@
+ 
+ # Default names
+ ifdef OPENJDK
+-  LAUNCHER_NAME = openjdk
+-  PRODUCT_NAME = OpenJDK
++  LAUNCHER_NAME = java
++  PRODUCT_NAME = IcedTea
+   PRODUCT_SUFFIX = Runtime Environment
+   JDK_RC_PLATFORM_NAME = Platform
+   COMPANY_NAME = N/A
+
