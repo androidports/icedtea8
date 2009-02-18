@@ -1,28 +1,6 @@
-diff -ru openjdk/hotspot/build/linux/makefiles/defs.make openjdk/hotspot/build/linux/makefiles/defs.make
---- openjdk/hotspot/build/linux/makefiles/defs.make	2008-03-13 13:57:48.000000000 +0000
-+++ openjdk/hotspot/build/linux/makefiles/defs.make	2008-03-13 13:37:14.000000000 +0000
-@@ -37,6 +37,18 @@
-   ARCH_DATA_MODEL ?= 32
- endif
- 
-+# zero
-+ifdef ICEDTEA_ZERO_BUILD
-+  ARCH_DATA_MODEL  = $(ZERO_BITSPERWORD)
-+  ifeq ($(ARCH_DATA_MODEL), 64)
-+    MAKE_ARGS      += LP64=1
-+  endif
-+  PLATFORM         = linux-zero
-+  VM_PLATFORM      = linux_zero
-+  HS_ARCH          = zero
-+  ARCH             = zero
-+endif
-+
- # ia64
- ifeq ($(ARCH), ia64)
-   ARCH_DATA_MODEL = 64
-diff -ru openjdk/hotspot/make/defs.make openjdk/hotspot/make/defs.make
---- openjdk/hotspot/make/defs.make	2008-02-28 10:02:25.000000000 +0000
-+++ openjdk/hotspot/make/defs.make	2008-03-13 13:37:14.000000000 +0000
+diff -Nru openjdk.orig/hotspot/make/defs.make openjdk/hotspot/make/defs.make
+--- openjdk.orig/hotspot/make/defs.make	2008-11-22 00:11:18.000000000 +0000
++++ openjdk/hotspot/make/defs.make	2008-11-29 02:14:15.000000000 +0000
 @@ -192,13 +192,14 @@
  
    # Use uname output for SRCARCH, but deal with platform differences. If ARCH
@@ -50,10 +28,10 @@ diff -ru openjdk/hotspot/make/defs.make openjdk/hotspot/make/defs.make
  endif
  
  # Required make macro settings for all platforms
-diff -ru openjdk/hotspot/build/linux/makefiles/buildtree.make openjdk/hotspot/build/linux/makefiles/buildtree.make
---- openjdk/hotspot/build/linux/makefiles/buildtree.make	2008-02-28 10:02:19.000000000 +0000
-+++ openjdk/hotspot/build/linux/makefiles/buildtree.make	2008-03-13 13:37:14.000000000 +0000
-@@ -277,6 +277,7 @@
+diff -Nru openjdk.orig/hotspot/make/linux/makefiles/buildtree.make openjdk/hotspot/make/linux/makefiles/buildtree.make
+--- openjdk.orig/hotspot/make/linux/makefiles/buildtree.make	2008-11-22 00:11:18.000000000 +0000
++++ openjdk/hotspot/make/linux/makefiles/buildtree.make	2008-11-29 02:14:15.000000000 +0000
+@@ -321,6 +321,7 @@
  DATA_MODE/sparcv9 = 64
  DATA_MODE/amd64   = 64
  DATA_MODE/ia64    = 64
@@ -61,10 +39,42 @@ diff -ru openjdk/hotspot/build/linux/makefiles/buildtree.make openjdk/hotspot/bu
  
  JAVA_FLAG/32 = -d32
  JAVA_FLAG/64 = -d64
-diff -ru openjdk/hotspot/build/linux/makefiles/gcc.make openjdk/hotspot/build/linux/makefiles/gcc.make
---- openjdk/hotspot/build/linux/makefiles/gcc.make	2008-03-13 13:57:48.000000000 +0000
-+++ openjdk/hotspot/build/linux/makefiles/gcc.make	2008-03-13 13:37:20.000000000 +0000
-@@ -73,6 +76,7 @@
+diff -Nru openjdk.orig/hotspot/make/linux/makefiles/defs.make openjdk/hotspot/make/linux/makefiles/defs.make
+--- openjdk.orig/hotspot/make/linux/makefiles/defs.make	2008-11-29 01:55:52.000000000 +0000
++++ openjdk/hotspot/make/linux/makefiles/defs.make	2008-11-29 02:14:15.000000000 +0000
+@@ -37,6 +37,18 @@
+   ARCH_DATA_MODEL ?= 32
+ endif
+ 
++# zero
++ifdef ICEDTEA_ZERO_BUILD
++  ARCH_DATA_MODEL  = $(ZERO_BITSPERWORD)
++  ifeq ($(ARCH_DATA_MODEL), 64)
++    MAKE_ARGS      += LP64=1
++  endif
++  PLATFORM         = linux-zero
++  VM_PLATFORM      = linux_zero
++  HS_ARCH          = zero
++  ARCH             = zero
++endif
++
+ # ia64
+ ifeq ($(ARCH), ia64)
+   ARCH_DATA_MODEL = 64
+diff -Nru openjdk.orig/hotspot/make/linux/makefiles/gcc.make openjdk/hotspot/make/linux/makefiles/gcc.make
+--- openjdk.orig/hotspot/make/linux/makefiles/gcc.make	2008-11-29 01:55:52.000000000 +0000
++++ openjdk/hotspot/make/linux/makefiles/gcc.make	2008-11-29 02:14:15.000000000 +0000
+@@ -56,6 +56,9 @@
+ VM_PICFLAG/AOUT   =
+ VM_PICFLAG        = $(VM_PICFLAG/$(LINK_INTO))
+ 
++ifdef ICEDTEA_ZERO_BUILD
++CFLAGS += $(LIBFFI_CFLAGS)
++endif
+ CFLAGS += $(VM_PICFLAG)
+ CFLAGS += -fno-rtti
+ CFLAGS += -fno-exceptions
+@@ -72,6 +75,7 @@
  ARCHFLAG/ia64    =
  ARCHFLAG/sparc   = -m32 -mcpu=v9
  ARCHFLAG/sparcv9 = -m64 -mcpu=v9
@@ -72,10 +82,10 @@ diff -ru openjdk/hotspot/build/linux/makefiles/gcc.make openjdk/hotspot/build/li
  
  CFLAGS     += $(ARCHFLAG)
  AOUT_FLAGS += $(ARCHFLAG)
-diff -ru openjdk/hotspot/build/linux/makefiles/sa.make openjdk/hotspot/build/linux/makefiles/sa.make
---- openjdk/hotspot/build/linux/makefiles/sa.make	2007-11-08 11:34:54.000000000 +0000
-+++ openjdk/hotspot/build/linux/makefiles/sa.make	2007-11-08 11:36:15.000000000 +0000
-@@ -51,10 +51,10 @@
+diff -Nru openjdk.orig/hotspot/make/linux/makefiles/sa.make openjdk/hotspot/make/linux/makefiles/sa.make
+--- openjdk.orig/hotspot/make/linux/makefiles/sa.make	2008-11-22 00:11:18.000000000 +0000
++++ openjdk/hotspot/make/linux/makefiles/sa.make	2008-11-29 02:14:15.000000000 +0000
+@@ -52,10 +52,10 @@
  SA_PROPERTIES = $(SA_CLASSDIR)/sa.properties
  
  # if $(AGENT_DIR) does not exist, we don't build SA
@@ -88,9 +98,9 @@ diff -ru openjdk/hotspot/build/linux/makefiles/sa.make openjdk/hotspot/build/lin
  	   $(MAKE) -f sa.make $(GENERATED)/sa-jdi.jar; \
  	fi
  
-diff -ru openjdk/hotspot/build/linux/makefiles/saproc.make openjdk/hotspot/build/linux/makefiles/saproc.make
---- openjdk/hotspot/build/linux/makefiles/saproc.make	2007-11-08 11:34:54.000000000 +0000
-+++ openjdk/hotspot/build/linux/makefiles/saproc.make	2007-11-08 11:36:15.000000000 +0000
+diff -Nru openjdk.orig/hotspot/make/linux/makefiles/saproc.make openjdk/hotspot/make/linux/makefiles/saproc.make
+--- openjdk.orig/hotspot/make/linux/makefiles/saproc.make	2008-11-22 00:11:18.000000000 +0000
++++ openjdk/hotspot/make/linux/makefiles/saproc.make	2008-11-29 02:14:15.000000000 +0000
 @@ -44,10 +44,10 @@
  DEST_SAPROC = $(JDK_LIBDIR)/$(LIBSAPROC)
  
@@ -104,23 +114,10 @@ diff -ru openjdk/hotspot/build/linux/makefiles/saproc.make openjdk/hotspot/build
  	   $(MAKE) -f vm.make $(LIBSAPROC); \
  	fi
  
-diff -ru openjdk/hotspot/build/linux/makefiles/gcc.make openjdk/hotspot/build/linux/makefiles/gcc.make
---- openjdk/hotspot/build/linux/makefiles/gcc.make	2008-02-17 15:37:26.000000000 -0500
-+++ openjdk/hotspot/build/linux/makefiles/gcc.make	2008-02-17 15:37:58.000000000 -0500
-@@ -57,6 +57,9 @@
- 
- VM_PICFLAG        = $(VM_PICFLAG/$(LINK_INTO))
- 
-+ifdef ICEDTEA_ZERO_BUILD
-+CFLAGS += $(LIBFFI_CFLAGS)
-+endif
- CFLAGS += $(VM_PICFLAG)
- CFLAGS += -fno-rtti
- CFLAGS += -fno-exceptions
-diff -ru openjdk-ecj/hotspot/build/linux/makefiles/vm.make openjdk-ecj.new/hotspot/build/linux/makefiles/vm.make
---- openjdk/hotspot/build/linux/makefiles/vm.make	2008-02-29 09:46:55.000000000 -0500
-+++ openjdk/hotspot/build/linux/makefiles/vm.make	2008-02-29 09:47:30.000000000 -0500
-@@ -177,6 +177,9 @@
+diff -Nru openjdk.orig/hotspot/make/linux/makefiles/vm.make openjdk/hotspot/make/linux/makefiles/vm.make
+--- openjdk.orig/hotspot/make/linux/makefiles/vm.make	2008-11-29 01:55:52.000000000 +0000
++++ openjdk/hotspot/make/linux/makefiles/vm.make	2008-11-29 02:14:15.000000000 +0000
+@@ -158,6 +158,9 @@
  
    LIBS_VM                  += $(LIBS)
  endif
@@ -130,4 +127,3 @@ diff -ru openjdk-ecj/hotspot/build/linux/makefiles/vm.make openjdk-ecj.new/hotsp
  
  LINK_VM = $(LINK_LIB.c)
  
-

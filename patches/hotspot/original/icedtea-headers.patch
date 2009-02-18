@@ -1,6 +1,7 @@
---- oldopenjdk/hotspot/build/linux/makefiles/jvmti.make	2008-02-12 04:14:13.000000000 -0500
-+++ openjdk/hotspot/build/linux/makefiles/jvmti.make	2008-02-26 11:34:28.000000000 -0500
-@@ -57,7 +57,7 @@
+diff -Nru openjdk.orig/hotspot/make/linux/makefiles/jvmti.make openjdk/hotspot/make/linux/makefiles/jvmti.make
+--- openjdk.orig/hotspot/make/linux/makefiles/jvmti.make	2008-05-23 20:51:14.000000000 +0100
++++ openjdk/hotspot/make/linux/makefiles/jvmti.make	2008-05-23 20:54:13.000000000 +0100
+@@ -59,7 +59,7 @@
  
  JvmtiGeneratedFiles = $(JvmtiGeneratedNames:%=$(JvmtiOutDir)/%)
  

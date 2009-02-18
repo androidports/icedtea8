@@ -80,7 +80,34 @@ rm -rf \
 
 # binary files
 rm -f \
-  openjdk/jdk/test/sun/net/idn/*.spp
+  openjdk/jdk/test/sun/net/idn/nfscis.spp
+
+# TODO
+#$ find openjdk -name '*.jar' -o -name '*.class'|grep -v test
+
+# PR140, S6695776
+# Also see patches/icedtea-jscheme.patch
+rm -rf openjdk/corba/src/share/classes/com/sun/tools/corba/se/logutil/lib
+rm -rf openjdk/corba/src/share/classes/com/sun/tools/corba/se/logutil/scripts
+
+# PR139, S6710791
+rm -f \
+  openjdk/hotspot/agent/kk/src/share/lib/maf-1_0.jar \
+  openjdk/hotspot/agent/kk/src/share/lib/jlfgr-1_0.jar \
 
 # END Debian/Ubuntu additions
 
+# Remove support for proprietary SNMP plug
+rm -rf openjdk/jdk/src/share/classes/sun/management/snmp
+rm -rf openjdk/jdk/src/share/classes/com/sun/jmx/snmp
+rm -rf openjdk/jdk/test/com/sun/jmx/snmp
+
+# Remove support for proprietary sound
+rm -rf openjdk/jdk/src/share/classes/com/sun/media/sound/services
+rm -f openjdk/jdk/src/share/classes/com/sun/media/sound/MixerSynthProvider.java
+rm -f openjdk/jdk/src/share/classes/com/sun/media/sound/RmfFileReader.java
+rm -f openjdk/jdk/src/share/classes/com/sun/media/sound/HsbParser.java
+rm -f openjdk/jdk/src/share/classes/com/sun/media/sound/SimpleInputDeviceProvider.java
+
+# Remove registration tests
+rm -rf openjdk/jdk/test/com/sun/servicetag

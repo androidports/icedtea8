@@ -1,5 +1,22 @@
---- openjdk/hotspot/make/Makefile.orig	2008-11-25 09:11:57.000000000 +0000
-+++ openjdk/hotspot/make/Makefile	2008-12-05 10:25:12.000000000 +0000
+diff -Nru openjdk.orig/hotspot/make/linux/makefiles/defs.make openjdk/hotspot/make/linux/makefiles/defs.make
+--- openjdk.orig/hotspot/make/linux/makefiles/defs.make	2008-05-27 22:28:29.000000000 +0100
++++ openjdk/hotspot/make/linux/makefiles/defs.make	2008-06-22 03:10:05.000000000 +0100
+@@ -97,6 +97,7 @@
+ EXPORT_LIST += $(EXPORT_SERVER_DIR)/Xusage.txt
+ EXPORT_LIST += $(EXPORT_SERVER_DIR)/libjsig.so
+ EXPORT_LIST += $(EXPORT_SERVER_DIR)/libjvm.so
++ifndef ICEDTEA_CORE_BUILD
+ ifeq ($(ARCH_DATA_MODEL), 32)
+   EXPORT_CLIENT_DIR = $(EXPORT_JRE_LIB_ARCH_DIR)/client
+   EXPORT_LIST += $(EXPORT_CLIENT_DIR)/Xusage.txt
+@@ -111,3 +112,4 @@
+       EXPORT_LIST += $(EXPORT_LIB_DIR)/sa-jdi.jar
+     endif
+ endif
++endif
+diff -Nru openjdk.orig/hotspot/make/Makefile openjdk/hotspot/make/Makefile
+--- openjdk.orig/hotspot/make/Makefile	2008-05-27 22:28:29.000000000 +0100
++++ openjdk/hotspot/make/Makefile	2008-06-22 03:10:05.000000000 +0100
 @@ -91,6 +91,15 @@
  all_debug:     jvmg jvmg1 jvmgkernel docs export_debug
  all_optimized: optimized optimized1 optimizedkernel docs export_optimized
@@ -70,14 +87,15 @@
  
  # Bin files (windows)
  ifeq ($(OSNAME),windows)
---- openjdk/hotspot/src/share/vm/runtime/vm_version.cpp.orig	2008-11-25 09:12:13.000000000 +0000
-+++ openjdk/hotspot/src/share/vm/runtime/vm_version.cpp	2008-12-05 10:22:42.000000000 +0000
-@@ -95,8 +95,12 @@
+diff -Nru openjdk.orig/hotspot/src/share/vm/runtime/vm_version.cpp openjdk/hotspot/src/share/vm/runtime/vm_version.cpp
+--- openjdk.orig/hotspot/src/share/vm/runtime/vm_version.cpp	2008-05-27 22:28:30.000000000 +0100
++++ openjdk/hotspot/src/share/vm/runtime/vm_version.cpp	2008-06-22 03:10:05.000000000 +0100
+@@ -94,8 +94,12 @@
  #ifdef TIERED
    #define VMTYPE "Server"
  #else
 -  #define VMTYPE COMPILER1_PRESENT("Client")   \
--                 COMPILER2_PRESENT("Server")   
+-                 COMPILER2_PRESENT("Server")
 +#if defined(COMPILER1) || defined(COMPILER2)
 +   #define VMTYPE COMPILER1_PRESENT("Client")   \
 +                  COMPILER2_PRESENT("Server")
@@ -87,18 +105,4 @@
  #endif // TIERED
  #endif // KERNEL
  
---- openjdk/hotspot/build/linux/makefiles/defs.make.orig	2008-11-25 09:11:51.000000000 +0000
-+++ openjdk/hotspot/build/linux/makefiles/defs.make	2008-12-05 10:22:42.000000000 +0000
-@@ -97,6 +97,7 @@
- EXPORT_LIST += $(EXPORT_SERVER_DIR)/Xusage.txt
- EXPORT_LIST += $(EXPORT_SERVER_DIR)/libjsig.so
- EXPORT_LIST += $(EXPORT_SERVER_DIR)/libjvm.so
-+ifndef ICEDTEA_CORE_BUILD
- ifeq ($(ARCH_DATA_MODEL), 32)
-   EXPORT_CLIENT_DIR = $(EXPORT_JRE_LIB_ARCH_DIR)/client
-   EXPORT_LIST += $(EXPORT_CLIENT_DIR)/Xusage.txt
-@@ -111,3 +112,4 @@
-       EXPORT_LIST += $(EXPORT_LIB_DIR)/sa-jdi.jar
-     endif
- endif
-+endif
+
