@@ -1,0 +1,25 @@
+--- openjdk/langtools/make/Makefile.orig
++++ openjdk/langtools/make/Makefile
+@@ -82,7 +82,11 @@
+ endif 
+ 
+ ifdef MILESTONE
++ifneq ($(MILESTONE),fcs)
+   ANT_OPTIONS += -Dmilestone=$(MILESTONE)
++else
++  ANT_OPTIONS += -Drelease=$(JDK_VERSION)
++endif
+ endif
+ 
+ ifdef BUILD_NUMBER
+--- ../openjdk6/jdk/make/common/shared/Defs.gmk	2008-08-28 04:10:47.000000000 -0400
++++ openjdk/jdk/make/common/shared/Defs.gmk	2009-02-08 08:30:21.000000000 -0500
+@@ -194,7 +194,7 @@
+ 
+ # Default names
+ ifdef OPENJDK
+-  LAUNCHER_NAME = openjdk
++  LAUNCHER_NAME = java
+   PRODUCT_NAME = OpenJDK
+   PRODUCT_SUFFIX = Runtime Environment
+   JDK_RC_PLATFORM_NAME = Platform
