@@ -1,254 +1,126 @@
 diff -Nru openjdk.orig/jdk/make/docs/CORE_PKGS.gmk openjdk/jdk/make/docs/CORE_PKGS.gmk
---- openjdk.orig/jdk/make/docs/CORE_PKGS.gmk	2009-01-07 21:17:37.000000000 +0000
-+++ openjdk/jdk/make/docs/CORE_PKGS.gmk	2009-01-09 21:21:59.000000000 +0000
-@@ -36,6 +36,7 @@
-   sunw.*                   \
-   com.sun.*                \
-   org.apache.*             \
-+  org.classpath.icedtea.*  \
-   org.jcp.*		   \
-   org.w3c.dom.css          \
-   org.w3c.dom.html         \
-diff -Nru openjdk.orig/jdk/make/docs/Makefile openjdk/jdk/make/docs/Makefile
---- openjdk.orig/jdk/make/docs/Makefile	2009-02-03 16:20:38.000000000 +0000
-+++ openjdk/jdk/make/docs/Makefile	2009-02-03 19:40:10.000000000 +0000
-@@ -404,6 +404,29 @@
- # TREEAPI_PKGS is located in NON_CORE_PKGS.gmk
- 
- #
-+# Variables used by nio2docs target
-+#
-+
-+NIO2_JAVADOCFLAGS = $(COMMON_JAVADOCFLAGS)		      \
-+		    -encoding ascii			      \
-+		    -d $(NIO2_DOCDIR)				\
-+                    -sourcepath $(NIO2_SOURCEPATH)             	\
-+                    -splitIndex                               \
-+                    -doctitle $(NIO2_JAVADOCTITLE)          \
-+                    -windowtitle $(NIO2_JAVADOCWINDOWTITLE) \
-+                    -header $(NIO2_JAVADOCHEADER)           \
-+                    -bottom $(JAVADOCBOTTOM)           \
-+                    -group $(NIO2_GROUPNAME) $(NIO2_REGEXP)
-+NIO2_JAVADOCTITLE  = 'NIO2 API'
-+NIO2_JAVADOCWINDOWTITLE  = 'NIO2 API'
-+NIO2_JAVADOCHEADER = '<b>NIO2 API</b>'
-+NIO2_GROUPNAME = "Packages"
-+NIO2_REGEXP = "org.classpath.icedtea.*"
-+NIO2_DOCDIR      = $(DOCSDIR)/jre/api/nio2
-+NIO2_SOURCEPATH  = $(TOPDIR)/src/share/classes
-+# NIO2_PKGS is located in NON_CORE_PKGS.gmk
-+
-+#
- # Path where javadoc should find source files for release docs
- #
- RELEASEDOCS_SRCPATH = "$(SHARE_SRC)/classes$(CLASSPATH_SEPARATOR)$(PLATFORM_SRC)/classes$(CLASSPATH_SEPARATOR)$(GENSRCDIR)$(CLASSPATH_SEPARATOR)$(SHARE_SRC)/doc/stub$(CLASSPATH_SEPARATOR)$(CLOSED_SRC)/share/classes$(CLASSPATH_SEPARATOR)$(IMPORTSRCDIR)"
-@@ -429,7 +452,8 @@
-     httpserverdocs  \
-     mgmtdocs \
-     attachdocs \
--    jconsoledocs
-+    jconsoledocs \
-+    nio2docs
- 
- ifdef LANGTOOLS_DIST
-     ALL_OTHER_TARGETS += \
-@@ -646,6 +670,14 @@
- 		   $(TREEAPI_LINKOPT)                  \
- 		   $(TREEAPI_PKGS)
- 
-+.PHONY: nio2docs
-+nio2docs:
-+	@# ######## api-nio2 ############################
-+	$(RM) -r $(NIO2_DOCDIR)
-+	$(MKDIR) -p $(NIO2_DOCDIR)
-+	$(JAVADOC_CMD) $(NIO2_JAVADOCFLAGS)                     \
-+		   $(NIO2_PKGS)
-+
- # DEBUG TARGET
- # List the values defined in the makefile hierarchy, to make sure everything
- # is set properly, and to help identify values we can use instead of making new ones.
-diff -Nru openjdk.orig/jdk/make/docs/NON_CORE_PKGS.gmk openjdk/jdk/make/docs/NON_CORE_PKGS.gmk
---- openjdk.orig/jdk/make/docs/NON_CORE_PKGS.gmk	2009-01-07 21:27:46.000000000 +0000
-+++ openjdk/jdk/make/docs/NON_CORE_PKGS.gmk	2009-02-03 16:28:29.000000000 +0000
-@@ -65,6 +65,16 @@
- HTTPSERVER_PKGS  = com.sun.net.httpserver       \
-                    com.sun.net.httpserver.spi 
- 
-+NIO2_PKGS         = org.classpath.icedtea.java.io			\
-+		   org.classpath.icedtea.java.net			\
-+		   org.classpath.icedtea.java.nio.channels		\
-+		   org.classpath.icedtea.java.nio.channels.spi		\
-+		   org.classpath.icedtea.java.nio.file    		\
-+		   org.classpath.icedtea.java.nio.file.attribute	 \
-+		   org.classpath.icedtea.java.nio.file.spi		 \
-+		   org.classpath.icedtea.java.util
-+   
-+
- DOCLETAPI_PKGS   = com.sun.javadoc
- 
- TAGLETAPI_FILE   = com/sun/tools/doclets/Taglet.java
-@@ -89,6 +99,7 @@
-                    $(MGMT_PKGS) \
-                    $(JAAS_PKGS) \
-                    $(JGSS_PKGS) \
-+		   $(NIO2_PKGS) \
-                    $(OLD_JSSE_PKGS) \
-                    $(HTTPSERVER_PKGS) \
-                    $(SMARTCARDIO_PKGS)
-diff -Nru openjdk.orig/jdk/make/java/java/FILES_java.gmk openjdk/jdk/make/java/java/FILES_java.gmk
---- openjdk.orig/jdk/make/java/java/FILES_java.gmk	2009-01-07 21:35:50.000000000 +0000
-+++ openjdk/jdk/make/java/java/FILES_java.gmk	2009-01-12 15:24:01.000000000 +0000
-@@ -516,6 +516,13 @@
-     sun/misc/JavaLangAccess.java \
-     sun/misc/JavaIOAccess.java \
-     sun/misc/JavaIODeleteOnExitAccess.java \
--    sun/misc/JavaIOFileDescriptorAccess.java
-+    sun/misc/JavaIOFileDescriptorAccess.java \
-+    org/classpath/icedtea/java/io/File.java \
-+    org/classpath/icedtea/java/io/FilePermission.java \
-+    org/classpath/icedtea/java/io/Inputs.java \
-+    org/classpath/icedtea/java/io/Outputs.java \
-+    org/classpath/icedtea/java/util/Scanner.java \
-+    org/classpath/icedtea/misc/SharedSecrets.java \
-+    org/classpath/icedtea/misc/JavaIODeleteOnExitAccess.java
- 
- FILES_java = $(JAVA_JAVA_java)
+--- openjdk.orig/jdk/make/docs/CORE_PKGS.gmk	2009-02-05 08:44:13.000000000 +0000
++++ openjdk/jdk/make/docs/CORE_PKGS.gmk	2009-02-11 23:47:38.000000000 +0000
+@@ -110,6 +110,9 @@
+   java.nio.channels.spi                          \
+   java.nio.charset                               \
+   java.nio.charset.spi                           \
++  java.nio.file					 \
++  java.nio.file.attribute			 \
++  java.nio.file.spi				 \
+   java.rmi                                       \
+   java.rmi.activation                            \
+   java.rmi.dgc                                   \
 diff -Nru openjdk.orig/jdk/make/java/nio/FILES_java.gmk openjdk/jdk/make/java/nio/FILES_java.gmk
---- openjdk.orig/jdk/make/java/nio/FILES_java.gmk	2009-01-10 03:21:38.000000000 +0000
-+++ openjdk/jdk/make/java/nio/FILES_java.gmk	2009-01-19 19:13:49.000000000 +0000
-@@ -75,12 +75,13 @@
-         sun/nio/ch/DefaultSelectorProvider.java \
- 	sun/nio/ch/DirectBuffer.java \
- 	sun/nio/ch/FileChannelImpl.java \
--	sun/nio/ch/FileDispatcher.java \
- 	sun/nio/ch/FileKey.java \
- 	sun/nio/ch/Interruptible.java \
- 	sun/nio/ch/IOUtil.java \
- 	sun/nio/ch/IOStatus.java \
- 	sun/nio/ch/IOVecWrapper.java \
-+	sun/nio/ch/MembershipKeyImpl.java \
-+	sun/nio/ch/MembershipRegistry.java \
- 	sun/nio/ch/NativeDispatcher.java \
- 	sun/nio/ch/NativeObject.java \
- 	sun/nio/ch/NativeThread.java \
-@@ -100,6 +101,7 @@
- 	sun/nio/ch/SocketAdaptor.java \
- 	sun/nio/ch/SocketChannelImpl.java \
- 	sun/nio/ch/SocketDispatcher.java \
-+	sun/nio/ch/SocketOptionRegistry.java \
- 	sun/nio/ch/SocketOpts.java \
- 	sun/nio/ch/SocketOptsImpl.java \
-         sun/nio/ch/SourceChannelImpl.java \
-@@ -144,7 +146,150 @@
+--- openjdk.orig/jdk/make/java/nio/FILES_java.gmk	2009-02-11 23:12:43.000000000 +0000
++++ openjdk/jdk/make/java/nio/FILES_java.gmk	2009-02-20 11:03:22.000000000 +0000
+@@ -149,7 +149,147 @@
  	java/lang/StringCoding.java \
  	\
  	sun/misc/Cleaner.java \
 -	sun/util/PreHashedMap.java
 +	sun/util/PreHashedMap.java \
 +	\
-+	org/classpath/icedtea/java/net/ProtocolFamily.java \
-+	org/classpath/icedtea/java/net/SocketOption.java \
-+	org/classpath/icedtea/java/net/StandardProtocolFamily.java \
-+	org/classpath/icedtea/java/net/StandardSocketOption.java \
-+	org/classpath/icedtea/java/nio/channels/AsynchronousByteChannel.java \
-+	org/classpath/icedtea/java/nio/channels/AsynchronousChannel.java \
-+	org/classpath/icedtea/java/nio/channels/AsynchronousChannelGroup.java \
-+	org/classpath/icedtea/java/nio/channels/AsynchronousDatagramChannel.java \
-+	org/classpath/icedtea/java/nio/channels/AsynchronousFileChannel.java \
-+	org/classpath/icedtea/java/nio/channels/AsynchronousServerSocketChannel.java \
-+	org/classpath/icedtea/java/nio/channels/AsynchronousSocketChannel.java \
-+	org/classpath/icedtea/java/nio/channels/Channels.java \
-+	org/classpath/icedtea/java/nio/channels/CompletionHandler.java \
-+	org/classpath/icedtea/java/nio/channels/DatagramChannel.java \
-+	org/classpath/icedtea/java/nio/channels/FileChannel.java \
-+	org/classpath/icedtea/java/nio/channels/FileLock.java \
-+	org/classpath/icedtea/java/nio/channels/MembershipKey.java \
-+	org/classpath/icedtea/java/nio/channels/MulticastChannel.java \
-+	org/classpath/icedtea/java/nio/channels/NetworkChannel.java \
-+	org/classpath/icedtea/java/nio/channels/SeekableByteChannel.java \
-+	org/classpath/icedtea/java/nio/channels/spi/AsynchronousChannelProvider.java \
-+	org/classpath/icedtea/java/nio/channels/spi/SelectorProvider.java \
-+	org/classpath/icedtea/java/nio/file/AccessDeniedException.java \
-+	org/classpath/icedtea/java/nio/file/AccessMode.java \
-+	org/classpath/icedtea/java/nio/file/AtomicMoveNotSupportedException.java \
-+	org/classpath/icedtea/java/nio/file/ClosedDirectoryStreamException.java \
-+	org/classpath/icedtea/java/nio/file/ClosedFileSystemException.java \
-+	org/classpath/icedtea/java/nio/file/ClosedWatchServiceException.java \
-+	org/classpath/icedtea/java/nio/file/CopyOption.java \
-+	org/classpath/icedtea/java/nio/file/DirectoryNotEmptyException.java \
-+	org/classpath/icedtea/java/nio/file/DirectoryStream.java \
-+	org/classpath/icedtea/java/nio/file/DirectoryStreamFilters.java \
-+	org/classpath/icedtea/java/nio/file/FileAction.java \
-+	org/classpath/icedtea/java/nio/file/FileAlreadyExistsException.java \
-+	org/classpath/icedtea/java/nio/file/FileRef.java \
-+	org/classpath/icedtea/java/nio/file/FileStore.java \
-+	org/classpath/icedtea/java/nio/file/FileSystem.java \
-+	org/classpath/icedtea/java/nio/file/FileSystemAlreadyExistsException.java \
-+	org/classpath/icedtea/java/nio/file/FileSystemException.java \
-+	org/classpath/icedtea/java/nio/file/FileSystemNotFoundException.java \
-+	org/classpath/icedtea/java/nio/file/FileSystems.java \
-+	org/classpath/icedtea/java/nio/file/FileTreeWalker.java \
-+	org/classpath/icedtea/java/nio/file/FileVisitOption.java \
-+	org/classpath/icedtea/java/nio/file/FileVisitResult.java \
-+	org/classpath/icedtea/java/nio/file/FileVisitor.java \
-+	org/classpath/icedtea/java/nio/file/Files.java \
-+	org/classpath/icedtea/java/nio/file/InvalidPathException.java \
-+	org/classpath/icedtea/java/nio/file/LinkPermission.java \
-+	org/classpath/icedtea/java/nio/file/NoSuchFileException.java \
-+	org/classpath/icedtea/java/nio/file/NotDirectoryException.java \
-+	org/classpath/icedtea/java/nio/file/NotLinkException.java \
-+	org/classpath/icedtea/java/nio/file/OpenOption.java \
-+	org/classpath/icedtea/java/nio/file/Path.java \
-+	org/classpath/icedtea/java/nio/file/PathMatcher.java \
-+	org/classpath/icedtea/java/nio/file/Paths.java \
-+	org/classpath/icedtea/java/nio/file/ProviderMismatchException.java \
-+	org/classpath/icedtea/java/nio/file/ProviderNotFoundException.java \
-+	org/classpath/icedtea/java/nio/file/ReadOnlyFileSystemException.java \
-+	org/classpath/icedtea/java/nio/file/SecureDirectoryStream.java \
-+	org/classpath/icedtea/java/nio/file/SimpleFileVisitor.java \
-+	org/classpath/icedtea/java/nio/file/StandardCopyOption.java \
-+	org/classpath/icedtea/java/nio/file/StandardOpenOption.java \
-+	org/classpath/icedtea/java/nio/file/StandardWatchEventKind.java \
-+	org/classpath/icedtea/java/nio/file/WatchEvent.java \
-+	org/classpath/icedtea/java/nio/file/WatchKey.java \
-+	org/classpath/icedtea/java/nio/file/WatchService.java \
-+	org/classpath/icedtea/java/nio/file/Watchable.java \
++	java/net/ProtocolFamily.java \
++	java/net/SocketOption.java \
++	java/net/StandardProtocolFamily.java \
++	java/net/StandardSocketOption.java \
++	java/nio/channels/AsynchronousByteChannel.java \
++	java/nio/channels/AsynchronousChannel.java \
++	java/nio/channels/AsynchronousChannelGroup.java \
++	java/nio/channels/AsynchronousDatagramChannel.java \
++	java/nio/channels/AsynchronousFileChannel.java \
++	java/nio/channels/AsynchronousServerSocketChannel.java \
++	java/nio/channels/AsynchronousSocketChannel.java \
++	java/nio/channels/Channels.java \
++	java/nio/channels/CompletionHandler.java \
++	java/nio/channels/DatagramChannel.java \
++	java/nio/channels/FileChannel.java \
++	java/nio/channels/FileLock.java \
++	java/nio/channels/MembershipKey.java \
++	java/nio/channels/MulticastChannel.java \
++	java/nio/channels/NetworkChannel.java \
++	java/nio/channels/SeekableByteChannel.java \
++	java/nio/channels/spi/AsynchronousChannelProvider.java \
++	java/nio/channels/spi/SelectorProvider.java \
++	java/nio/file/AccessDeniedException.java \
++	java/nio/file/AccessMode.java \
++	java/nio/file/AtomicMoveNotSupportedException.java \
++	java/nio/file/ClosedDirectoryStreamException.java \
++	java/nio/file/ClosedFileSystemException.java \
++	java/nio/file/ClosedWatchServiceException.java \
++	java/nio/file/CopyOption.java \
++	java/nio/file/DirectoryNotEmptyException.java \
++	java/nio/file/DirectoryStream.java \
++	java/nio/file/DirectoryStreamFilters.java \
++	java/nio/file/FileAction.java \
++	java/nio/file/FileAlreadyExistsException.java \
++	java/nio/file/FileRef.java \
++	java/nio/file/FileStore.java \
++	java/nio/file/FileSystem.java \
++	java/nio/file/FileSystemAlreadyExistsException.java \
++	java/nio/file/FileSystemException.java \
++	java/nio/file/FileSystemNotFoundException.java \
++	java/nio/file/FileSystems.java \
++	java/nio/file/FileTreeWalker.java \
++	java/nio/file/FileVisitOption.java \
++	java/nio/file/FileVisitResult.java \
++	java/nio/file/FileVisitor.java \
++	java/nio/file/Files.java \
++	java/nio/file/InvalidPathException.java \
++	java/nio/file/LinkPermission.java \
++	java/nio/file/NoSuchFileException.java \
++	java/nio/file/NotDirectoryException.java \
++	java/nio/file/NotLinkException.java \
++	java/nio/file/OpenOption.java \
++	java/nio/file/Path.java \
++	java/nio/file/PathMatcher.java \
++	java/nio/file/Paths.java \
++	java/nio/file/ProviderMismatchException.java \
++	java/nio/file/ProviderNotFoundException.java \
++	java/nio/file/ReadOnlyFileSystemException.java \
++	java/nio/file/SecureDirectoryStream.java \
++	java/nio/file/SimpleFileVisitor.java \
++	java/nio/file/StandardCopyOption.java \
++	java/nio/file/StandardOpenOption.java \
++	java/nio/file/StandardWatchEventKind.java \
++	java/nio/file/WatchEvent.java \
++	java/nio/file/WatchKey.java \
++	java/nio/file/WatchService.java \
++	java/nio/file/Watchable.java \
 +	\
-+	org/classpath/icedtea/java/nio/file/attribute/AclEntry.java \
-+	org/classpath/icedtea/java/nio/file/attribute/AclEntryFlag.java \
-+	org/classpath/icedtea/java/nio/file/attribute/AclEntryPermission.java \
-+	org/classpath/icedtea/java/nio/file/attribute/AclEntryType.java \
-+	org/classpath/icedtea/java/nio/file/attribute/AclFileAttributeView.java \
-+	org/classpath/icedtea/java/nio/file/attribute/AttributeView.java \
-+	org/classpath/icedtea/java/nio/file/attribute/Attributes.java \
-+	org/classpath/icedtea/java/nio/file/attribute/BasicFileAttributeView.java \
-+	org/classpath/icedtea/java/nio/file/attribute/BasicFileAttributes.java \
-+	org/classpath/icedtea/java/nio/file/attribute/DosFileAttributeView.java \
-+	org/classpath/icedtea/java/nio/file/attribute/DosFileAttributes.java \
-+	org/classpath/icedtea/java/nio/file/attribute/FileAttribute.java \
-+	org/classpath/icedtea/java/nio/file/attribute/FileAttributeView.java \
-+	org/classpath/icedtea/java/nio/file/attribute/FileOwnerAttributeView.java \
-+	org/classpath/icedtea/java/nio/file/attribute/FileStoreAttributeView.java \
-+	org/classpath/icedtea/java/nio/file/attribute/FileStoreSpaceAttributeView.java \
-+	org/classpath/icedtea/java/nio/file/attribute/FileStoreSpaceAttributes.java \
-+	org/classpath/icedtea/java/nio/file/attribute/GroupPrincipal.java \
-+	org/classpath/icedtea/java/nio/file/attribute/NamedAttributeView.java \
-+	org/classpath/icedtea/java/nio/file/attribute/PosixFileAttributeView.java \
-+	org/classpath/icedtea/java/nio/file/attribute/PosixFileAttributes.java \
-+	org/classpath/icedtea/java/nio/file/attribute/PosixFilePermission.java \
-+	org/classpath/icedtea/java/nio/file/attribute/PosixFilePermissions.java \
-+	org/classpath/icedtea/java/nio/file/attribute/UserPrincipal.java \
-+	org/classpath/icedtea/java/nio/file/attribute/UserPrincipalLookupService.java \
-+	org/classpath/icedtea/java/nio/file/attribute/UserPrincipalNotFoundException.java \
++	java/nio/file/attribute/AclEntry.java \
++	java/nio/file/attribute/AclEntryFlag.java \
++	java/nio/file/attribute/AclEntryPermission.java \
++	java/nio/file/attribute/AclEntryType.java \
++	java/nio/file/attribute/AclFileAttributeView.java \
++	java/nio/file/attribute/AttributeView.java \
++	java/nio/file/attribute/Attributes.java \
++	java/nio/file/attribute/BasicFileAttributeView.java \
++	java/nio/file/attribute/BasicFileAttributes.java \
++	java/nio/file/attribute/DosFileAttributeView.java \
++	java/nio/file/attribute/DosFileAttributes.java \
++	java/nio/file/attribute/FileAttribute.java \
++	java/nio/file/attribute/FileAttributeView.java \
++	java/nio/file/attribute/FileOwnerAttributeView.java \
++	java/nio/file/attribute/FileStoreAttributeView.java \
++	java/nio/file/attribute/FileStoreSpaceAttributeView.java \
++	java/nio/file/attribute/FileStoreSpaceAttributes.java \
++	java/nio/file/attribute/GroupPrincipal.java \
++	java/nio/file/attribute/NamedAttributeView.java \
++	java/nio/file/attribute/PosixFileAttributeView.java \
++	java/nio/file/attribute/PosixFileAttributes.java \
++	java/nio/file/attribute/PosixFilePermission.java \
++	java/nio/file/attribute/PosixFilePermissions.java \
++	java/nio/file/attribute/UserPrincipal.java \
++	java/nio/file/attribute/UserPrincipalLookupService.java \
++	java/nio/file/attribute/UserPrincipalNotFoundException.java \
 +	\
-+	org/classpath/icedtea/java/nio/file/spi/AbstractPath.java \
-+	org/classpath/icedtea/java/nio/file/spi/FileSystemProvider.java \
-+	org/classpath/icedtea/java/nio/file/spi/FileTypeDetector.java \
++	java/nio/file/spi/AbstractPath.java \
++	java/nio/file/spi/FileSystemProvider.java \
++	java/nio/file/spi/FileTypeDetector.java \
 +	\
-+	org/classpath/icedtea/java/util/concurrent/ScheduledThreadPoolExecutor.java \
-+	\
-+	org/classpath/icedtea/misc/JavaUtilConcurrentThreadPoolExecutorAccess.java \
-+	org/classpath/icedtea/misc/JavaNetGetIndexAccess.java \
++	java/util/concurrent/ScheduledThreadPoolExecutor.java \
 +	\
 +	com/sun/nio/file/ExtendedCopyOption.java \
 +	com/sun/nio/file/ExtendedOpenOption.java \
@@ -291,32 +163,25 @@ diff -Nru openjdk.orig/jdk/make/java/nio/FILES_java.gmk openjdk/jdk/make/java/ni
  
  # Generated coder classes
  #
-@@ -263,10 +408,20 @@
+@@ -267,7 +407,14 @@
  	\
  	java/nio/charset/CharacterCodingException.java \
  	java/nio/charset/IllegalCharsetNameException.java \
 -	java/nio/charset/UnsupportedCharsetException.java
 +	java/nio/charset/UnsupportedCharsetException.java \
 +	\
-+	org/classpath/icedtea/java/nio/channels/AcceptPendingException.java \
-+	org/classpath/icedtea/java/nio/channels/IllegalChannelGroupException.java \
-+	org/classpath/icedtea/java/nio/channels/InterruptedByTimeoutException.java \
-+	org/classpath/icedtea/java/nio/channels/ReadPendingException.java \
-+	org/classpath/icedtea/java/nio/channels/ShutdownChannelGroupException.java \
-+	org/classpath/icedtea/java/nio/channels/WritePendingException.java 
++	java/nio/channels/AcceptPendingException.java \
++	java/nio/channels/IllegalChannelGroupException.java \
++	java/nio/channels/InterruptedByTimeoutException.java \
++	java/nio/channels/ReadPendingException.java \
++	java/nio/channels/ShutdownChannelGroupException.java \
++	java/nio/channels/WritePendingException.java 
  
- FILES_gen_csp = sun/nio/cs/StandardCharsets.java
- 
--FILES_gen = $(FILES_gen_coder) $(FILES_gen_buffer) $(FILES_gen_ex) $(FILES_gen_csp)
-+FILES_gen_sor = sun/nio/ch/SocketOptionRegistry.java
-+
-+FILES_gen = $(FILES_gen_coder) $(FILES_gen_buffer) $(FILES_gen_ex) $(FILES_gen_csp) \
-+	  $(FILES_gen_sor)
- 
- FILES_java = $(FILES_src) $(FILES_gen)
+ FILES_gen_sbcs = \
+ 	sun/nio/cs/ISO_8859_2.java \
 diff -Nru openjdk.orig/jdk/make/java/nio/Makefile openjdk/jdk/make/java/nio/Makefile
---- openjdk.orig/jdk/make/java/nio/Makefile	2009-01-10 03:22:13.000000000 +0000
-+++ openjdk/jdk/make/java/nio/Makefile	2009-01-15 16:35:28.000000000 +0000
+--- openjdk.orig/jdk/make/java/nio/Makefile	2009-02-11 23:12:43.000000000 +0000
++++ openjdk/jdk/make/java/nio/Makefile	2009-02-11 23:35:40.000000000 +0000
 @@ -40,6 +40,11 @@
  SNIO_SRC = $(SHARE_SRC)/classes/sun/nio
  SNIO_GEN = $(GENSRCDIR)/sun/nio
@@ -373,9 +238,9 @@ diff -Nru openjdk.orig/jdk/make/java/nio/Makefile openjdk/jdk/make/java/nio/Make
  FILES_c += \
          DevPollArrayWrapper.c \
  	InheritedChannel.c \
-         PollArrayWrapper.c \
--	NativeThread.c
-+	NativeThread.c \
+ 	NativeThread.c \
+-        PollArrayWrapper.c
++        PollArrayWrapper.c \
 +	SolarisEventPort.c \
 +	UnixAsynchronousServerSocketChannelImpl.c \
 +	UnixAsynchronousSocketChannelImpl.c \
@@ -452,18 +317,17 @@ diff -Nru openjdk.orig/jdk/make/java/nio/Makefile openjdk/jdk/make/java/nio/Make
          WindowsSelectorImpl.c
  
  FILES_export += \
--	sun/nio/ch/WindowsSelectorImpl.java
 +	sun/nio/ch/Iocp.java \
 +	sun/nio/ch/WindowsAsynchronousFileChannelImpl.java \
 +	sun/nio/ch/WindowsAsynchronousServerSocketChannelImpl.java \
 +	sun/nio/ch/WindowsAsynchronousSocketChannelImpl.java \
-+	sun/nio/ch/WindowsSelectorImpl.java \
+ 	sun/nio/ch/WindowsSelectorImpl.java
 +	sun/nio/fs/WindowsNativeDispatcher.java \
 +	sun/nio/fs/RegistryFileTypeDetector.java
  endif # PLATFORM = windows
  
  ifeq ($(PLATFORM), linux)
-@@ -89,27 +192,84 @@
+@@ -89,27 +192,83 @@
  	sun/nio/ch/DevPollSelectorImpl.java \
  	sun/nio/ch/DevPollSelectorProvider.java \
  	sun/nio/ch/EPollArrayWrapper.java \
@@ -511,10 +375,10 @@ diff -Nru openjdk.orig/jdk/make/java/nio/Makefile openjdk/jdk/make/java/nio/Make
  FILES_c += \
  	EPollArrayWrapper.c \
 +	EPollPort.c \
-         PollArrayWrapper.c \
  	InheritedChannel.c \
--	NativeThread.c
-+	NativeThread.c \
+ 	NativeThread.c \
+-        PollArrayWrapper.c
++        PollArrayWrapper.c \
 +	UnixAsynchronousServerSocketChannelImpl.c \
 +	UnixAsynchronousSocketChannelImpl.c \
 +	\
@@ -544,14 +408,13 @@ diff -Nru openjdk.orig/jdk/make/java/nio/Makefile openjdk/jdk/make/java/nio/Make
 +	sun/nio/fs/UnixConstants.java
  endif # PLATFORM = linux
  
-+#
  # Find platform-specific C source files
  #
 +vpath %.c $(PLATFORM_SRC)/native/sun/nio/fs
  vpath %.c $(PLATFORM_SRC)/native/sun/nio/ch
  vpath %.c $(SHARE_SRC)/native/sun/nio/ch
  
-@@ -153,7 +313,7 @@
+@@ -152,7 +311,7 @@
  build: sources
  
  clean clobber::
@@ -560,7 +423,7 @@ diff -Nru openjdk.orig/jdk/make/java/nio/Makefile openjdk/jdk/make/java/nio/Make
  	$(RM) -r $(CLASSDESTDIR)/java/nio
  	$(RM) -r $(CLASSDESTDIR)/sun/nio
  
-@@ -180,12 +340,16 @@
+@@ -179,12 +338,16 @@
  CS_SRC=$(NIO_SRC)/charset
  SCH_SRC=$(SNIO_SRC)/ch
  SCS_SRC=$(SNIO_SRC)/cs
@@ -575,48 +438,24 @@ diff -Nru openjdk.orig/jdk/make/java/nio/Makefile openjdk/jdk/make/java/nio/Make
 +SFS_GEN=$(SNIO_GEN)/fs
 +ICH_GEN=$(INIO_GEN)/channels
  
- sources: $(SPP_JARFILE) $(FILES_genout)
+ FILES_gensbcs_out = $(FILES_gen_sbcs:%.java=$(GENSRCDIR)/%.java)
  
-@@ -628,6 +792,10 @@
+@@ -624,6 +787,11 @@
  	@$(RM) $@.temp
- 	$(GEN_EX_CMD) $(SCH_SRC)/exceptions $(SCH_GEN)
+ 	$(GEN_EX_CMD) $(BUF_SRC)/exceptions $(BUF_GEN)
  
 +$(ICH_GEN)/%Exception.java: genExceptions.sh $(ICH_SRC)/exceptions
 +	$(prep-target)
 +	@$(RM) $@.temp
 +	$(GEN_EX_CMD) $(ICH_SRC)/exceptions $(ICH_GEN)
- 
++
  #
  # Generated charset-provider classes
-@@ -643,4 +811,73 @@
- 	  HASHER="$(BOOT_JAVA_CMD) -jar $(HASHER_JARFILE)" \
- 	  SH="$(SH)" $(SH) -e genCharsetProvider.sh $(SCS_SRC)/standard-charsets $(SCS_GEN)
+ #
+@@ -674,4 +842,48 @@
+ 	$(BOOT_JAVA_CMD) -cp $(CHARSETMAPPING_JARFILE) build.tools.charsetmapping.GenerateSBCS \
+ 		$(GENCSSRC) $(SCS_GEN) sbcs
  
-+#
-+# Generated channel implementation classes.
-+# C source is compiled in TEMPDIR to avoid turds left by Windows compilers.
-+#
-+
-+GENSOR_SRC = $(SHARE_SRC)/native/sun/nio/ch/genSocketOptionRegistry.c
-+
-+GENSOR_EXE = $(TEMPDIR)/genSocketOptionRegistry$(EXE_SUFFIX)
-+
-+SOR_COPYRIGHT_YEARS = $(shell $(CAT) $(GENSOR_SRC) | \
-+	$(NAWK) '/^.*Copyright.*Sun/ { print $$3 }') 
-+
-+$(TEMPDIR)/$(GENSOR_SRC) : $(GENSOR_SRC)
-+	$(install-file)
-+
-+$(GENSOR_EXE) : $(TEMPDIR)/$(GENSOR_SRC)
-+	$(prep-target)
-+	($(CD) $(TEMPDIR); $(CC) $(CPPFLAGS) $(LDDFLAGS) \
-+	   -o genSocketOptionRegistry$(EXE_SUFFIX) $(GENSOR_SRC))
-+
-+$(SCH_GEN)/SocketOptionRegistry.java: $(GENSOR_EXE)
-+	$(prep-target)
-+	NAWK="$(NAWK)" SH="$(SH)" $(SH) -e addNotices.sh $(SOR_COPYRIGHT_YEARS) > $@
-+	$(GENSOR_EXE) >> $@
-+
 +# 
 +# Generated file system implementation classes (Unix only)
 +#
@@ -661,11 +500,11 @@ diff -Nru openjdk.orig/jdk/make/java/nio/Makefile openjdk/jdk/make/java/nio/Make
 +	$(install-file)
 +
 +
- .PHONY: sources
+ .PHONY: sources 
 diff -Nru openjdk.orig/jdk/make/java/nio/mapfile-linux openjdk/jdk/make/java/nio/mapfile-linux
---- openjdk.orig/jdk/make/java/nio/mapfile-linux	2009-01-07 22:08:47.000000000 +0000
-+++ openjdk/jdk/make/java/nio/mapfile-linux	2009-01-29 01:13:17.000000000 +0000
-@@ -20,6 +20,14 @@
+--- openjdk.orig/jdk/make/java/nio/mapfile-linux	2009-02-05 08:44:13.000000000 +0000
++++ openjdk/jdk/make/java/nio/mapfile-linux	2009-02-11 23:39:12.000000000 +0000
+@@ -44,6 +44,14 @@
  		Java_sun_nio_ch_EPollArrayWrapper_interrupt;
  		Java_sun_nio_ch_EPollArrayWrapper_offsetofData;
  		Java_sun_nio_ch_EPollArrayWrapper_sizeofEPollEvent;
@@ -680,35 +519,10 @@ diff -Nru openjdk.orig/jdk/make/java/nio/mapfile-linux openjdk/jdk/make/java/nio
                  Java_sun_nio_ch_FileChannelImpl_close0;
                  Java_sun_nio_ch_FileChannelImpl_force0;
                  Java_sun_nio_ch_FileChannelImpl_initIDs;
-@@ -63,11 +71,24 @@
- 		Java_sun_nio_ch_Net_socket0;
- 		Java_sun_nio_ch_Net_bind;
- 		Java_sun_nio_ch_Net_connect;
-+		Java_sun_nio_ch_Net_bind0;
-+		Java_sun_nio_ch_Net_connect0;
-+		Java_sun_nio_ch_Net_listen;
- 		Java_sun_nio_ch_Net_localPort;
- 		Java_sun_nio_ch_Net_localInetAddress;
- 		Java_sun_nio_ch_Net_getIntOption0;
- 		Java_sun_nio_ch_Net_setIntOption0;
-                 Java_sun_nio_ch_Net_initIDs;
-+		Java_sun_nio_ch_Net_isIPv6Available0;
-+		Java_sun_nio_ch_Net_joinOrDrop4;
-+		Java_sun_nio_ch_Net_blockOrUnblock4;
-+		Java_sun_nio_ch_Net_joinOrDrop6;
-+		Java_sun_nio_ch_Net_blockOrUnblock6;
-+		Java_sun_nio_ch_Net_setInterface4;
-+		Java_sun_nio_ch_Net_getInterface4;
-+		Java_sun_nio_ch_Net_setInterface6;
-+		Java_sun_nio_ch_Net_getInterface6;
-+		Java_sun_nio_ch_Net_shutdown;
-                 Java_sun_nio_ch_PollArrayWrapper_interrupt;
-                 Java_sun_nio_ch_PollArrayWrapper_poll0;
+@@ -108,6 +116,74 @@
                  Java_sun_nio_ch_ServerSocketChannelImpl_accept0;
-@@ -75,6 +96,74 @@
- 		Java_sun_nio_ch_ServerSocketChannelImpl_listen;
+                 Java_sun_nio_ch_ServerSocketChannelImpl_initIDs;
                  Java_sun_nio_ch_SocketChannelImpl_checkConnect;
- 		Java_sun_nio_ch_SocketChannelImpl_shutdown;
 +		Java_sun_nio_ch_UnixAsynchronousServerSocketChannelImpl_accept0;
 +		Java_sun_nio_ch_UnixAsynchronousServerSocketChannelImpl_initIDs;
 +		Java_sun_nio_ch_UnixAsynchronousSocketChannelImpl_checkConnect;
@@ -781,12 +595,12 @@ diff -Nru openjdk.orig/jdk/make/java/nio/mapfile-linux openjdk/jdk/make/java/nio
  	local:
  		*;
 diff -Nru openjdk.orig/jdk/make/java/nio/mapfile-solaris openjdk/jdk/make/java/nio/mapfile-solaris
---- openjdk.orig/jdk/make/java/nio/mapfile-solaris	2009-01-07 22:08:47.000000000 +0000
-+++ openjdk/jdk/make/java/nio/mapfile-solaris	2009-01-07 22:18:51.000000000 +0000
-@@ -73,6 +73,75 @@
- 		Java_sun_nio_ch_ServerSocketChannelImpl_listen;
+--- openjdk.orig/jdk/make/java/nio/mapfile-solaris	2009-02-05 08:44:13.000000000 +0000
++++ openjdk/jdk/make/java/nio/mapfile-solaris	2009-02-11 23:38:28.000000000 +0000
+@@ -106,6 +106,75 @@
+                 Java_sun_nio_ch_ServerSocketChannelImpl_accept0;
+                 Java_sun_nio_ch_ServerSocketChannelImpl_initIDs;
                  Java_sun_nio_ch_SocketChannelImpl_checkConnect;
- 		Java_sun_nio_ch_SocketChannelImpl_shutdown;
 +		Java_sun_nio_ch_UnixAsynchronousServerSocketChannelImpl_accept0;
 +		Java_sun_nio_ch_UnixAsynchronousServerSocketChannelImpl_initIDs;
 +		Java_sun_nio_ch_UnixAsynchronousSocketChannelImpl_checkConnect;
@@ -851,7 +665,7 @@ diff -Nru openjdk.orig/jdk/make/java/nio/mapfile-solaris openjdk/jdk/make/java/n
 +		Java_sun_nio_fs_SolarisNativeDispatcher_init;
 +		Java_sun_nio_fs_SolarisNativeDispatcher_facl;
 +		Java_sun_nio_fs_SolarisWatchService_init;
-+		Java_sun_nio_fs_SolarisWatchService_portCreate;
++ 		Java_sun_nio_fs_SolarisWatchService_portCreate;
 +		Java_sun_nio_fs_SolarisWatchService_portAssociate;
 +		Java_sun_nio_fs_SolarisWatchService_portDissociate;
 +		Java_sun_nio_fs_SolarisWatchService_portSend;
@@ -860,8 +674,8 @@ diff -Nru openjdk.orig/jdk/make/java/nio/mapfile-solaris openjdk/jdk/make/java/n
  	local:
  		*;
 diff -Nru openjdk.orig/jdk/make/mkdemo/Makefile openjdk/jdk/make/mkdemo/Makefile
---- openjdk.orig/jdk/make/mkdemo/Makefile	2009-01-07 22:23:02.000000000 +0000
-+++ openjdk/jdk/make/mkdemo/Makefile	2009-01-07 22:23:48.000000000 +0000
+--- openjdk.orig/jdk/make/mkdemo/Makefile	2009-02-05 08:44:13.000000000 +0000
++++ openjdk/jdk/make/mkdemo/Makefile	2009-02-11 23:14:46.000000000 +0000
 @@ -31,7 +31,7 @@
  PRODUCT = demos
  include $(BUILDDIR)/common/Defs.gmk
@@ -872,1056 +686,1485 @@ diff -Nru openjdk.orig/jdk/make/mkdemo/Makefile openjdk/jdk/make/mkdemo/Makefile
  all build:: nbproject
  	$(SUBDIRS-loop)
 diff -Nru openjdk.orig/jdk/make/mksample/nio/Makefile openjdk/jdk/make/mksample/nio/Makefile
---- openjdk.orig/jdk/make/mksample/nio/Makefile	2009-01-07 22:23:19.000000000 +0000
-+++ openjdk/jdk/make/mksample/nio/Makefile	2009-01-07 22:24:06.000000000 +0000
+--- openjdk.orig/jdk/make/mksample/nio/Makefile	2009-02-05 08:44:13.000000000 +0000
++++ openjdk/jdk/make/mksample/nio/Makefile	2009-02-11 23:42:20.000000000 +0000
 @@ -31,7 +31,7 @@
  PRODUCT = java
  include $(BUILDDIR)/common/Defs.gmk
  
--SUBDIRS = server
-+SUBDIRS = aio file server
+-SUBDIRS = multicast server
++SUBDIRS = aio file multicast server
  all build clean clobber::
  	$(SUBDIRS-loop)
  
 diff -Nru openjdk.orig/jdk/src/share/classes/java/io/File.java openjdk/jdk/src/share/classes/java/io/File.java
---- openjdk.orig/jdk/src/share/classes/java/io/File.java	2009-01-12 13:32:17.000000000 +0000
-+++ openjdk/jdk/src/share/classes/java/io/File.java	2009-01-12 13:35:18.000000000 +0000
-@@ -1957,6 +1957,13 @@
-                 }
-             }
-         );
-+	org.classpath.icedtea.misc.SharedSecrets.setJavaIODeleteOnExitAccess(
-+            new org.classpath.icedtea.misc.JavaIODeleteOnExitAccess() {
-+                public void add(String path) {
-+		    DeleteOnExitHook.hook().add(path);
+--- openjdk.orig/jdk/src/share/classes/java/io/File.java	2009-02-13 21:09:13.000000000 +0000
++++ openjdk/jdk/src/share/classes/java/io/File.java	2009-02-14 01:11:10.000000000 +0000
+@@ -31,13 +31,28 @@
+ import java.net.MalformedURLException;
+ import java.net.URISyntaxException;
+ import java.util.ArrayList;
++import java.util.EnumSet;
+ import java.util.Map;
+ import java.util.Hashtable;
++import java.util.Random;
++import java.util.Set;
++import java.util.concurrent.atomic.AtomicInteger;
+ import java.security.AccessController;
+ import java.security.AccessControlException;
++import java.security.PrivilegedAction;
+ import java.security.SecureRandom;
+ import sun.security.action.GetPropertyAction;
+ 
++import java.nio.file.FileAlreadyExistsException;
++import java.nio.file.FileSystems;
++import java.nio.file.InvalidPathException;
++import java.nio.file.Path;
++import java.nio.file.Paths;
++
++import java.nio.file.attribute.FileAttribute;
++import java.nio.file.attribute.FileAttributeView;
++import java.nio.file.attribute.PosixFilePermission;
++import java.nio.file.attribute.PosixFilePermissions;
+ 
+ /**
+  * An abstract representation of file and directory pathnames.
+@@ -131,6 +146,19 @@
+  * created, the abstract pathname represented by a <code>File</code> object
+  * will never change.
+  *
++ * <h4>Interoperability with {@code java.nio.file} package</h4>
++ *
++ * <p> {@note new}
++ * The <a href="../../java/nio/file/package-summary.html">{@code java.nio.file}</a>
++ * package defines interfaces and classes for the Java virtual machine to access
++ * files, file attributes, and file systems. This API may be used to overcome
++ * many of the limitations of the {@code java.io.File} class.
++ * The {@link #toPath toPath} method may be used to obtain a {@link
++ * Path} that uses the abstract path represented by a {@code File} object to
++ * locate a file. The resulting {@code Path} provides more efficient and
++ * extensive access to file attributes, additional file operations, and I/O
++ * exceptions to help diagnose errors when an operation on a file fails.
++ *
+  * @author  unascribed
+  * @since   JDK1.0
+  */
+@@ -401,6 +429,203 @@
+         this.prefixLength = fs.prefixLength(this.path);
+     }
+ 
++    /* -- Temporary files -- */
++ 
++    private static class TemporaryDirectory {
++        private TemporaryDirectory() { }
++
++        static final File valueAsFile =
++            new File(AccessController.doPrivileged(new GetPropertyAction("java.io.tmpdir")));
++
++        // file name generation
++        private static final AtomicInteger counter =
++            new AtomicInteger(new Random().nextInt() & 0xffff);
++        static File generateFile(String prefix, String suffix, File dir) {
++            int n = counter.getAndIncrement();
++            return new File(dir, prefix + Integer.toString(n) + suffix);
++        }
++
++        // default file permissions
++        static final FileAttribute<Set<PosixFilePermission>> defaultPosixFilePermissions =
++            PosixFilePermissions.asFileAttribute(EnumSet
++                .of(PosixFilePermission.OWNER_READ, PosixFilePermission.OWNER_WRITE));
++        static final boolean isPosix = isPosix();
++        static boolean isPosix() {
++            return AccessController.doPrivileged(
++                new PrivilegedAction<Boolean>() {
++                    public Boolean run() {
++                        try {
++			  return FileSystems.getDefault().getPath(valueAsFile.getPath())
++                                .getFileStore().supportsFileAttributeView("posix");
++                        } catch (IOException e) {
++                            throw new IOError(e);
++                        }
++                    }
++                });
++	}
++    }
++
++    /**
++     * {@note new}
++     * Creates an empty file in the default temporary-file directory, using
++     * the given prefix and suffix to generate its name. This method is
++     * equivalent to invoking the {@link #createTempFile(String,String)
++     * createTempFile(prefix,&nbsp;suffix)} method with the addition that the
++     * resulting pathname may be requested to be deleted when the Java virtual
++     * machine terminates, and the initial file attributes to set atomically
++     * when creating the file may be specified.
++     *
++     * <p> When the value of the {@code deleteOnExit} method is {@code true}
++     * then the resulting file is requested to be deleted when the Java virtual
++     * machine terminates as if by invoking the {@link #deleteOnExit deleteOnExit}
++     * method.
++     *
++     * <p> The {@code attrs} parameter is an optional array of {@link FileAttribute
++     * attributes} to set atomically when creating the file. Each attribute is
++     * identified by its {@link FileAttribute#name name}. If more than one attribute
++     * of the same name is included in the array then all but the last occurrence
++     * is ignored.
++     *
++     * @param   prefix
++     *          The prefix string to be used in generating the file's
++     *          name; must be at least three characters long
++     * @param   suffix
++     *          The suffix string to be used in generating the file's
++     *          name; may be {@code null}, in which case the suffix
++     *          {@code ".tmp"} will be used
++     * @param   deleteOnExit
++     *          {@code true} if the file denoted by resulting pathname be
++     *          deleted when the Java virtual machine terminates
++     * @param   attrs
++     *          An optional list of file attributes to set atomically when creating
++     *          the file
++     * @return  An abstract pathname denoting a newly-created empty file
++     *
++     * @throws  IllegalArgumentException
++     *          If the <code>prefix</code> argument contains fewer than three
++     *          characters
++     * @throws  UnsupportedOperationException
++     *          If the array contains an attribute that cannot be set atomically
++     *          when creating the file
++     * @throws  IOException
++     *          If a file could not be created
++     * @throws  SecurityException
++     *          If a security manager exists and its <code>{@link
++     *          java.lang.SecurityManager#checkWrite(java.lang.String)}</code>
++     *          method does not allow a file to be created. When the {@code
++     *          deleteOnExit} parameter has the value {@code true} then the
++     *          security manager's {@link
++     *          java.lang.SecurityManager#checkDelete(java.lang.String)} is
++     *          invoked to check delete access to the file.
++     * @since 1.7
++     */
++    public static File createTempFile(String prefix,
++                                      String suffix,
++                                      boolean deleteOnExit,
++                                      FileAttribute<?>... attrs)
++        throws IOException
++    {
++        if (prefix.length() < 3)
++            throw new IllegalArgumentException("Prefix string too short");
++        suffix = (suffix == null) ? ".tmp" : suffix;
++ 
++        // special case POSIX environments so that 0600 is used as the file mode
++        if (TemporaryDirectory.isPosix) {
++            if (attrs.length == 0) {
++                // no attributes so use default permissions
++                attrs = new FileAttribute<?>[1];
++                attrs[0] = TemporaryDirectory.defaultPosixFilePermissions;
++            } else {
++                // check if posix permissions given; if not use default
++                boolean hasPermissions = false;
++                for (int i=0; i<attrs.length; i++) {
++                    if (attrs[i].name().equals("posix:permissions")) {
++                        hasPermissions = true;
++                        break;
++                    }
++                }
++                if (!hasPermissions) {
++                    FileAttribute<?>[] copy = new FileAttribute<?>[attrs.length+1];
++                    System.arraycopy(attrs, 0, copy, 0, attrs.length);
++                    attrs = copy;
++                    attrs[attrs.length-1] =
++                        TemporaryDirectory.defaultPosixFilePermissions;
 +                }
 +            }
-+        );            									    
-     }
- 
- 
-diff -Nru openjdk.orig/jdk/src/share/classes/java/net/NetworkInterface.java openjdk/jdk/src/share/classes/java/net/NetworkInterface.java
---- openjdk.orig/jdk/src/share/classes/java/net/NetworkInterface.java	2009-01-16 04:07:15.000000000 +0000
-+++ openjdk/jdk/src/share/classes/java/net/NetworkInterface.java	2009-01-19 19:12:21.000000000 +0000
-@@ -529,4 +529,15 @@
-     }
-     private static native void init();
- 
-+    // Set up JavaIODeleteOnExitAccess in SharedSecrets
-+    // Added here as getIndex is package-private and SharedSecrets cannot easily access it.
-+    static {
-+	org.classpath.icedtea.misc.SharedSecrets.setJavaNetGetIndexAccess(
-+            new org.classpath.icedtea.misc.JavaNetGetIndexAccess() {
-+	      public int getIndex(NetworkInterface nf) { return nf.getIndex(); }
-+	      public NetworkInterface getByIndex(int i) { return getByIndex(i); }
++         }
++ 
++        // use Path#createFile to create file
++        SecurityManager sm = System.getSecurityManager();
++        for (;;) {
++            File f = TemporaryDirectory
++                .generateFile(prefix, suffix, TemporaryDirectory.valueAsFile);
++            if (sm != null && deleteOnExit)
++                sm.checkDelete(f.getPath());
++            try {
++                f.toPath().createFile(attrs);
++                if (deleteOnExit)
++		  DeleteOnExitHook.add(f.getPath());
++                return f;
++            } catch (InvalidPathException e) {
++                // don't reveal temporary directory location
++                if (sm != null)
++                    throw new IllegalArgumentException("Invalid prefix or suffix");
++                throw e;
++            } catch (SecurityException e) {
++                // don't reveal temporary directory location
++                if (sm != null)
++                    throw new SecurityException("Unable to create temporary file");
++                throw e;
++            } catch (FileAlreadyExistsException e) {
++                // ignore
 +            }
-+        );            									    
-+    }
-+
- }
-diff -Nru openjdk.orig/jdk/src/share/classes/java/util/concurrent/ThreadPoolExecutor.java openjdk/jdk/src/share/classes/java/util/concurrent/ThreadPoolExecutor.java
---- openjdk.orig/jdk/src/share/classes/java/util/concurrent/ThreadPoolExecutor.java	2009-01-13 23:54:13.000000000 +0000
-+++ openjdk/jdk/src/share/classes/java/util/concurrent/ThreadPoolExecutor.java	2009-01-15 01:21:36.000000000 +0000
-@@ -2004,4 +2004,23 @@
-             }
-         }
-     }
-+
-+    static {
-+	org.classpath.icedtea.misc.SharedSecrets.setJavaUtilConcurrentThreadPoolExecutorAccess(
-+            new org.classpath.icedtea.misc.JavaUtilConcurrentThreadPoolExecutorAccess() {
-+	        public AtomicInteger getCtl(ThreadPoolExecutor e) { return e.ctl; }
-+	        public void lockMainLock(ThreadPoolExecutor e) { e.mainLock.lock(); }
-+	        public void unlockMainLock(ThreadPoolExecutor e) { e.mainLock.unlock(); }
-+	        public void signalAll(ThreadPoolExecutor e) { e.termination.signalAll(); }
-+	        public boolean isWorkQueueEmpty(ThreadPoolExecutor e) { return e.workQueue.isEmpty(); }
-+	        public void rejectedExecution(Runnable command, ThreadPoolExecutor e) {
-+		  e.handler.rejectedExecution(command, e); 
-+		}
-+	        public void interruptIdleWorkers(ThreadPoolExecutor e, boolean onlyOne) {
-+		  e.interruptIdleWorkers(onlyOne); 
-+		}
++         }
++     }
++ 
++    // -- Integration with java.nio.file --
++ 
++    private volatile transient Path filePath;
++ 
++     /**
++     * {@note new}
++     * Returns a {@link Path java.nio.file.Path} object constructed from the
++     * this abstract path. The first invocation of this method works as if
++     * invoking it were equivalent to evaluating the expression:
++     * <blockquote><pre>
++     * {@link FileSystems#getDefault FileSystems.getDefault}().{@link FileSystem#getPath getPath}(this.{@link #getPath getPath}());
++     * </pre></blockquote>
++     * Subsequent invocations of this method return the same {@code Path}.
++     *
++     * <p> If this abstract pathname is the empty abstract pathname then this
++     * method returns a {@code Path} that may be used to access to the current
++     * user directory.
++     *
++     * @return  A {@code Path} constructed from this abstract path. The resulting
++     *          {@code Path} is associated with the {@link FileSystems#getDefault
++     *          default-filesystem}.
++     *
++     * @throws  InvalidPathException
++     *          If a {@code Path} object cannot be constructed from the abstract
++     *          path (see {@link java.nio.file.FileSystem#getPath FileSystem.getPath})
++     *
++     * @since   1.7
++     */
++    public Path toPath() {
++        if (filePath == null) {
++            synchronized (this) {
++                if (filePath == null) {
++		    String path = getPath();
++                    if (path.length() == 0) {
++                        // assume default file system treats "." as current directory
++                        filePath = Paths.get(".");
++                    } else {
++                        filePath = Paths.get(path);
++                    }
++                }
 +            }
-+        );            									    
-+    }
-+
- }
-diff -Nru openjdk.orig/jdk/src/share/classes/sun/misc/Unsafe.java openjdk/jdk/src/share/classes/sun/misc/Unsafe.java
---- openjdk.orig/jdk/src/share/classes/sun/misc/Unsafe.java	2009-01-19 15:44:19.000000000 +0000
-+++ openjdk/jdk/src/share/classes/sun/misc/Unsafe.java	2009-01-19 15:47:42.000000000 +0000
-@@ -504,9 +504,33 @@
++         }
++        return filePath;
++     }
+ 
+     /* -- Path-component accessors -- */
+ 
+diff -Nru openjdk.orig/jdk/src/share/classes/java/io/FilePermission.java openjdk/jdk/src/share/classes/java/io/FilePermission.java
+--- openjdk.orig/jdk/src/share/classes/java/io/FilePermission.java	2009-02-13 21:09:13.000000000 +0000
++++ openjdk/jdk/src/share/classes/java/io/FilePermission.java	2009-02-13 22:03:14.000000000 +0000
+@@ -29,13 +29,13 @@
+ import java.util.Enumeration;
+ import java.util.List;
+ import java.util.ArrayList;
+-import java.util.StringTokenizer;
+ import java.util.Vector;
+ import java.util.Collections;
++import java.io.IOException;
+ import java.io.ObjectStreamField;
+ import java.io.ObjectOutputStream;
+ import java.io.ObjectInputStream;
+-import java.io.IOException;
++import java.io.Serializable;
+ import sun.security.util.SecurityConstants;
+ 
+ /**
+@@ -56,9 +56,11 @@
+  * (recursively) all files and subdirectories contained in the current
+  * directory.
+  * <P>
++ * {@note revised}
+  * The actions to be granted are passed to the constructor in a string containing
+  * a list of one or more comma-separated keywords. The possible keywords are
+- * "read", "write", "execute", and "delete". Their meaning is defined as follows:
++ * "read", "write", "execute", "delete", and "readlink". Their meaning is
++ * defined as follows:
+  * <P>
+  * <DL>
+  *    <DT> read <DD> read permission
+@@ -69,6 +71,11 @@
+  *    <DT> delete
+  *    <DD> delete permission. Allows <code>File.delete</code> to
+  *         be called. Corresponds to <code>SecurityManager.checkDelete</code>.
++ *    <DT> readlink
++ *    <DD> read link permission. Allows the target of a
++ *         <a href="../nio/file/package-summary.html#links">symbolic link</a>
++ *         to be read by invoking the {@link java.nio.file.Path#readSymbolicLink
++ *         readSymbolicLink } method.
+  * </DL>
+  * <P>
+  * The actions string is converted to lowercase before processing.
+@@ -114,11 +121,15 @@
+      * Delete action.
+      */
+     private final static int DELETE  = 0x8;
++    /**
++     * Read link action.
++     */
++    private final static int READLINK    = 0x10;
+ 
      /**
-      * Sets all bytes in a given block of memory to a copy of another
-      * block.
+-     * All actions (read,write,execute,delete)
++     * All actions (read,write,execute,delete,readlink)
+      */
+-    private final static int ALL     = READ|WRITE|EXECUTE|DELETE;
++    private final static int ALL     = READ|WRITE|EXECUTE|DELETE|READLINK;
+     /**
+      * No actions.
+      */
+@@ -235,7 +246,7 @@
+      * <i>path</i> is the pathname of a file or directory, and <i>actions</i>
+      * contains a comma-separated list of the desired actions granted on the
+      * file or directory. Possible actions are
+-     * "read", "write", "execute", and "delete".
++     * "read", "write", "execute", "delete", and "readlink".
+      *
+      * <p>A pathname that ends in "/*" (where "/" is
+      * the file separator character, <code>File.separatorChar</code>)
+@@ -425,6 +436,8 @@
+             return EXECUTE;
+         } else if (actions == SecurityConstants.FILE_DELETE_ACTION) {
+             return DELETE;
++        } else if (actions == SecurityConstants.FILE_READLINK_ACTION) {
++            return READLINK;
+         }
+ 
+         char[] a = actions.toCharArray();
+@@ -485,6 +498,18 @@
+                 matchlen = 6;
+                 mask |= DELETE;
+ 
++            } else if (i >= 7 && (a[i-7] == 'r' || a[i-7] == 'R') &&
++                                 (a[i-6] == 'e' || a[i-6] == 'E') &&
++                                 (a[i-5] == 'a' || a[i-5] == 'A') &&
++                                 (a[i-4] == 'd' || a[i-4] == 'D') &&
++                                 (a[i-3] == 'l' || a[i-3] == 'L') &&
++                                 (a[i-2] == 'i' || a[i-2] == 'I') &&
++                                 (a[i-1] == 'n' || a[i-1] == 'N') &&
++                                 (a[i] == 'k' || a[i] == 'K'))
++            {
++                matchlen = 8;
++                mask |= READLINK;
++
+             } else {
+                 // parse error
+                 throw new IllegalArgumentException(
+@@ -529,7 +554,7 @@
+     /**
+      * Return the canonical string representation of the actions.
+      * Always returns present actions in the following order:
+-     * read, write, execute, delete.
++     * read, write, execute, delete, readlink.
+      *
+      * @return the canonical string representation of the actions.
+      */
+@@ -561,14 +586,20 @@
+             sb.append("delete");
+         }
+ 
++        if ((mask & READLINK) == READLINK) {
++            if (comma) sb.append(',');
++            else comma = true;
++            sb.append("readlink");
++        }
++
+         return sb.toString();
+     }
+ 
+     /**
+      * Returns the "canonical string representation" of the actions.
+      * That is, this method always returns present actions in the following order:
+-     * read, write, execute, delete. For example, if this FilePermission object
+-     * allows both write and read actions, a call to <code>getActions</code>
++     * read, write, execute, delete, readlink. For example, if this FilePermission
++     * object allows both write and read actions, a call to <code>getActions</code>
+      * will return the string "read,write".
+      *
+      * @return the canonical string representation of the actions.
+@@ -678,7 +709,7 @@
+ implements Serializable {
+ 
+     // Not serialized; see serialization section at end of class
+-    private transient List perms;
++    private transient List<Permission> perms;
+ 
+     /**
+      * Create an empty FilePermissions object.
+@@ -686,7 +717,7 @@
+      */
+ 
+     public FilePermissionCollection() {
+-        perms = new ArrayList();
++        perms = new ArrayList<Permission>();
+     }
+ 
+     /**
+@@ -791,7 +822,7 @@
+         // Don't call out.defaultWriteObject()
+ 
+         // Write out Vector
+-        Vector permissions = new Vector(perms.size());
++        Vector<Permission> permissions = new Vector<Permission>(perms.size());
+         synchronized (this) {
+             permissions.addAll(perms);
+         }
+@@ -804,6 +835,7 @@
+     /*
+      * Reads in a Vector of FilePermissions and saves them in the perms field.
+      */
++    @SuppressWarnings("unchecked")
+     private void readObject(ObjectInputStream in) throws IOException,
+     ClassNotFoundException {
+         // Don't call defaultReadObject()
+@@ -812,8 +844,8 @@
+         ObjectInputStream.GetField gfields = in.readFields();
+ 
+         // Get the one we want
+-        Vector permissions = (Vector)gfields.get("permissions", null);
+-        perms = new ArrayList(permissions.size());
++        Vector<Permission> permissions = (Vector<Permission>)gfields.get("permissions", null);
++        perms = new ArrayList<Permission>(permissions.size());
+         perms.addAll(permissions);
+     }
+ }
+diff -Nru openjdk.orig/jdk/src/share/classes/java/net/StandardProtocolFamily.java openjdk/jdk/src/share/classes/java/net/StandardProtocolFamily.java
+--- openjdk.orig/jdk/src/share/classes/java/net/StandardProtocolFamily.java	2009-02-13 21:09:28.000000000 +0000
++++ openjdk/jdk/src/share/classes/java/net/StandardProtocolFamily.java	2009-02-13 22:04:11.000000000 +0000
+@@ -26,7 +26,7 @@
+ package java.net;
+ 
+ /**
+- * Defines the standard family of communication protocols.
++ * Defines the standard families of communication protocols.
+  *
+  * @since 1.7
+  */
+diff -Nru openjdk.orig/jdk/src/share/classes/java/net/StandardSocketOption.java openjdk/jdk/src/share/classes/java/net/StandardSocketOption.java
+--- openjdk.orig/jdk/src/share/classes/java/net/StandardSocketOption.java	2009-02-13 21:09:28.000000000 +0000
++++ openjdk/jdk/src/share/classes/java/net/StandardSocketOption.java	2009-02-13 22:04:28.000000000 +0000
+@@ -59,6 +59,7 @@
+      *
+      * @see <a href="http://www.ietf.org/rfc/rfc919.txt">RFC&nbsp;929:
+      * Broadcasting Internet Datagrams</a>
++     * @see DatagramSocket#setBroadcast
+      */
+     public static final SocketOption<Boolean> SO_BROADCAST =
+         new StdSocketOption<Boolean>("SO_BROADCAST", Boolean.class);
+@@ -78,6 +79,7 @@
+      *
+      * @see <a href="http://www.ietf.org/rfc/rfc1122.txt">RFC&nbsp;1122
+      * Requirements for Internet Hosts -- Communication Layers</a>
++     * @see Socket#setKeepAlive
+      */
+     public static final SocketOption<Boolean> SO_KEEPALIVE =
+         new StdSocketOption<Boolean>("SO_KEEPALIVE", Boolean.class);
+@@ -107,6 +109,8 @@
+      * socket is bound or connected. Whether an implementation allows the
+      * socket send buffer to be changed after the socket is bound is system
+      * dependent.
 +     *
-+     * <p>This method determines each block's base address by means of two parameters,
-+     * and so it provides (in effect) a <em>double-register</em> addressing mode,
-+     * as discussed in {@link #getInt(Object,long)}.  When the object reference is null,
-+     * the offset supplies an absolute base address.
++     * @see Socket#setSendBufferSize
+      */
+     public static final SocketOption<Integer> SO_SNDBUF =
+         new StdSocketOption<Integer>("SO_SNDBUF", Integer.class);
+@@ -145,6 +149,8 @@
+      *
+      * @see <a href="http://www.ietf.org/rfc/rfc1323.txt">RFC&nbsp;1323: TCP
+      * Extensions for High Performance</a>
++     * @see Socket#setReceiveBufferSize
++     * @see ServerSocket#setReceiveBufferSize
+      */
+     public static final SocketOption<Integer> SO_RCVBUF =
+         new StdSocketOption<Integer>("SO_RCVBUF", Integer.class);
+@@ -175,6 +181,7 @@
+      *
+      * @see <a href="http://www.ietf.org/rfc/rfc793.txt">RFC&nbsp;793: Transmission
+      * Control Protocol</a>
++     * @see ServerSocket#setReuseAddress
+      */
+     public static final SocketOption<Boolean> SO_REUSEADDR =
+         new StdSocketOption<Boolean>("SO_REUSEADDR", Boolean.class);
+@@ -205,6 +212,8 @@
+      * is system dependent. Setting the linger interval to a value that is
+      * greater than its maximum value causes the linger interval to be set to
+      * its maximum value.
 +     *
-+     * <p>The transfers are in coherent (atomic) units of a size determined
-+     * by the address and length parameters.  If the effective addresses and
-+     * length are all even modulo 8, the transfer takes place in 'long' units.
-+     * If the effective addresses and length are (resp.) even modulo 4 or 2,
-+     * the transfer takes place in units of 'int' or 'short'.
++     * @see Socket#setSoLinger
+      */
+     public static final SocketOption<Integer> SO_LINGER =
+         new StdSocketOption<Integer>("SO_LINGER", Integer.class);
+@@ -215,15 +224,15 @@
+     /**
+      * The Type of Service (ToS) octet in the Internet Protocol (IP) header.
+      *
+-     * <p> The value of this socket option is an {@code Integer}, the least
+-     * significant 8 bits of which represents the value of the ToS octet in IP
+-     * packets sent by sockets to an {@link StandardProtocolFamily#INET IPv4}
+-     * socket. The interpretation of the ToS octet is network specific and
+-     * is not defined by this class. Further information on the ToS octet can be
+-     * found in <a href="http://www.ietf.org/rfc/rfc1349.txt">RFC&nbsp;1349</a>
+-     * and <a href="http://www.ietf.org/rfc/rfc2474.txt">RFC&nbsp;2474</a>. The
+-     * value of the socket option is a <em>hint</em>. An implementation may
+-     * ignore the value, or ignore specific values.
++     * <p> The value of this socket option is an {@code Integer} representing
++     * the value of the ToS octet in IP packets sent by sockets to an {@link
++     * StandardProtocolFamily#INET IPv4} socket. The interpretation of the ToS
++     * octet is network specific and is not defined by this class. Further
++     * information on the ToS octet can be found in <a
++     * href="http://www.ietf.org/rfc/rfc1349.txt">RFC&nbsp;1349</a> and <a
++     * href="http://www.ietf.org/rfc/rfc2474.txt">RFC&nbsp;2474</a>. The value
++     * of the socket option is a <em>hint</em>. An implementation may ignore the
++     * value, or ignore specific values.
+      *
+      * <p> The initial/default value of the TOS field in the ToS octet is
+      * implementation specific but will typically be {@code 0}. For
+@@ -235,6 +244,8 @@
+      * <p> The behavior of this socket option on a stream-oriented socket, or an
+      * {@link StandardProtocolFamily#INET6 IPv6} socket, is not defined in this
+      * release.
++     *
++     * @see DatagramSocket#setTrafficClass
+      */
+     public static final SocketOption<Integer> IP_TOS =
+         new StdSocketOption<Integer>("IP_TOS", Integer.class);
+@@ -257,6 +268,7 @@
+      * is system dependent.
+      *
+      * @see java.nio.channels.MulticastChannel
++     * @see MulticastSocket#setInterface
+      */
+     public static final SocketOption<NetworkInterface> IP_MULTICAST_IF =
+         new StdSocketOption<NetworkInterface>("IP_MULTICAST_IF", NetworkInterface.class);
+@@ -283,6 +295,7 @@
+      * prior to binding the socket is system dependent.
+      *
+      * @see java.nio.channels.MulticastChannel
++     * @see MulticastSocket#setTimeToLive
+      */
+     public static final SocketOption<Integer> IP_MULTICAST_TTL =
+         new StdSocketOption<Integer>("IP_MULTICAST_TTL", Integer.class);
+@@ -307,6 +320,7 @@
+      * binding the socket is system dependent.
+      *
+      * @see java.nio.channels.MulticastChannel
++     *  @see MulticastSocket#setLoopbackMode
+      */
+     public static final SocketOption<Boolean> IP_MULTICAST_LOOP =
+         new StdSocketOption<Boolean>("IP_MULTICAST_LOOP", Boolean.class);
+@@ -328,11 +342,12 @@
+      * coalescing impacts performance. The socket option may be enabled at any
+      * time. In other words, the Nagle Algorithm can be disabled. Once the option
+      * is enabled, it is system dependent whether it can be subsequently
+-     * disabled. In that case, invoking the {@code setOption} method to disable
+-     * the option has no effect.
++     * disabled. If it cannot, then invoking the {@code setOption} method to
++     * disable the option has no effect.
+      *
+      * @see <a href="http://www.ietf.org/rfc/rfc1122.txt">RFC&nbsp;1122:
+      * Requirements for Internet Hosts -- Communication Layers</a>
++     * @see Socket#setTcpNoDelay
+      */
+     public static final SocketOption<Boolean> TCP_NODELAY =
+         new StdSocketOption<Boolean>("TCP_NODELAY", Boolean.class);
+diff -Nru openjdk.orig/jdk/src/share/classes/java/nio/channels/Channels.java openjdk/jdk/src/share/classes/java/nio/channels/Channels.java
+--- openjdk.orig/jdk/src/share/classes/java/nio/channels/Channels.java	2009-02-13 21:10:32.000000000 +0000
++++ openjdk/jdk/src/share/classes/java/nio/channels/Channels.java	2009-02-14 01:20:16.000000000 +0000
+@@ -42,6 +42,7 @@
+ import java.nio.charset.CoderResult;
+ import java.nio.charset.UnsupportedCharsetException;
+ import java.nio.channels.spi.AbstractInterruptibleChannel;
++import java.util.concurrent.ExecutionException;
+ import sun.nio.ch.ChannelInputStream;
+ import sun.nio.cs.StreamDecoder;
+ import sun.nio.cs.StreamEncoder;
+@@ -469,4 +470,151 @@
+         return newWriter(ch, Charset.forName(csName).newEncoder(), -1);
+     }
+ 
++    /**
++     * {@note new}
++     * Constructs a stream that reads bytes from the given channel.
++     *
++     * <p> The stream will not be buffered, and it will not support the {@link
++     * InputStream#mark mark} or {@link InputStream#reset reset} methods.  The
++     * stream will be safe for access by multiple concurrent threads.  Closing
++     * the stream will in turn cause the channel to be closed.  </p>
++     *
++     * @param  ch
++     *         The channel from which bytes will be read
++     *
++     * @return  A new input stream
 +     *
 +     * @since 1.7
-      */
--    public native void copyMemory(long srcAddress, long destAddress,
-+    public native void copyMemory(Object srcBase, long srcOffset,
-+                                  Object destBase, long destOffset,
-                                   long bytes);
-+    /**
-+     * Sets all bytes in a given block of memory to a copy of another
-+     * block.  This provides a <em>single-register</em> addressing mode,
-+     * as discussed in {@link #getInt(Object,long)}.
-+     *
-+     * Equivalent to <code>copyMemory(null, srcAddress, null, destAddress, bytes)</code>.
 +     */
-+    public void copyMemory(long srcAddress, long destAddress, long bytes) {
-+        copyMemory(null, srcAddress, null, destAddress, bytes);
-+    }
- 
-     /**
-      * Disposes of a block of native memory, as obtained from {@link
-@@ -648,6 +672,10 @@
-      */
-     public native int arrayBaseOffset(Class arrayClass);
- 
-+    /** The value of {@code arrayBaseOffset(byte[].class)} */
-+    public static final int ARRAY_BYTE_BASE_OFFSET
-+            = theUnsafe.arrayBaseOffset(byte[].class);
++    public static InputStream newInputStream(final AsynchronousByteChannel ch) {
++        return new InputStream() {
++            private ByteBuffer bb = null;
++            private byte[] bs = null;           // Invoker's previous array
++            private byte[] b1 = null;
 +
-     /**
-      * Report the scale factor for addressing elements in the storage
-      * allocation of a given array class.  However, arrays of "narrow" types
-diff -Nru openjdk.orig/jdk/src/share/classes/sun/nio/ch/DatagramChannelImpl.java openjdk/jdk/src/share/classes/sun/nio/ch/DatagramChannelImpl.java
---- openjdk.orig/jdk/src/share/classes/sun/nio/ch/DatagramChannelImpl.java	2009-01-16 03:10:17.000000000 +0000
-+++ openjdk/jdk/src/share/classes/sun/nio/ch/DatagramChannelImpl.java	2009-01-19 21:04:48.000000000 +0000
-@@ -29,10 +29,28 @@
- import java.io.IOException;
- import java.net.*;
++
++            public synchronized int read() throws IOException {
++                if (b1 == null)
++                    b1 = new byte[1];
++                int n = this.read(b1);
++                if (n == 1)
++                    return b1[0] & 0xff;
++                return -1;
++            }
++ 
++            public synchronized int read(byte[] bs, int off, int len)
++                throws IOException
++            {
++                if ((off < 0) || (off > bs.length) || (len < 0) ||
++                    ((off + len) > bs.length) || ((off + len) < 0)) {
++                    throw new IndexOutOfBoundsException();
++                } else if (len == 0)
++                    return 0;
++
++                ByteBuffer bb = ((this.bs == bs)
++                                 ? this.bb
++                                 : ByteBuffer.wrap(bs));
++                bb.position(off);
++                bb.limit(Math.min(off + len, bb.capacity()));
++                this.bb = bb;
++                this.bs = bs;
++
++                boolean interrupted = false;
++                try {
++                    for (;;) {
++                        try {
++                            return ch.read(bb).get();
++                        } catch (ExecutionException ee) {
++                            throw new IOException(ee.getCause());
++                        } catch (InterruptedException ie) {
++                            interrupted = true;
++                        }
++                     }
++                } finally {
++                    if (interrupted)
++                        Thread.currentThread().interrupt();
++                 }
++            }
++ 
++ 
++            public void close() throws IOException {
++                ch.close();
++            }
++        };
++     }
++ 
++    /**
++     * {@note new}
++     * Constructs a stream that writes bytes to the given channel.
++     *
++     * <p> The stream will not be buffered. The stream will be safe for access
++     * by multiple concurrent threads.  Closing the stream will in turn cause
++     * the channel to be closed.  </p>
++     *
++     * @param  ch
++     *         The channel to which bytes will be written
++     *
++     * @return  A new output stream
++     *
++     * @since 1.7
++     */
++    public static OutputStream newOutputStream(final AsynchronousByteChannel ch) {
++        return new OutputStream() {
++ 
++            private ByteBuffer bb = null;
++            private byte[] bs = null;   // Invoker's previous array
++            private byte[] b1 = null;
++ 
++            public synchronized void write(int b) throws IOException {
++               if (b1 == null)
++                    b1 = new byte[1];
++                b1[0] = (byte)b;
++                this.write(b1);
++             }
++ 
++ 
++            public synchronized void write(byte[] bs, int off, int len)
++                throws IOException
++            {
++                if ((off < 0) || (off > bs.length) || (len < 0) ||
++                    ((off + len) > bs.length) || ((off + len) < 0)) {
++                    throw new IndexOutOfBoundsException();
++                } else if (len == 0) {
++                    return;
++                }
++                ByteBuffer bb = ((this.bs == bs)
++                                 ? this.bb
++                                 : ByteBuffer.wrap(bs));
++                bb.limit(Math.min(off + len, bb.capacity()));
++                bb.position(off);
++                this.bb = bb;
++                this.bs = bs;
++
++                boolean interrupted = false;
++                try {
++                    while (bb.remaining() > 0) {
++                        try {
++                            ch.write(bb).get();
++                        } catch (ExecutionException ee) {
++                            throw new IOException(ee.getCause());
++                        } catch (InterruptedException ie) {
++                            interrupted = true;
++                        }
++                     } 
++                } finally {
++                    if (interrupted)
++                        Thread.currentThread().interrupt();
++                 }
++             }
++ 
++ 
++            public void close() throws IOException {
++                ch.close();
++            }
++        };
++     }
++ 
++ 
+ }
++
++
+diff -Nru openjdk.orig/jdk/src/share/classes/java/nio/channels/DatagramChannel.java openjdk/jdk/src/share/classes/java/nio/channels/DatagramChannel.java
+--- openjdk.orig/jdk/src/share/classes/java/nio/channels/DatagramChannel.java	2009-02-13 21:10:32.000000000 +0000
++++ openjdk/jdk/src/share/classes/java/nio/channels/DatagramChannel.java	2009-02-14 01:15:49.000000000 +0000
+@@ -31,12 +31,13 @@
+ import java.net.SocketOption;
+ import java.net.SocketAddress;
  import java.nio.ByteBuffer;
--import java.nio.channels.*;
 -import java.nio.channels.spi.*;
++import java.nio.channels.spi.AbstractSelectableChannel;
++import java.nio.channels.spi.SelectorProvider;
+ 
+ /**
+  * A selectable channel for datagram-oriented sockets.
+  *
+- * <p> A datagram channel is created by invoking one of the {@link #open open} methods
++ * <p> {@note revised} A datagram channel is created by invoking one of the {@link #open open} methods
+  * of this class. It is not possible to create a channel for an arbitrary,
+  * pre-existing datagram socket. A newly-created datagram channel is open but not
+  * connected. A datagram channel need not be connected in order for the {@link #send
+@@ -53,7 +54,8 @@
+  * be determined by invoking its {@link #isConnected isConnected} method.
+  *
+  * <p> Socket options are configured using the {@link #setOption(SocketOption,Object)
+- * setOption} method. Datagram channels support the following options:
++ * setOption} method. A datagram channel to an Internet Protocol socket supports
++ * the following options:
+  * <blockquote>
+  * <table border>
+  *   <tr>
+@@ -106,6 +108,7 @@
+  * @author Mark Reinhold
+  * @author JSR-51 Expert Group
+  * @since 1.4
++ * @updated 1.7
+  */
+ 
+ public abstract class DatagramChannel
+diff -Nru openjdk.orig/jdk/src/share/classes/java/nio/channels/exceptions openjdk/jdk/src/share/classes/java/nio/channels/exceptions
+--- openjdk.orig/jdk/src/share/classes/java/nio/channels/exceptions	2009-02-13 21:10:40.000000000 +0000
++++ openjdk/jdk/src/share/classes/java/nio/channels/exceptions	2009-02-13 22:29:15.000000000 +0000
+@@ -150,6 +150,20 @@
+ 
+ SINCE=1.7
+ 
++SUPER=java.io.IOException
 +
-+import java.nio.channels.ClosedChannelException;
-+import java.nio.channels.NotYetConnectedException;
-+import java.nio.channels.SelectionKey;
++gen InterruptedByTimeoutException "
++ * Checked exception received by a thread when a timeout elapses before an
++ * asynchronous operation completes." \
++ -4268008601014042947L
++
++SUPER=IllegalArgumentException
++
++gen IllegalChannelGroupException "
++ * Unchecked exception thrown when an attempt is made to open a channel
++ * in a group that was not created by the same provider. " \
++ -2495041211157744253L
++ 
+ SUPER=IllegalStateException
+ 
+ gen AlreadyBoundException "
+@@ -157,3 +171,23 @@
+  * network oriented channel that is already bound." \
+  6796072983322737592L
+ 
++gen AcceptPendingException "
++ * Unchecked exception thrown when an attempt is made to initiate an accept
++ * operation on a channel and a previous accept operation has not completed." \
++ 2721339977965416421L
++
++gen ReadPendingException "
++ * Unchecked exception thrown when an attempt is made to read from an
++ * asynchronous socket channel and a previous read has not completed." \
++ 1986315242191227217L
++
++gen WritePendingException "
++ * Unchecked exception thrown when an attempt is made to write to an
++ * asynchronous socket channel and a previous write has not completed." \
++ 7031871839266032276L
++
++gen ShutdownChannelGroupException "
++ * Unchecked exception thrown when an attempt is made to construct a channel in 
++ * a group that is shutdown or the completion handler for an I/O operation 
++ * cannot be invoked because the channel group is shutdown." \
++ -3903801676350154157L
+diff -Nru openjdk.orig/jdk/src/share/classes/java/nio/channels/FileChannel.java openjdk/jdk/src/share/classes/java/nio/channels/FileChannel.java
+--- openjdk.orig/jdk/src/share/classes/java/nio/channels/FileChannel.java	2009-02-13 21:10:32.000000000 +0000
++++ openjdk/jdk/src/share/classes/java/nio/channels/FileChannel.java	2009-02-14 01:14:05.000000000 +0000
+@@ -30,17 +30,27 @@
+ import java.nio.MappedByteBuffer;
+ import java.nio.channels.spi.AbstractInterruptibleChannel;
+ 
++import java.nio.file.OpenOption;
++import java.nio.file.Path;
++import java.nio.file.attribute.FileAttribute;
++import java.nio.file.spi.FileSystemProvider;
 +
 +import java.util.Collections;
 +import java.util.HashSet;
 +import java.util.Set;
-+
- import java.lang.ref.SoftReference;
- 
-+import org.classpath.icedtea.java.net.ProtocolFamily;
-+import org.classpath.icedtea.java.net.StandardProtocolFamily;
-+import org.classpath.icedtea.java.net.SocketOption;
-+import org.classpath.icedtea.java.net.StandardSocketOption;
-+
-+import org.classpath.icedtea.java.nio.channels.DatagramChannel;
-+import org.classpath.icedtea.java.nio.channels.MembershipKey;
-+
-+import org.classpath.icedtea.java.nio.channels.spi.SelectorProvider;
-+
-+import org.classpath.icedtea.misc.SharedSecrets;
  
  /**
-  * An implementation of DatagramChannels.
-@@ -53,6 +71,9 @@
-     // even after the value in the file descriptor object has been set to -1
-     int fdVal;
+  * A channel for reading, writing, mapping, and manipulating a file.
+  *
+- * <p> A file channel has a current <i>position</i> within its file which can
+- * be both {@link #position() </code>queried<code>} and {@link #position(long)
+- * </code>modified<code>}.  The file itself contains a variable-length sequence
++ * <p> {@note revised}
++ * A file channel is a {@link SeekableByteChannel} that is connected to
++ * a file. It has a current <i>position</i> within its file which can
++ * be both {@link #position() <i>queried</i>} and {@link #position(long)
++ * <i>modified</i>}.  The file itself contains a variable-length sequence
+  * of bytes that can be read and written and whose current {@link #size
+- * </code><i>size</i><code>} can be queried.  The size of the file increases
++ * <i>size</i>} can be queried.  The size of the file increases
+  * when bytes are written beyond its current size; the size of the file
+- * decreases when it is {@link #truncate </code><i>truncated</i><code>}.  The
++ * decreases when it is {@link #truncate <i>truncated</i>}.  The
+  * file may also have some associated <i>metadata</i> such as access
+  * permissions, content type, and last-modification time; this class does not
+  * define methods for metadata access.
+@@ -50,12 +60,12 @@
+  *
+  * <ul>
+  *
+- *   <li><p> Bytes may be {@link #read(ByteBuffer, long) </code>read<code>} or
+- *   {@link #write(ByteBuffer, long) </code>written<code>} at an absolute
++ *   <li><p> Bytes may be {@link #read(ByteBuffer, long) read} or
++ *   {@link #write(ByteBuffer, long) <i>written</i>} at an absolute
+  *   position in a file in a way that does not affect the channel's current
+  *   position.  </p></li>
+  *
+- *   <li><p> A region of a file may be {@link #map </code>mapped<code>}
++ *   <li><p> A region of a file may be {@link #map <i>mapped</i>}
+  *   directly into memory; for large files this is often much more efficient
+  *   than invoking the usual <tt>read</tt> or <tt>write</tt> methods.
+  *   </p></li>
+@@ -64,13 +74,13 @@
+  *   out<code>} to the underlying storage device, ensuring that data are not
+  *   lost in the event of a system crash.  </p></li>
+  *
+- *   <li><p> Bytes can be transferred from a file {@link #transferTo </code>to
+- *   some other channel<code>}, and {@link #transferFrom </code>vice
+- *   versa<code>}, in a way that can be optimized by many operating systems
++ *   <li><p> Bytes can be transferred from a file {@link #transferTo <i>to
++ *   some other channel</i>}, and {@link #transferFrom <i>vice
++ *   versa</i>}, in a way that can be optimized by many operating systems
+  *   into a very fast transfer directly to or from the filesystem cache.
+  *   </p></li>
+  *
+- *   <li><p> A region of a file may be {@link FileLock </code>locked<code>}
++ *   <li><p> A region of a file may be {@link FileLock <i>locked</i>}
+  *   against access by other programs.  </p></li>
+  *
+  * </ul>
+@@ -96,25 +106,23 @@
+  * machine.  The exact nature of any such inconsistencies are system-dependent
+  * and are therefore unspecified.
+  *
+- * <p> This class does not define methods for opening existing files or for
+- * creating new ones; such methods may be added in a future release.  In this
+- * release a file channel can be obtained from an existing {@link
+- * java.io.FileInputStream#getChannel FileInputStream}, {@link
++ * <p> A file channel is created by invoking one of the {@link #open open}
++ * methods defined by this class. A file channel can also be obtained from an
++ * existing {@link java.io.FileInputStream#getChannel FileInputStream}, {@link
+  * java.io.FileOutputStream#getChannel FileOutputStream}, or {@link
+  * java.io.RandomAccessFile#getChannel RandomAccessFile} object by invoking
+  * that object's <tt>getChannel</tt> method, which returns a file channel that
+- * is connected to the same underlying file.
++ * is connected to the same underlying file. Where the file channel is obtained
++ * from an existing stream or random access file then the state of the file
++ * channel is intimately connected to that of the object whose <tt>getChannel</tt>
++ * method returned the channel.  Changing the channel's position, whether
++ * explicitly or by reading or writing bytes, will change the file position of
++ * the originating object, and vice versa. Changing the file's length via the
++ * file channel will change the length seen via the originating object, and vice
++ * versa.  Changing the file's content by writing bytes will change the content
++ * seen by the originating object, and vice versa.
+  *
+- * <p> The state of a file channel is intimately connected to that of the
+- * object whose <tt>getChannel</tt> method returned the channel.  Changing the
+- * channel's position, whether explicitly or by reading or writing bytes, will
+- * change the file position of the originating object, and vice versa.
+- * Changing the file's length via the file channel will change the length seen
+- * via the originating object, and vice versa.  Changing the file's content by
+- * writing bytes will change the content seen by the originating object, and
+- * vice versa.
+- *
+- * <a name="open-mode"><p> At various points this class specifies that an
++ * <a name="open-mode"></a> <p> At various points this class specifies that an
+  * instance that is "open for reading," "open for writing," or "open for
+  * reading and writing" is required.  A channel obtained via the {@link
+  * java.io.FileInputStream#getChannel getChannel} method of a {@link
+@@ -127,7 +135,7 @@
+  * was created with mode <tt>"r"</tt> and will be open for reading and writing
+  * if the instance was created with mode <tt>"rw"</tt>.
+  *
+- * <a name="append-mode"><p> A file channel that is open for writing may be in
++ * <a name="append-mode"></a><p> A file channel that is open for writing may be in
+  * <i>append mode</i>, for example if it was obtained from a file-output stream
+  * that was created by invoking the {@link
+  * java.io.FileOutputStream#FileOutputStream(java.io.File,boolean)
+@@ -147,11 +155,12 @@
+  * @author Mike McCloskey
+  * @author JSR-51 Expert Group
+  * @since 1.4
++ * @updated 1.7
+  */
  
-+    // The protocol family of the socket
-+    private final ProtocolFamily family;
-+
-     // IDs of native threads doing reads and writes, for signalling
-     private volatile long readerThread = 0;
-     private volatile long writerThread = 0;
-@@ -91,6 +112,9 @@
-     // Our socket adaptor, if any
-     private DatagramSocket socket = null;
+ public abstract class FileChannel
+     extends AbstractInterruptibleChannel
+-    implements ByteChannel, GatheringByteChannel, ScatteringByteChannel
++    implements ByteChannel, GatheringByteChannel, ScatteringByteChannel, SeekableByteChannel
+ {
  
-+    // Multicast support
-+    private MembershipRegistry registry;
-+
-     // -- End of fields protected by stateLock
- 
- 
-@@ -98,15 +122,40 @@
-         throws IOException
-     {
-         super(sp);
-+        this.family = Net.isIPv6Available() ?
-+            StandardProtocolFamily.INET6 : StandardProtocolFamily.INET;
-         this.fd = Net.socket(false);
-         this.fdVal = IOUtil.fdVal(fd);
-         this.state = ST_UNCONNECTED;
+     /**
+@@ -978,4 +987,176 @@
+         return tryLock(0L, Long.MAX_VALUE, false);
      }
  
-+    public DatagramChannelImpl(SelectorProvider sp, ProtocolFamily family) {
-+        super(sp);
-+        if ((family != StandardProtocolFamily.INET) &&
-+            (family != StandardProtocolFamily.INET6))
-+        {
-+            if (family == null)
-+                throw new NullPointerException("'family' is null");
-+            else
-+                throw new UnsupportedOperationException("Protocol family not supported");
-+        }
-+        if (family == StandardProtocolFamily.INET6) {
-+            if (!Net.isIPv6Available()) {
-+                throw new UnsupportedOperationException("IPv6 not available");
-+            }
-+        }
-+        this.family = family;
-+        this.fd = Net.socket(family, false);
-+        this.fdVal = IOUtil.fdVal(fd);
-+        this.state = ST_UNCONNECTED;
-+    }
-+
-     public DatagramChannelImpl(SelectorProvider sp, FileDescriptor fd)
-         throws IOException
-     {
-         super(sp);
-+        this.family = Net.isIPv6Available() ?
-+            StandardProtocolFamily.INET6 : StandardProtocolFamily.INET;
-         this.fd = fd;
-         this.fdVal = IOUtil.fdVal(fd);
-         this.state = ST_UNCONNECTED;
-@@ -499,7 +548,7 @@
-         }
-     }
- 
--    public void bind(SocketAddress local) throws IOException {
-+    public DatagramChannel bind(SocketAddress local) throws IOException {
-         synchronized (readLock) {
-             synchronized (writeLock) {
-                 synchronized (stateLock) {
-@@ -515,6 +564,7 @@
-                 }
-             }
-         }
-+	return this;
-     }
- 
-     public boolean isConnected() {
-@@ -704,4 +754,350 @@
-         initIDs();
-     }
- 
-+    public SocketAddress getRemoteAddress() throws IOException {
-+        synchronized (stateLock) {
-+            if (!isOpen())
-+                throw new ClosedChannelException();
-+            return remoteAddress;
-+        }
-+    }
-+
-+    public SocketAddress getLocalAddress() throws IOException {
-+        synchronized (stateLock) {
-+            if (!isOpen())
-+                throw new ClosedChannelException();
-+            return localAddress;
-+        }
-+    }
-+
-+    public <T> DatagramChannel setOption(SocketOption<T> name, T value)
-+        throws IOException
-+    {
-+        if (name == null)
-+            throw new NullPointerException();
-+        if (!supportedOptions().contains(name))
-+            throw new UnsupportedOperationException("'" + name + "' not supported");
-+
-+        synchronized (stateLock) {
-+            ensureOpen();
-+
-+            if (name == StandardSocketOption.IP_TOS) {
-+                // IPv4 only; no-op for IPv6
-+                if (family == StandardProtocolFamily.INET) {
-+                    Net.setSocketOption(fd, family, name, value);
-+                }
-+                return this;
-+            }
-+
-+            if (name == StandardSocketOption.IP_MULTICAST_TTL ||
-+                name == StandardSocketOption.IP_MULTICAST_LOOP)
-+            {
-+                // options are protocol dependent
-+                Net.setSocketOption(fd, family, name, value);
-+                return this;
-+            }
-+
-+            if (name == StandardSocketOption.IP_MULTICAST_IF) {
-+                if (value == null)
-+                    throw new IllegalArgumentException("Cannot set IP_MULTICAST_IF to 'null'");
-+                NetworkInterface interf = (NetworkInterface)value;
-+                if (family == StandardProtocolFamily.INET6) {
-+		    int index = SharedSecrets.getJavaNetGetIndexAccess().getIndex(interf);
-+                    if (index == -1)
-+                        throw new IOException("Network interface cannot be identified");
-+                    Net.setInterface6(fd, index);
-+                } else {
-+                    // need IPv4 address to identify interface
-+                    Inet4Address target = Net.anyInet4Address(interf);
-+                    if (target == null)
-+                        throw new IOException("Network interface not configured for IPv4");
-+                    int targetAddress = Net.inet4AsInt(target);
-+                    Net.setInterface4(fd, targetAddress);
-+                }
-+                return this;
-+            }
-+
-+            // remaining options don't need any special handling
-+            Net.setSocketOption(fd, Net.UNSPEC, name, value);
-+            return this;
-+        }
-+    }
-+
-+    @SuppressWarnings("unchecked")
-+    public <T> T getOption(SocketOption<T> name)
-+        throws IOException
-+    {
-+        if (name == null)
-+            throw new NullPointerException();
-+        if (!supportedOptions().contains(name))
-+            throw new UnsupportedOperationException("'" + name + "' not supported");
-+
-+        synchronized (stateLock) {
-+            ensureOpen();
-+
-+            if (name == StandardSocketOption.IP_TOS) {
-+                // IPv4 only; always return 0 on IPv6
-+                if (family == StandardProtocolFamily.INET) {
-+                    return (T) Net.getSocketOption(fd, family, name);
-+                } else {
-+                    return (T) Integer.valueOf(0);
-+                }
-+            }
-+
-+            if (name == StandardSocketOption.IP_MULTICAST_TTL ||
-+                name == StandardSocketOption.IP_MULTICAST_LOOP)
-+            {
-+                return (T) Net.getSocketOption(fd, family, name);
-+            }
-+
-+            if (name == StandardSocketOption.IP_MULTICAST_IF) {
-+                if (family == StandardProtocolFamily.INET) {
-+                    int address = Net.getInterface4(fd);
-+                    if (address == 0)
-+                        return null;    // default interface
-+
-+                    InetAddress ia = Net.inet4FromInt(address);
-+                    NetworkInterface ni = NetworkInterface.getByInetAddress(ia);
-+                    if (ni == null)
-+                        throw new IOException("Unable to map address to interface");
-+                    return (T) ni;
-+                } else {
-+                    int index = Net.getInterface6(fd);
-+                    if (index == 0)
-+                        return null;    // default interface
-+
-+                    NetworkInterface ni = SharedSecrets.getJavaNetGetIndexAccess().getByIndex(index);
-+                    if (ni == null)
-+                        throw new IOException("Unable to map index to interface");
-+                    return (T) ni;
-+                }
-+            }
-+
-+            // no special handling
-+            return (T) Net.getSocketOption(fd, Net.UNSPEC, name);
-+        }
-+    }
-+
-+    private static class LazyInitialization {
-+        static final Set<SocketOption<?>> defaultOptions = defaultOptions();
-+
-+        private static Set<SocketOption<?>> defaultOptions() {
-+            HashSet<SocketOption<?>> set = new HashSet<SocketOption<?>>(8);
-+            set.add(StandardSocketOption.SO_SNDBUF);
-+            set.add(StandardSocketOption.SO_RCVBUF);
-+            set.add(StandardSocketOption.SO_REUSEADDR);
-+            set.add(StandardSocketOption.SO_BROADCAST);
-+            set.add(StandardSocketOption.IP_TOS);
-+            set.add(StandardSocketOption.IP_MULTICAST_IF);
-+            set.add(StandardSocketOption.IP_MULTICAST_TTL);
-+            set.add(StandardSocketOption.IP_MULTICAST_LOOP);
-+            return Collections.unmodifiableSet(set);
-+        }
-+    }
-+
-+    public final Set<SocketOption<?>> supportedOptions() {
-+        return LazyInitialization.defaultOptions;
-+    }
-+
 +    /**
-+     * Joins channel's socket to the given group/interface and
-+     * optional source address.
++     * {@note new}
++     * Opens or creates a file, returning a file channel to access the file.
++     *
++     * <p> The {@code options} parameter determines how the file is opened.
++     * The {@link StandardOpenOption#READ READ} and {@link StandardOpenOption#WRITE
++     * WRITE} options determine if the file should be opened for reading and/or
++     * writing. If neither option (or the {@link StandardOpenOption#APPEND APPEND}
++     * option) is contained in the array then the file is opened for reading.
++     * By default reading or writing commences at the beginning of the file.
++     *
++     * <p> In the addition to {@code READ} and {@code WRITE}, the following
++     * options may be present:
++     *
++     * <table border=1 cellpadding=5 summary="">
++     * <tr> <th>Option</th> <th>Description</th> </tr>
++     * <tr>
++     *   <td> {@link StandardOpenOption#APPEND APPEND} </td>
++     *   <td> If this option is present then the file is opened for writing and
++     *     each invocation of the channel's {@code write} method first advances
++     *     the position to the end of the file and then writes the requested
++     *     data. Whether the advancement of the position and the writing of the
++     *     data are done in a single atomic operation is system-dependent and
++     *     therefore unspecified. This option may not be used in conjunction
++     *     with the {@code READ} or {@code TRUNCATE_EXISTING} options. </td>
++     * </tr>
++     * <tr>
++     *   <td> {@link StandardOpenOption#TRUNCATE_EXISTING TRUNCATE_EXISTING} </td>
++     *   <td> If this option is present then the existing file is truncated to
++     *   a size of 0 bytes. This option is ignored when the file is opened only
++     *   for reading. </td>
++     * </tr>
++     * <tr>
++     *   <td> {@link StandardOpenOption#CREATE_NEW CREATE_NEW} </td>
++     *   <td> If this option is present then a new file is created, failing if
++     *   the file already exists. When creating a file the check for the
++     *   existence of the file and the creation of the file if it does not exist
++     *   is atomic with respect to other file system operations. This option is
++     *   ignored when the file is opened only for reading. </td>
++     * </tr>
++     * <tr>
++     *   <td > {@link StandardOpenOption#CREATE CREATE} </td>
++     *   <td> If this option is present then an existing file is opened if it
++     *   exists, otherwise a new file is created. When creating a file the check
++     *   for the existence of the file and the creation of the file if it does
++     *   not exist is atomic with respect to other file system operations. This
++     *   option is ignored if the {@code CREATE_NEW} option is also present or
++     *   the file is opened only for reading. </td>
++     * </tr>
++     * <tr>
++     *   <td > {@link StandardOpenOption#DELETE_ON_CLOSE DELETE_ON_CLOSE} </td>
++     *   <td> When this option is present then the implementation makes a
++     *   <em>best effort</em> attempt to delete the file when closed by the
++     *   the {@link #close close} method. If the {@code close} method is not
++     *   invoked then a <em>best effort</em> attempt is made to delete the file
++     *   when the Java virtual machine terminates. </td>
++     * </tr>
++     * <tr>
++     *   <td>{@link StandardOpenOption#SPARSE SPARSE} </td>
++     *   <td> When creating a new file this option is a <em>hint</em> that the
++     *   new file will be sparse. This option is ignored when not creating
++     *   a new file. </td>
++     * </tr>
++     * <tr>
++     *   <td> {@link StandardOpenOption#SYNC SYNC} </td>
++     *   <td> Requires that every update to the file's content or metadata be
++     *   written synchronously to the underlying storage device. (see <a
++     *   href="../file/package-summary.html#integrity"> Synchronized I/O file
++     *   integrity</a>). </td>
++     * <tr>
++     * <tr>
++     *   <td> {@link StandardOpenOption#DSYNC DSYNC} </td>
++     *   <td> Requires that every update to the file's content be written
++     *   synchronously to the underlying storage device. (see <a
++     *   href="../file/package-summary.html#integrity"> Synchronized I/O file
++     *   integrity</a>). </td>
++     * </tr>
++     * </table>
++     *
++     * <p> An implementation may also support additional options.
++     *
++     * <p> The {@code attrs} parameter is an optional array of file {@link
++     * FileAttribute file-attributes} to set atomically when creating the file.
++     *
++     * <p> The new channel is created by invoking the {@link
++     * FileSystemProvider#newFileChannel newFileChannel} method on the
++     * provider that created the {@code Path}.
++     *
++     * @param   file
++     *          The path of the file to open or create
++     * @param   options
++     *          Options specifying how the file is opened
++     * @param   attrs
++     *          An optional list of file attributes to set atomically when
++     *          creating the file
++     *
++     * @return  A new file channel
++     *
++     * @throws  IllegalArgumentException
++     *          If the set contains an invalid combination of options
++     * @throws  UnsupportedOperationException
++     *          If the {@code file} is associated with a provider that does not
++     *          support creating file channels, or an unsupported open option is
++     *          specified, or the array contains an attribute that cannot be set
++     *          atomically when creating the file
++     * @throws  IOException
++     *          If an I/O error occurs
++     * @throws  SecurityException
++     *          If a security manager is installed and it denies an
++     *          unspecified permission required by the implementation.
++     *          In the case of the default provider, the {@link
++     *          SecurityManager#checkRead(String)} method is invoked to check
++     *          read access if the file is opened for reading. The {@link
++     *          SecurityManager#checkWrite(String)} method is invoked to check
++     *          write access if the file is opened for writing
++     *
++     * @since   1.7
 +     */
-+    private MembershipKey innerJoin(InetAddress group,
-+                                    NetworkInterface interf,
-+                                    InetAddress source)
++    public static FileChannel open(Path file,
++				   Set<? extends OpenOption> options,
++				   FileAttribute<?>... attrs)
 +        throws IOException
 +    {
-+        if (!group.isMulticastAddress())
-+            throw new IllegalArgumentException("Group not a multicast address");
-+
-+        // check multicast address is compatible with this socket
-+        if (!(group instanceof Inet4Address)) {
-+            if (family == StandardProtocolFamily.INET)
-+                throw new IllegalArgumentException("Group is not IPv4 address");
-+            if (!(group instanceof Inet6Address))
-+                throw new IllegalArgumentException("Address type not supported");
-+        }
-+
-+        // check source address
-+        if (source != null) {
-+            if (source.isAnyLocalAddress())
-+                throw new IllegalArgumentException("Source address is a wildcard address");
-+            if (source.isMulticastAddress())
-+                throw new IllegalArgumentException("Source address is multicast address");
-+            if (source.getClass() != group.getClass())
-+                throw new IllegalArgumentException("Source address is different type to group");
-+        }
-+
-+        SecurityManager sm = System.getSecurityManager();
-+        if (sm != null)
-+            sm.checkMulticast(group);
-+
-+        synchronized (stateLock) {
-+            if (!isOpen())
-+                throw new ClosedChannelException();
-+
-+            // check the registry to see if we are already a member of the group
-+            if (registry == null) {
-+                registry = new MembershipRegistry();
-+            } else {
-+                // return existing membership key
-+                MembershipKey key = registry.checkMembership(group, interf, source);
-+                if (key != null)
-+                    return key;
-+            }
-+
-+            MembershipKeyImpl key;
-+            if (family == StandardProtocolFamily.INET6) {
-+                int index = SharedSecrets.getJavaNetGetIndexAccess().getIndex(interf);
-+                if (index == -1)
-+                    throw new IOException("Network interface cannot be identified");
-+
-+                // need multicast and source address as byte arrays
-+                byte[] groupAddress = Net.inet6AsByteArray(group);
-+                byte[] sourceAddress = (source == null) ? null :
-+                    Net.inet6AsByteArray(source);
-+
-+                // join the group
-+                int n = Net.join6(fd, groupAddress, index, sourceAddress);
-+                if (n == IOStatus.UNAVAILABLE)
-+                    throw new UnsupportedOperationException();
-+
-+                key = new MembershipKeyImpl.Type6(this, group, interf, source,
-+                                                  groupAddress, index, sourceAddress);
-+
-+            } else {
-+                // need IPv4 address to identify interface
-+                Inet4Address target = Net.anyInet4Address(interf);
-+                if (target == null)
-+                    throw new IOException("Network interface not configured for IPv4");
-+
-+                int groupAddress = Net.inet4AsInt(group);
-+                int targetAddress = Net.inet4AsInt(target);
-+                int sourceAddress = (source == null) ? 0 : Net.inet4AsInt(source);
-+
-+                // join the group
-+                int n = Net.join4(fd, groupAddress, targetAddress, sourceAddress);
-+                if (n == IOStatus.UNAVAILABLE)
-+                    throw new UnsupportedOperationException();
-+
-+                key = new MembershipKeyImpl.Type4(this, group, interf, source,
-+                                                  groupAddress, targetAddress, sourceAddress);
-+            }
-+
-+            registry.add(key);
-+            return key;
-+        }
-+    }
-+
-+
-+    public MembershipKey join(InetAddress group,
-+                              NetworkInterface interf)
-+        throws IOException
-+    {
-+        return innerJoin(group, interf, null);
-+    }
-+
-+
-+    public MembershipKey join(InetAddress group,
-+                              NetworkInterface interf,
-+                              InetAddress source)
-+        throws IOException
-+    {
-+        if (source == null)
-+            throw new NullPointerException("source address is null");
-+        return innerJoin(group, interf, source);
-+    }
-+
-+    /**
-+     * Block datagrams from given source if a memory to receive all
-+     * datagrams.
++        FileSystemProvider provider = file.getFileSystem().provider();
++        return provider.newFileChannel(file, options, attrs);
++     }
++ 
++    private static final FileAttribute<?>[] NO_ATTRIBUTES = new FileAttribute[0];
++ 
++     /**
++     * {@note new}
++     * Opens or creates a file, returning a file channel to access the file.
++     *
++     * <p> An invocation of this method behaves in exactly the same way as the
++     * invocation
++     * <pre>
++     *     fc.{@link #open(Path,Set,FileAttribute[]) open}(file, options, new FileAttribute&lt;?&gt;[0]);
++     * </pre>
++     *
++     * @param   file
++     *          The path of the file to open or create
++     * @param   options
++     *          Options specifying how the file is opened
++     *
++     * @return  A new file channel
++     *
++     * @throws  IllegalArgumentException
++     *          If the set contains an invalid combination of options
++     * @throws  UnsupportedOperationException
++     *          If the {@code file} is associated with a provider that does not
++     *          support creating file channels, or an unsupported open option is
++     *          specified
++     * @throws  IOException
++     *          If an I/O error occurs
++     * @throws  SecurityException
++     *          If a security manager is installed and it denies an
++     *          unspecified permission required by the implementation.
++     *          In the case of the default provider, the {@link
++     *          SecurityManager#checkRead(String)} method is invoked to check
++     *          read access if the file is opened for reading. The {@link
++     *          SecurityManager#checkWrite(String)} method is invoked to check
++     *          write access if the file is opened for writing
++     *
++     * @since   1.7
 +     */
-+    void block(MembershipKeyImpl key, InetAddress source)
++    public static FileChannel open(Path file, OpenOption... options)
 +        throws IOException
 +    {
-+        assert key.channel() == this;
-+        assert key.sourceAddress() == null;
-+
-+        synchronized (stateLock) {
-+            if (!key.isValid())
-+                throw new IllegalStateException("key is no longer valid");
-+            if (source.isAnyLocalAddress())
-+                throw new IllegalArgumentException("Source address is a wildcard address");
-+            if (source.isMulticastAddress())
-+                throw new IllegalArgumentException("Source address is multicast address");
-+            if (source.getClass() != key.group().getClass())
-+                throw new IllegalArgumentException("Source address is different type to group");
-+
-+            int n;
-+            if (family == StandardProtocolFamily.INET6) {
-+                 MembershipKeyImpl.Type6 key6 =
-+                    (MembershipKeyImpl.Type6)key;
-+                n = Net.block6(fd, key6.groupAddress(), key6.index(),
-+                               Net.inet6AsByteArray(source));
-+            } else {
-+                MembershipKeyImpl.Type4 key4 =
-+                    (MembershipKeyImpl.Type4)key;
-+                n = Net.block4(fd, key4.groupAddress(), key4.interfaceAddress(),
-+                               Net.inet4AsInt(source));
-+            }
-+            if (n == IOStatus.UNAVAILABLE) {
-+                // ancient kernel
-+                throw new UnsupportedOperationException();
-+            }
-+        }
++        Set<OpenOption> set = new HashSet<OpenOption>(options.length);
++        Collections.addAll(set, options);
++        return open(file, set, NO_ATTRIBUTES);
 +    }
-+
-+    /**
-+     * Unblock given source.
-+     */
-+    void unblock(MembershipKeyImpl key, InetAddress source)
-+        throws IOException
-+    {
-+        assert key.channel() == this;
-+        assert key.sourceAddress() == null;
-+
-+        synchronized (stateLock) {
-+            if (!key.isValid())
-+                throw new IllegalStateException("key is no longer valid");
-+
-+            if (family == StandardProtocolFamily.INET6) {
-+                MembershipKeyImpl.Type6 key6 =
-+                    (MembershipKeyImpl.Type6)key;
-+                Net.unblock6(fd, key6.groupAddress(), key6.index(),
-+                             Net.inet6AsByteArray(source));
-+            } else {
-+                MembershipKeyImpl.Type4 key4 =
-+                    (MembershipKeyImpl.Type4)key;
-+                Net.unblock4(fd, key4.groupAddress(), key4.interfaceAddress(),
-+                             Net.inet4AsInt(source));
-+            }
-+        }
-+    }
-+
-+    // package-private
-+    void drop(MembershipKeyImpl key)
-+        throws IOException
-+    {
-+        assert key.channel() == this;
-+
-+        synchronized (stateLock) {
-+            if (!key.isValid())
-+                return;
-+
-+            if (family == StandardProtocolFamily.INET6) {
-+                MembershipKeyImpl.Type6 key6 =
-+                    (MembershipKeyImpl.Type6)key;
-+                Net.drop6(fd, key6.groupAddress(), key6.index(), key6.source());
-+            } else {
-+                MembershipKeyImpl.Type4 key4 = (MembershipKeyImpl.Type4)key;
-+                Net.drop4(fd, key4.groupAddress(), key4.interfaceAddress(),
-+                    key4.source());
-+            }
-+
-+            key.invalidate();
-+            registry.remove(key);
-+        }
-+    }
-+
  }
-diff -Nru openjdk.orig/jdk/src/share/classes/sun/nio/ch/FileChannelImpl.java openjdk/jdk/src/share/classes/sun/nio/ch/FileChannelImpl.java
---- openjdk.orig/jdk/src/share/classes/sun/nio/ch/FileChannelImpl.java	2009-01-20 13:37:15.000000000 +0000
-+++ openjdk/jdk/src/share/classes/sun/nio/ch/FileChannelImpl.java	2009-01-27 02:33:08.000000000 +0000
-@@ -32,8 +32,15 @@
+diff -Nru openjdk.orig/jdk/src/share/classes/java/nio/channels/FileLock.java openjdk/jdk/src/share/classes/java/nio/channels/FileLock.java
+--- openjdk.orig/jdk/src/share/classes/java/nio/channels/FileLock.java	2009-02-13 21:10:32.000000000 +0000
++++ openjdk/jdk/src/share/classes/java/nio/channels/FileLock.java	2009-02-13 22:22:43.000000000 +0000
+@@ -27,14 +27,16 @@
+ 
  import java.io.IOException;
- import java.nio.ByteBuffer;
- import java.nio.MappedByteBuffer;
--import java.nio.channels.*;
--import java.nio.channels.spi.*;
-+import java.nio.channels.ClosedChannelException;
-+import java.nio.channels.ClosedByInterruptException;
-+import java.nio.channels.FileLock;
-+import java.nio.channels.FileLockInterruptionException;
-+import java.nio.channels.NonReadableChannelException;
-+import java.nio.channels.NonWritableChannelException;
-+import java.nio.channels.OverlappingFileLockException;
-+import java.nio.channels.ReadableByteChannel;
-+import java.nio.channels.WritableByteChannel;
- import java.util.ArrayList;
- import java.util.List;
- import java.util.Iterator;
-@@ -46,6 +53,7 @@
- import sun.misc.Cleaner;
- import sun.security.action.GetPropertyAction;
  
-+import org.classpath.icedtea.java.nio.channels.FileChannel;
+-
+ /**
+  * A token representing a lock on a region of a file.
+  *
+  * <p> A file-lock object is created each time a lock is acquired on a file via
+  * one of the {@link FileChannel#lock(long,long,boolean) lock} or {@link
+- * FileChannel#tryLock(long,long,boolean) tryLock} methods of the {@link
+- * FileChannel} class.
++ * FileChannel#tryLock(long,long,boolean) tryLock} methods of the
++ * {@link FileChannel} class, or the {@link
++ * AsynchronousFileChannel#lock(long,long,boolean,Object,CompletionHandler) lock}
++ * or {@link AsynchronousFileChannel#tryLock(long,long,boolean) tryLock}
++ * methods of the {@link AsynchronousFileChannel} class.
+  *
+  * <p> A file-lock object is initially valid.  It remains valid until the lock
+  * is released by invoking the {@link #release release} method, by closing the
+@@ -70,8 +72,7 @@
+  * <p> File-lock objects are safe for use by multiple concurrent threads.
+  *
+  *
+- * <a name="pdep">
+- * <h4> Platform dependencies </h4>
++ * <a name="pdep"><h4> Platform dependencies </h4></a>
+  *
+  * <p> This file-locking API is intended to map directly to the native locking
+  * facility of the underlying operating system.  Thus the locks held on a file
+@@ -93,7 +94,7 @@
+  *
+  * <p> On some systems, acquiring a mandatory lock on a region of a file
+  * prevents that region from being {@link java.nio.channels.FileChannel#map
+- * </code>mapped into memory<code>}, and vice versa.  Programs that combine
++ * <i>mapped into memory</i>}, and vice versa.  Programs that combine
+  * locking and mapping should be prepared for this combination to fail.
+  *
+  * <p> On some systems, closing a channel releases all locks held by the Java
+@@ -113,11 +114,12 @@
+  * @author Mark Reinhold
+  * @author JSR-51 Expert Group
+  * @since 1.4
++ * @updated 1.7
+  */
  
- public class FileChannelImpl
-     extends FileChannel
-@@ -316,6 +324,10 @@
-         }
+ public abstract class FileLock {
+ 
+-    private final FileChannel channel;
++    private final Channel channel;
+     private final long position;
+     private final long size;
+     private final boolean shared;
+@@ -159,11 +161,66 @@
      }
  
-+    public FileChannel positionSBC(long newPosition) throws IOException {
-+      return position(newPosition);
+     /**
+-     * Returns the file channel upon whose file this lock is held.  </p>
++     * {@note new} Initializes a new instance of this class.
++     *
++     * @param  channel
++     *         The channel upon whose file this lock is held
++     *
++     * @param  position
++     *         The position within the file at which the locked region starts;
++     *         must be non-negative
++     *
++     * @param  size
++     *         The size of the locked region; must be non-negative, and the sum
++     *         <tt>position</tt>&nbsp;+&nbsp;<tt>size</tt> must be non-negative
++     *
++     * @param  shared
++     *         <tt>true</tt> if this lock is shared,
++     *         <tt>false</tt> if it is exclusive
++     *
++     * @throws IllegalArgumentException
++     *         If the preconditions on the parameters do not hold
++     *
++     * @since 1.7
++     */
++    protected FileLock(AsynchronousFileChannel channel,
++                       long position, long size, boolean shared)
++    {
++        if (position < 0)
++            throw new IllegalArgumentException("Negative position");
++        if (size < 0)
++            throw new IllegalArgumentException("Negative size");
++        if (position + size < 0)
++            throw new IllegalArgumentException("Negative position + size");
++        this.channel = channel;
++        this.position = position;
++        this.size = size;
++        this.shared = shared;
 +    }
 +
-     public long size() throws IOException {
-         ensureOpen();
-         synchronized (positionLock) {
-@@ -386,6 +398,10 @@
-         }
++    /**
++     * {@note revised}
++     * Returns the file channel upon whose file this lock was acquired.
+      *
+-     * @return  The file channel
++     * <p> This method has been superseded by the {@link #acquiredBy acquiredBy}
++     * method.
++     *
++     * @return  The file channel, or {@code null} if the file lock was not
++     *          acquired by a file channel.
+      */
+     public final FileChannel channel() {
++        return (channel instanceof FileChannel) ? (FileChannel)channel : null;
++    }
++
++    /**
++     * {@note new}
++     * Returns the channel upon whose file this lock was acquired.
++     *
++     * @return  The channel upon whose file this lock was acquired.
++     *
++     * @since 1.7
++     */
++    public Channel acquiredBy() {
+         return channel;
      }
  
-+    public FileChannel truncateSBC(long size) throws IOException {
-+      return truncate(size);
-+    }
-+
-     public void force(boolean metaData) throws IOException {
-         ensureOpen();
-         int rv = -1;
-diff -Nru openjdk.orig/jdk/src/share/classes/sun/nio/ch/Net.java openjdk/jdk/src/share/classes/sun/nio/ch/Net.java
---- openjdk.orig/jdk/src/share/classes/sun/nio/ch/Net.java	2009-01-15 17:37:33.000000000 +0000
-+++ openjdk/jdk/src/share/classes/sun/nio/ch/Net.java	2009-02-01 00:35:31.000000000 +0000
-@@ -30,6 +30,15 @@
- import java.net.*;
+diff -Nru openjdk.orig/jdk/src/share/classes/java/nio/channels/package-info.java openjdk/jdk/src/share/classes/java/nio/channels/package-info.java
+--- openjdk.orig/jdk/src/share/classes/java/nio/channels/package-info.java	2009-02-13 21:10:32.000000000 +0000
++++ openjdk/jdk/src/share/classes/java/nio/channels/package-info.java	2009-02-13 22:23:47.000000000 +0000
+@@ -46,6 +46,10 @@
+  *     <td>Can read/write to/from a&nbsp;buffer</td></tr>
+  * <tr><td valign=top><tt>&nbsp;&nbsp;&nbsp;&nbsp;<i>{@link java.nio.channels.SeekableByteChannel}</i></tt></td>
+  *     <td>A {@code ByteChannel} connected to an entity that contains a variable-length sequence of bytes</td></tr>
++ * <tr><td valign=top><tt>&nbsp;&nbsp;<i>{@link java.nio.channels.AsynchronousChannel}</i></tt></td>
++ *     <td>Supports asynchronous I/O operations.</td></tr>
++ * <tr><td valign=top><tt>&nbsp;&nbsp;&nbsp;&nbsp;<i>{@link java.nio.channels.AsynchronousByteChannel}</i></tt></td>
++ *     <td>Can read and write bytes asynchronously</td></tr>
+  * <tr><td valign=top><tt>&nbsp;&nbsp;<i>{@link java.nio.channels.NetworkChannel}</i></tt></td>
+  *     <td>A channel to a network socket</td></tr>
+  * <tr><td valign=top><tt>&nbsp;&nbsp;&nbsp;&nbsp;<i>{@link java.nio.channels.MulticastChannel}</i></tt></td>
+@@ -218,12 +222,70 @@
+  * directly; custom channel classes should extend the appropriate {@link
+  * java.nio.channels.SelectableChannel} subclasses defined in this package.
+  *
++ * <a name="async"></a>
++ *
++ * <blockquote><table cellspacing=1 cellpadding=0 summary="Lists asynchronous channels and their descriptions">
++ * <tr><th><p align="left">Asynchronous I/O</p></th><th><p align="left">Description</p></th></tr>
++ * <tr><td valign=top><tt>{@link java.nio.channels.AsynchronousFileChannel}</tt></td>
++ *     <td>An asynchronous channel for reading, writing, and manipulating a file</td></tr>
++ * <tr><td valign=top><tt>{@link java.nio.channels.AsynchronousSocketChannel}</tt></td>
++ *     <td>An asynchronous channel to a stream-oriented connecting socket</td></tr>
++ * <tr><td valign=top><tt>{@link java.nio.channels.AsynchronousServerSocketChannel}&nbsp;&nbsp;</tt></td>
++ *     <td>An asynchronous channel to a stream-oriented listening socket</td></tr>
++ * <tr><td valign=top><tt>{@link java.nio.channels.AsynchronousDatagramChannel}</tt></td>
++ *     <td>An asynchronous channel to a datagram-oriented socket</td></tr>
++ * <tr><td valign=top><tt>{@link java.nio.channels.CompletionHandler}</tt></td>
++ *     <td>A handler for consuming the result of an asynchronous operation</td></tr>
++ * <tr><td valign=top><tt>{@link java.nio.channels.AsynchronousChannelGroup}</tt></td>
++ *     <td>A grouping of asynchronous channels for the purpose of resource sharing</td></tr>
++ * </table></blockquote>
++ *
++ * <p> {@link java.nio.channels.AsynchronousChannel Asynchronous channels} are a
++ * special type of channel capable of asynchronous I/O operations. Asynchronous
++ * channels are non-blocking and define methods to initiate asynchronous
++ * operations, returning a {@link java.util.concurrent.Future} representing the
++ * pending result of each operation. The {@code Future} can be used to poll or
++ * wait for the result of the operation. Asynchronous I/O operations can also
++ * specify a {@link java.nio.channels.CompletionHandler} to invoke when the
++ * operation completes. A completion handler is user provided code that is executed
++ * to consume the result of I/O operation.
++ *
++ * <p> This package defines asynchronous-channel classes that are connected to
++ * a stream-oriented connecting or listening socket, or a datagram-oriented socket.
++ * It also defines the {@link java.nio.channels.AsynchronousFileChannel} class
++ * for asynchronous reading, writing, and manipulating a file. As with the {@link
++ * java.nio.channels.FileChannel} it supports operations to truncate the file
++ * to a specific size, force updates to the file to be written to the storage
++ * device, or acquire locks on the whole file or on a specific region of the file.
++ * Unlike the {@code FileChannel} it does not define methods for mapping a
++ * region of the file directly into memory. Where memory mapped I/O is required,
++ * then a {@code FileChannel} can be used.
++ *
++ * <p> Asynchronous channels are bound to an asynchronous channel group for the
++ * purpose of resource sharing. A group has an associated {@link
++ * java.util.concurrent.ExecutorService} to which tasks are submitted to handle
++ * I/O events and dispatch to completion handlers that consume the result of
++ * asynchronous operations performed on channels in the group. The group can
++ * optionally be specified when creating the channel or the channel can be bound
++ * to a <em>default group</em>. Sophisticated users may wish to create their
++ * own asynchronous channel groups or configure the {@code ExecutorService}
++ * that will be used for the default group.
++ *
++ * <p> As with selectors, the implementatin of asynchronous channels can be
++ * replaced by "plugging in" an alternative definition or instance of the {@link
++ * java.nio.channels.spi.AsynchronousChannelProvider} class defined in the
++ * <tt>{@link java.nio.channels.spi}</tt> package.  It is not expected that many
++ * developers will actually make use of this facility; it is provided primarily
++ * so that sophisticated users can take advantage of operating-system-specific
++ * asynchronous I/O mechanisms when very high performance is required.
++ *
+  * <hr width="80%">
+  * <p> Unless otherwise noted, passing a <tt>null</tt> argument to a constructor
+  * or method in any class or interface in this package will cause a {@link
+  * java.lang.NullPointerException NullPointerException} to be thrown.
+  *
+  * @since 1.4
++ * @updated 1.7
+  * @author Mark Reinhold
+  * @author JSR-51 Expert Group
+  */
+diff -Nru openjdk.orig/jdk/src/share/classes/java/util/Scanner.java openjdk/jdk/src/share/classes/java/util/Scanner.java
+--- openjdk.orig/jdk/src/share/classes/java/util/Scanner.java	2009-02-13 21:10:48.000000000 +0000
++++ openjdk/jdk/src/share/classes/java/util/Scanner.java	2009-02-13 22:32:01.000000000 +0000
+@@ -32,9 +32,10 @@
  import java.nio.channels.*;
+ import java.nio.charset.*;
+ import java.text.*;
+-import java.util.Locale;
+ import sun.misc.LRUCache;
  
-+import java.security.AccessController;
-+import java.security.PrivilegedAction;
++import java.nio.file.FileRef;
 +
-+import java.util.Enumeration;
-+
-+import org.classpath.icedtea.java.net.ProtocolFamily;
-+import org.classpath.icedtea.java.net.SocketOption;
-+import org.classpath.icedtea.java.net.StandardProtocolFamily;
-+import org.classpath.icedtea.java.net.StandardSocketOption;
+ /**
+  * A simple text scanner which can parse primitive types and strings using
+  * regular expressions.
+@@ -673,6 +674,49 @@
+     }
  
+     /**
++     * {@note new}
++     * Constructs a new <code>Scanner</code> that produces values scanned
++     * from the specified file. Bytes from the file are converted into
++     * characters using the underlying platform's
++     * {@linkplain java.nio.charset.Charset#defaultCharset() default charset}.
++     *
++     * @param   source
++     *          A file to be scanned
++     * @throws  IOException
++     *          if an I/O error occurs opening source
++     *
++     * @since   1.7
++     */
++    public Scanner(FileRef source)
++        throws IOException
++    {
++        this(source.newByteChannel());
++    }
++
++    /**
++     * {@note new}
++     * Constructs a new <code>Scanner</code> that produces values scanned
++     * from the specified file. Bytes from the file are converted into
++     * characters using the specified charset.
++     *
++     * @param   source
++     *          A file to be scanned
++     * @param   charsetName
++     *          The encoding type used to convert bytes from the file
++     *          into characters to be scanned
++     * @throws  IOException
++     *          if an I/O error occurs opening source
++     * @throws  IllegalArgumentException
++     *          if the specified encoding is not found
++     * @since   1.7
++     */
++    public Scanner(FileRef source, String charsetName)
++        throws IOException
++    {
++        this(source.newByteChannel(), charsetName);
++    }
++
++    /**
+      * Constructs a new <code>Scanner</code> that produces values scanned
+      * from the specified string.
+      *
+diff -Nru openjdk.orig/jdk/src/share/classes/sun/nio/ch/MembershipRegistry.java openjdk/jdk/src/share/classes/sun/nio/ch/MembershipRegistry.java
+--- openjdk.orig/jdk/src/share/classes/sun/nio/ch/MembershipRegistry.java	2009-02-14 02:09:45.000000000 +0000
++++ openjdk/jdk/src/share/classes/sun/nio/ch/MembershipRegistry.java	2009-02-14 03:34:58.000000000 +0000
+@@ -120,10 +120,12 @@
+      * Invalidate all keys in the registry
+      */
+     void invalidateAll() {
+-        for (InetAddress group: groups.keySet()) {
+-            for (MembershipKeyImpl key: groups.get(group)) {
+-                key.invalidate();
++        if (groups != null) {
++            for (InetAddress group: groups.keySet()) {
++                for (MembershipKeyImpl key: groups.get(group)) {
++                    key.invalidate();
++                }
+             }
+-        }
++	}
+     }
+ }
+diff -Nru openjdk.orig/jdk/src/share/classes/sun/nio/ch/Net.java openjdk/jdk/src/share/classes/sun/nio/ch/Net.java
+--- openjdk.orig/jdk/src/share/classes/sun/nio/ch/Net.java	2009-02-11 23:11:27.000000000 +0000
++++ openjdk/jdk/src/share/classes/sun/nio/ch/Net.java	2009-02-14 01:49:30.000000000 +0000
+@@ -32,7 +32,6 @@
+ import java.security.AccessController;
+ import java.security.PrivilegedAction;
+ 
+-
  class Net {                                             // package-private
  
-@@ -108,16 +117,24 @@
+     private Net() { }
+@@ -207,7 +206,7 @@
+     // -- Socket options
  
-     // -- Socket operations --
- 
-+    static native boolean isIPv6Available0();
-+
-     static FileDescriptor socket(boolean stream) {
--        return IOUtil.newFD(socket0(stream, false));
-+        return socket(UNSPEC, stream);
-+    }
-+
-+    static FileDescriptor socket(ProtocolFamily family, boolean stream) {
-+        boolean preferIPv6 = isIPv6Available() &&
-+            (family != StandardProtocolFamily.INET);
-+        return IOUtil.newFD(socket0(preferIPv6, stream, false));
+     static void setSocketOption(FileDescriptor fd, ProtocolFamily family,
+-                                SocketOption name, Object value)
++                                SocketOption<?> name, Object value)
+         throws IOException
+     {
+         if (value == null)
+@@ -262,7 +261,7 @@
      }
  
-     static FileDescriptor serverSocket(boolean stream) {
--        return IOUtil.newFD(socket0(stream, true));
-+        return IOUtil.newFD(socket0(isIPv6Available(), stream, true));
-     }
- 
-     // Due to oddities SO_REUSEADDR on windows reuse is ignored
--    private static native int socket0(boolean stream, boolean reuse);
-+    private static native int socket0(boolean preferIPv6, boolean stream, boolean reuse);
- 
-     static native void bind(FileDescriptor fd, InetAddress addr, int port)
-         throws IOException;
-@@ -179,4 +196,314 @@
+     static Object getSocketOption(FileDescriptor fd, ProtocolFamily family,
+-                                  SocketOption name)
++                                  SocketOption<?> name)
+         throws IOException
+     {
+         Class<?> type = name.type();
+@@ -489,4 +488,11 @@
          initIDs();
      }
  
 +    // From 1.7
 +
-+    static native void listen(FileDescriptor fd, int backlog) throws IOException;
-+
-+    // unspecified protocol family
-+    static final ProtocolFamily UNSPEC = new ProtocolFamily() {
-+        public String name() {
-+            return "UNSPEC";
-+        }
-+    };
-+
-+    // -- Socket options
-+
-+    static void setSocketOption(FileDescriptor fd, ProtocolFamily family,
-+                                SocketOption<?> name, Object value)
-+        throws IOException
-+    {
-+        if (value == null)
-+            throw new IllegalArgumentException("Invalid option value");
-+
-+        // only simple values supported by this method
-+        Class<?> type = name.type();
-+        if (type != Integer.class && type != Boolean.class)
-+            throw new AssertionError("Should not reach here");
-+
-+        // special handling
-+        if (name == StandardSocketOption.SO_RCVBUF ||
-+            name == StandardSocketOption.SO_SNDBUF)
-+        {
-+            int i = ((Integer)value).intValue();
-+            if (i < 0)
-+                throw new IllegalArgumentException("Invalid send/receive buffer size");
-+        }
-+        if (name == StandardSocketOption.SO_LINGER) {
-+            int i = ((Integer)value).intValue();
-+            if (i < 0)
-+                value = Integer.valueOf(-1);
-+            if (i > 65535)
-+                value = Integer.valueOf(65535);
-+        }
-+        if (name == StandardSocketOption.IP_TOS) {
-+            int i = ((Integer)value).intValue();
-+            if (i < 0 || i > 255)
-+                throw new IllegalArgumentException("Invalid IP_TOS value");
-+        }
-+        if (name == StandardSocketOption.IP_MULTICAST_TTL) {
-+            int i = ((Integer)value).intValue();
-+            if (i < 0 || i > 255)
-+                throw new IllegalArgumentException("Invalid TTL/hop value");
-+        }
-+
-+        // map option name to platform level/name
-+        OptionKey key = SocketOptionRegistry.findOption(name, family);
-+        if (key == null)
-+            throw new AssertionError("Option not found");
-+
-+        int arg;
-+        if (type == Integer.class) {
-+            arg = ((Integer)value).intValue();
-+        } else {
-+            boolean b = ((Boolean)value).booleanValue();
-+            arg = (b) ? 1 : 0;
-+        }
-+
-+        boolean mayNeedConversion = (family == UNSPEC);
-+        setIntOption1(fd, mayNeedConversion, key.level(), key.name(), arg);
-+    }
-+
-+    static Object getSocketOption(FileDescriptor fd, ProtocolFamily family,
-+                                  SocketOption<?> name)
-+        throws IOException
-+    {
-+        Class<?> type = name.type();
-+
-+        // only simple values supported by this method
-+        if (type != Integer.class && type != Boolean.class)
-+            throw new AssertionError("Should not reach here");
-+
-+        // map option name to platform level/name
-+        OptionKey key = SocketOptionRegistry.findOption(name, family);
-+        if (key == null)
-+            throw new AssertionError("Option not found");
-+
-+        boolean mayNeedConversion = (family == UNSPEC);
-+        int value = getIntOption0(fd, mayNeedConversion, key.level(), key.name());
-+
-+        if (type == Integer.class) {
-+            return Integer.valueOf(value);
-+        } else {
-+            return (value == 0) ? Boolean.FALSE : Boolean.TRUE;
-+        }
-+    }
-+
-+    private static native int getIntOption0(FileDescriptor fd, boolean mayNeedConversion,
-+                                            int level, int opt)
-+        throws IOException;
-+
 +    private static native void setIntOption1(FileDescriptor fd, boolean mayNeedConversion,
 +                                             int level, int opt, int arg)
 +        throws IOException;
 +
-+    public final static int SHUT_RD = 0;
-+    public final static int SHUT_WR = 1;
 +
-+    static native void shutdown(FileDescriptor fd, int how) throws IOException;
-+
-+    static native void setInterface6(FileDescriptor fd, int index) throws IOException;
-+
-+    static native void setInterface4(FileDescriptor fd, int interf) throws IOException;
-+
-+    static native int getInterface4(FileDescriptor fd) throws IOException;
-+
-+    static native int getInterface6(FileDescriptor fd) throws IOException;
-+
-+    /**
-+     * Returns any IPv4 address of the given network interface, or
-+     * null if the interface does not have any IPv4 addresses.
-+     */
-+    static Inet4Address anyInet4Address(final NetworkInterface interf) {
-+        return AccessController.doPrivileged(new PrivilegedAction<Inet4Address>() {
-+            public Inet4Address run() {
-+                Enumeration<InetAddress> addrs = interf.getInetAddresses();
-+                while (addrs.hasMoreElements()) {
-+                    InetAddress addr = addrs.nextElement();
-+                    if (addr instanceof Inet4Address) {
-+                        return (Inet4Address)addr;
-+                    }
-+                }
-+                return null;
-+            }
-+        });
-+    }
-+
-+    /**
-+     * Returns an IPv4 address as an int.
-+     */
-+    static int inet4AsInt(InetAddress ia) {
-+        if (ia instanceof Inet4Address) {
-+            byte[] addr = ia.getAddress();
-+            int address  = addr[3] & 0xFF;
-+            address |= ((addr[2] << 8) & 0xFF00);
-+            address |= ((addr[1] << 16) & 0xFF0000);
-+            address |= ((addr[0] << 24) & 0xFF000000);
-+            return address;
-+        }
-+        throw new AssertionError("Should not reach here");
-+    }
-+
-+    /**
-+     * Returns an InetAddress from the given IPv4 address
-+     * represented as an int.
-+     */
-+    static InetAddress inet4FromInt(int address) {
-+        byte[] addr = new byte[4];
-+        addr[0] = (byte) ((address >>> 24) & 0xFF);
-+        addr[1] = (byte) ((address >>> 16) & 0xFF);
-+        addr[2] = (byte) ((address >>> 8) & 0xFF);
-+        addr[3] = (byte) (address & 0xFF);
-+        try {
-+            return InetAddress.getByAddress(addr);
-+        } catch (UnknownHostException uhe) {
-+            throw new AssertionError("Should not reach here");
-+        }
-+    }
-+
-+    /**
-+     * Returns an IPv6 address as a byte array
-+     */
-+    static byte[] inet6AsByteArray(InetAddress ia) {
-+        if (ia instanceof Inet6Address) {
-+            return ia.getAddress();
-+        }
-+
-+        // need to construct IPv4-mapped address
-+        if (ia instanceof Inet4Address) {
-+            byte[] ip4address = ia.getAddress();
-+            byte[] address = new byte[16];
-+            address[10] = (byte)0xff;
-+            address[11] = (byte)0xff;
-+            address[12] = ip4address[0];
-+            address[13] = ip4address[1];
-+            address[14] = ip4address[2];
-+            address[15] = ip4address[3];
-+            return address;
-+        }
-+
-+        throw new AssertionError("Should not reach here");
-+    }
-+
-+    // -- Miscellaneous utilities --
-+
-+    private static volatile boolean checkedIPv6 = false;
-+    private static volatile boolean isIPv6Available;
-+
-+    /**
-+     * Tells whether dual-IPv4/IPv6 sockets should be used.
-+     */
-+    static boolean isIPv6Available() {
-+        if (!checkedIPv6) {
-+            isIPv6Available = isIPv6Available0();
-+            checkedIPv6 = true;
-+        }
-+        return isIPv6Available;
-+    }
-+
-+    /**
-+     * Join IPv6 multicast group
-+     */
-+    static int join6(FileDescriptor fd, byte[] group, int index, byte[] source)
-+        throws IOException
-+    {
-+        return joinOrDrop6(true, fd, group, index, source);
-+    }
-+
-+    /**
-+     * Drop membership of IPv6 multicast group
-+     */
-+    static void drop6(FileDescriptor fd, byte[] group, int index, byte[] source)
-+        throws IOException
-+    {
-+        joinOrDrop6(false, fd, group, index, source);
-+    }
-+
-+    private static native int joinOrDrop6(boolean join, FileDescriptor fd, byte[] group, int index, byte[] source)
-+        throws IOException;
-+
-+    /**
-+     * Block IPv6 source
-+     */
-+    static int block6(FileDescriptor fd, byte[] group, int index, byte[] source)
-+        throws IOException
-+    {
-+        return blockOrUnblock6(true, fd, group, index, source);
-+    }
-+
-+    /**
-+     * Unblock IPv6 source
-+     */
-+    static void unblock6(FileDescriptor fd, byte[] group, int index, byte[] source)
-+        throws IOException
-+    {
-+        blockOrUnblock6(false, fd, group, index, source);
-+    }
-+
-+    static native int blockOrUnblock6(boolean block, FileDescriptor fd, byte[] group, int index, byte[] source)
-+        throws IOException;
-+
-+    /**
-+     * Join IPv4 multicast group
-+     */
-+    static int join4(FileDescriptor fd, int group, int interf, int source)
-+        throws IOException
-+    {
-+        return joinOrDrop4(true, fd, group, interf, source);
-+    }
-+
-+    /**
-+     * Drop membership of IPv4 multicast group
-+     */
-+    static void drop4(FileDescriptor fd, int group, int interf, int source)
-+        throws IOException
-+    {
-+        joinOrDrop4(false, fd, group, interf, source);
-+    }
-+
-+    private static native int joinOrDrop4(boolean join, FileDescriptor fd, int group, int interf, int source)
-+        throws IOException;
-+
-+    /**
-+     * Block IPv4 source
-+     */
-+    static int block4(FileDescriptor fd, int group, int interf, int source)
-+        throws IOException
-+    {
-+        return blockOrUnblock4(true, fd, group, interf, source);
-+    }
-+
-+    /**
-+     * Unblock IPv4 source
-+     */
-+    static void unblock4(FileDescriptor fd, int group, int interf, int source)
-+        throws IOException
-+    {
-+        blockOrUnblock4(false, fd, group, interf, source);
-+    }
-+
-+    private static native int blockOrUnblock4(boolean block, FileDescriptor fd, int group,
-+                                              int interf, int source)
-+        throws IOException;
-+
-+    static int connect(FileDescriptor fd, InetAddress remote, int remotePort)
-+        throws IOException
-+    {
-+        return connect(UNSPEC, fd, remote, remotePort);
-+    }
-+
-+    static int connect(ProtocolFamily family, FileDescriptor fd, InetAddress remote, int remotePort)
-+        throws IOException
-+    {
-+        boolean preferIPv6 = isIPv6Available() &&
-+            (family != StandardProtocolFamily.INET);
-+        return connect0(preferIPv6, fd, remote, remotePort);
-+    }
-+
-+    private static native int connect0(boolean preferIPv6,
-+                                       FileDescriptor fd,
-+                                       InetAddress remote,
-+                                       int remotePort)
-+        throws IOException;
-+
- }
-diff -Nru openjdk.orig/jdk/src/share/classes/sun/nio/ch/SelectorProviderImpl.java openjdk/jdk/src/share/classes/sun/nio/ch/SelectorProviderImpl.java
---- openjdk.orig/jdk/src/share/classes/sun/nio/ch/SelectorProviderImpl.java	2009-01-16 03:01:03.000000000 +0000
-+++ openjdk/jdk/src/share/classes/sun/nio/ch/SelectorProviderImpl.java	2009-01-16 03:56:55.000000000 +0000
-@@ -1,5 +1,5 @@
- /*
-- * Copyright 2000-2001 Sun Microsystems, Inc.  All Rights Reserved.
-+ * Copyright 2000-2008 Sun Microsystems, Inc.  All Rights Reserved.
-  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
-  *
-  * This code is free software; you can redistribute it and/or modify it
-@@ -29,9 +29,18 @@
- import java.io.IOException;
- import java.net.ServerSocket;
- import java.net.Socket;
--import java.nio.channels.*;
--import java.nio.channels.spi.*;
- 
-+import java.nio.channels.Pipe;
-+import java.nio.channels.ServerSocketChannel;
-+import java.nio.channels.SocketChannel;
-+
-+import java.nio.channels.spi.AbstractSelector;
-+
-+import org.classpath.icedtea.java.net.ProtocolFamily;
-+
-+import org.classpath.icedtea.java.nio.channels.DatagramChannel;
-+
-+import org.classpath.icedtea.java.nio.channels.spi.SelectorProvider;
- 
- public abstract class SelectorProviderImpl
-     extends SelectorProvider
-@@ -41,6 +50,10 @@
-         return new DatagramChannelImpl(this);
-     }
- 
-+    public DatagramChannel openDatagramChannel(ProtocolFamily family) throws IOException {
-+        return new DatagramChannelImpl(this, family);
-+    }
-+
-     public Pipe openPipe() throws IOException {
-         return new PipeImpl(this);
-     }
-@@ -54,5 +67,4 @@
-     public SocketChannel openSocketChannel() throws IOException {
-         return new SocketChannelImpl(this);
-     }
--
  }
 diff -Nru openjdk.orig/jdk/src/share/classes/sun/security/util/SecurityConstants.java openjdk/jdk/src/share/classes/sun/security/util/SecurityConstants.java
---- openjdk.orig/jdk/src/share/classes/sun/security/util/SecurityConstants.java	2009-01-12 17:45:26.000000000 +0000
-+++ openjdk/jdk/src/share/classes/sun/security/util/SecurityConstants.java	2009-01-12 17:45:39.000000000 +0000
+--- openjdk.orig/jdk/src/share/classes/sun/security/util/SecurityConstants.java	2009-02-11 23:11:35.000000000 +0000
++++ openjdk/jdk/src/share/classes/sun/security/util/SecurityConstants.java	2009-02-11 23:14:46.000000000 +0000
 @@ -52,6 +52,7 @@
      public static final String FILE_EXECUTE_ACTION = "execute";
      public static final String FILE_READ_ACTION = "read";
@@ -1931,8 +2174,8 @@ diff -Nru openjdk.orig/jdk/src/share/classes/sun/security/util/SecurityConstants
      public static final String SOCKET_RESOLVE_ACTION = "resolve";
      public static final String SOCKET_CONNECT_ACTION = "connect";
 diff -Nru openjdk.orig/jdk/src/solaris/classes/sun/nio/ch/FileDispatcher.java openjdk/jdk/src/solaris/classes/sun/nio/ch/FileDispatcher.java
---- openjdk.orig/jdk/src/solaris/classes/sun/nio/ch/FileDispatcher.java	2009-01-19 22:33:37.000000000 +0000
-+++ openjdk/jdk/src/solaris/classes/sun/nio/ch/FileDispatcher.java	2009-01-19 22:33:01.000000000 +0000
+--- openjdk.orig/jdk/src/solaris/classes/sun/nio/ch/FileDispatcher.java	2009-02-11 23:11:51.000000000 +0000
++++ openjdk/jdk/src/solaris/classes/sun/nio/ch/FileDispatcher.java	2009-02-11 23:14:46.000000000 +0000
 @@ -35,6 +35,11 @@
  class FileDispatcher extends NativeDispatcher
  {
@@ -1994,731 +2237,19 @@ diff -Nru openjdk.orig/jdk/src/solaris/classes/sun/nio/ch/FileDispatcher.java op
 +
  }
 diff -Nru openjdk.orig/jdk/src/solaris/classes/sun/nio/ch/InheritedChannel.java openjdk/jdk/src/solaris/classes/sun/nio/ch/InheritedChannel.java
---- openjdk.orig/jdk/src/solaris/classes/sun/nio/ch/InheritedChannel.java	2009-01-19 13:29:01.000000000 +0000
-+++ openjdk/jdk/src/solaris/classes/sun/nio/ch/InheritedChannel.java	2009-01-19 13:29:27.000000000 +0000
-@@ -34,7 +34,8 @@
+--- openjdk.orig/jdk/src/solaris/classes/sun/nio/ch/InheritedChannel.java	2009-02-11 23:11:51.000000000 +0000
++++ openjdk/jdk/src/solaris/classes/sun/nio/ch/InheritedChannel.java	2009-02-14 01:21:46.000000000 +0000
+@@ -34,6 +34,7 @@
  import java.nio.channels.SocketChannel;
  import java.nio.channels.ServerSocketChannel;
  import java.nio.channels.DatagramChannel;
--import java.nio.channels.spi.SelectorProvider;
 +
-+import org.classpath.icedtea.java.nio.channels.spi.SelectorProvider;
+ import java.nio.channels.spi.SelectorProvider;
  
  class InheritedChannel {
- 
-diff -Nru openjdk.orig/jdk/src/solaris/native/sun/nio/ch/Net.c openjdk/jdk/src/solaris/native/sun/nio/ch/Net.c
---- openjdk.orig/jdk/src/solaris/native/sun/nio/ch/Net.c	2009-01-26 20:51:08.000000000 +0000
-+++ openjdk/jdk/src/solaris/native/sun/nio/ch/Net.c	2009-02-01 01:24:41.000000000 +0000
-@@ -1,5 +1,5 @@
- /*
-- * Copyright 2001-2007 Sun Microsystems, Inc.  All Rights Reserved.
-+ * Copyright 2001-2008 Sun Microsystems, Inc.  All Rights Reserved.
-  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
-  *
-  * This code is free software; you can redistribute it and/or modify it
-@@ -40,58 +40,169 @@
- #include "java_net_SocketOptions.h"
- #include "nio.h"
- 
--#ifdef __linux__
--#include <sys/utsname.h>
-+/**
-+ * Definitions for source-specific multicast to allow for building
-+ * with older header files.
-+ */
-+
-+#ifdef __solaris__
-+
-+#ifndef IP_BLOCK_SOURCE
- 
--#define IPV6_MULTICAST_IF 17
--#ifndef SO_BSDCOMPAT
--#define SO_BSDCOMPAT  14
-+#define IP_BLOCK_SOURCE                 0x15
-+#define IP_UNBLOCK_SOURCE               0x16
-+#define IP_ADD_SOURCE_MEMBERSHIP        0x17
-+#define IP_DROP_SOURCE_MEMBERSHIP       0x18
-+
-+#define MCAST_BLOCK_SOURCE              0x2b
-+#define MCAST_UNBLOCK_SOURCE            0x2c
-+#define MCAST_JOIN_SOURCE_GROUP         0x2d
-+#define MCAST_LEAVE_SOURCE_GROUP        0x2e
-+
-+#endif  /* IP_BLOCK_SOURCE */
-+
-+struct my_ip_mreq_source {
-+        struct in_addr  imr_multiaddr;
-+        struct in_addr  imr_sourceaddr;
-+        struct in_addr  imr_interface;
-+};
-+
-+/*
-+ * Use #pragma pack() construct to force 32-bit alignment on amd64.
-+ */
-+#if defined(amd64)
-+#pragma pack(4)
- #endif
-+
-+struct my_group_source_req {
-+        uint32_t                gsr_interface;  /* interface index */
-+        struct sockaddr_storage gsr_group;      /* group address */
-+        struct sockaddr_storage gsr_source;     /* source address */
-+};
-+
-+#if defined(amd64)
-+#pragma pack()
- #endif
- 
-+#endif  /* __solaris__ */
-+
-+
-+#ifdef __linux__
-+
-+#ifndef IP_BLOCK_SOURCE
-+
-+#define IP_BLOCK_SOURCE                 38
-+#define IP_UNBLOCK_SOURCE               37
-+#define IP_ADD_SOURCE_MEMBERSHIP        39
-+#define IP_DROP_SOURCE_MEMBERSHIP       40
-+
-+#define MCAST_BLOCK_SOURCE              43
-+#define MCAST_UNBLOCK_SOURCE            44
-+#define MCAST_JOIN_SOURCE_GROUP         42
-+#define MCAST_LEAVE_SOURCE_GROUP        45
-+
-+#endif  /* IP_BLOCK_SOURCE */
-+
-+struct my_ip_mreq_source {
-+        struct in_addr  imr_multiaddr;
-+        struct in_addr  imr_interface;
-+        struct in_addr  imr_sourceaddr;
-+};
-+
-+struct my_group_source_req {
-+        uint32_t                gsr_interface;  /* interface index */
-+        struct sockaddr_storage gsr_group;      /* group address */
-+        struct sockaddr_storage gsr_source;     /* source address */
-+};
-+
-+#endif   /* __linux__ */
-+
-+
-+#define COPY_INET6_ADDRESS(env, source, target) \
-+    (*env)->GetByteArrayRegion(env, source, 0, 16, target)
-+
-+/*
-+ * Copy IPv6 group, interface index, and IPv6 source address
-+ * into group_source_req structure.
-+ */
-+static void initGroupSourceReq(JNIEnv* env, jbyteArray group, jint index,
-+                               jbyteArray source, struct my_group_source_req* req)
-+{
-+    struct sockaddr_in6* sin6;
-+
-+    req->gsr_interface = (uint32_t)index;
-+
-+    sin6 = (struct sockaddr_in6*)&(req->gsr_group);
-+    sin6->sin6_family = AF_INET6;
-+    COPY_INET6_ADDRESS(env, group, (jbyte*)&(sin6->sin6_addr));
-+
-+    sin6 = (struct sockaddr_in6*)&(req->gsr_source);
-+    sin6->sin6_family = AF_INET6;
-+    COPY_INET6_ADDRESS(env, source, (jbyte*)&(sin6->sin6_addr));
-+}
-+
-+
- JNIEXPORT void JNICALL
- Java_sun_nio_ch_Net_initIDs(JNIEnv *env, jclass clazz)
- {
-     /* Here because Windows native code does need to init IDs */
- }
- 
-+JNIEXPORT jboolean JNICALL
-+Java_sun_nio_ch_Net_isIPv6Available0(JNIEnv* env, jclass cl)
-+{
-+    return (ipv6_available()) ? JNI_TRUE : JNI_FALSE;
-+}
-+
- JNIEXPORT int JNICALL
--Java_sun_nio_ch_Net_socket0(JNIEnv *env, jclass cl, jboolean stream,
--                            jboolean reuse)
-+Java_sun_nio_ch_Net_socket0(JNIEnv *env, jclass cl, jboolean preferIPv6,
-+                            jboolean stream, jboolean reuse)
- {
-     int fd;
-+    int type = (stream ? SOCK_STREAM : SOCK_DGRAM);
-+    int domain = (ipv6_available() && preferIPv6) ? AF_INET6 : AF_INET;
- 
--#ifdef AF_INET6
--    if (ipv6_available())
--        fd = socket(AF_INET6, (stream ? SOCK_STREAM : SOCK_DGRAM), 0);
--    else
--#endif /* AF_INET6 */
--        fd = socket(AF_INET, (stream ? SOCK_STREAM : SOCK_DGRAM), 0);
--
-+    fd = socket(domain, type, 0);
-     if (fd < 0) {
-         return handleSocketError(env, errno);
-     }
-     if (reuse) {
-         int arg = 1;
--        if (NET_SetSockOpt(fd, SOL_SOCKET, SO_REUSEADDR, (char*)&arg,
--                           sizeof(arg)) < 0) {
-+        if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, (char*)&arg,
-+                       sizeof(arg)) < 0) {
-+            JNU_ThrowByNameWithLastError(env,
-+                                         JNU_JAVANETPKG "SocketException",
-+                                         "sun.nio.ch.Net.setIntOption");
-+            close(fd);
-+            return -1;
-+        }
-+    }
-+#ifdef __linux__
-+    /* By default, Linux uses the route default */
-+    if (domain == AF_INET6 && type == SOCK_DGRAM) {
-+        int arg = 1;
-+        if (setsockopt(fd, IPPROTO_IPV6, IPV6_MULTICAST_HOPS, &arg,
-+                       sizeof(arg)) < 0) {
-             JNU_ThrowByNameWithLastError(env,
-                                          JNU_JAVANETPKG "SocketException",
-                                          "sun.nio.ch.Net.setIntOption");
-+            close(fd);
-+            return -1;
-         }
-     }
-+#endif
-     return fd;
- }
- 
- JNIEXPORT void JNICALL
--Java_sun_nio_ch_Net_bind(JNIEnv *env, jclass clazz, /* ## Needs rest of PSI gunk */
--                         jobject fdo, jobject ia, int port)
-+Java_sun_nio_ch_Net_bind(JNIEnv *env, jclass clazz, 
-+			 jobject fdo, jobject iao, int port)
- {
-     SOCKADDR sa;
-     int sa_len = SOCKADDR_LEN;
-     int rv = 0;
- 
--    if (NET_InetAddressToSockaddr(env, ia, port, (struct sockaddr *)&sa, &sa_len, JNI_TRUE) != 0) {
-+    if (NET_InetAddressToSockaddr(env, iao, port, (struct sockaddr *)&sa, &sa_len, JNI_TRUE) != 0) {
-       return;
-     }
- 
-@@ -101,26 +212,53 @@
-     }
- }
- 
-+JNIEXPORT void JNICALL
-+Java_sun_nio_ch_Net_listen(JNIEnv *env, jclass cl, jobject fdo, jint backlog)
-+{
-+    if (listen(fdval(env, fdo), backlog) < 0)
-+        handleSocketError(env, errno);
-+}
-+
- JNIEXPORT jint JNICALL
--Java_sun_nio_ch_Net_connect(JNIEnv *env, jclass clazz,
--                                jobject fdo, jobject iao, jint port,
--                                jint trafficClass)
-+Java_sun_nio_ch_Net_connect(JNIEnv *env, jclass clazz, 
-+			    jobject fdo, jobject iao, jint port,
-+			    jint trafficClass)
- {
-     SOCKADDR sa;
-     int sa_len = SOCKADDR_LEN;
-     int rv;
- 
--    if (NET_InetAddressToSockaddr(env, iao, port, (struct sockaddr *) &sa, &sa_len, JNI_TRUE) != 0) {
-+    if (NET_InetAddressToSockaddr(env, iao, port, (struct sockaddr *) &sa,
-+                                  &sa_len, JNI_TRUE) != 0)
-+    {
-       return IOS_THROWN;
-     }
- 
--#ifdef AF_INET6
--#if 0
--    if (trafficClass != 0 && ipv6_available()) { /* ## FIX */
--        NET_SetTrafficClass((struct sockaddr *)&sa, trafficClass);
-+    rv = connect(fdval(env, fdo), (struct sockaddr *)&sa, sa_len);
-+    if (rv != 0) {
-+        if (errno == EINPROGRESS) {
-+            return IOS_UNAVAILABLE;
-+        } else if (errno == EINTR) {
-+            return IOS_INTERRUPTED;
-+        }
-+        return handleSocketError(env, errno);
-+    }
-+    return 1;
-+}
-+
-+JNIEXPORT jint JNICALL
-+Java_sun_nio_ch_Net_connect0(JNIEnv *env, jclass clazz, jboolean preferIPv6,
-+                             jobject fdo, jobject iao, jint port)
-+{
-+    SOCKADDR sa;
-+    int sa_len = SOCKADDR_LEN;
-+    int rv;
-+
-+    if (NET_InetAddressToSockaddr(env, iao, port, (struct sockaddr *) &sa,
-+                                  &sa_len, preferIPv6) != 0)
-+    {
-+      return IOS_THROWN;
-     }
--#endif
--#endif
- 
-     rv = connect(fdval(env, fdo), (struct sockaddr *)&sa, sa_len);
-     if (rv != 0) {
-@@ -138,7 +276,7 @@
- Java_sun_nio_ch_Net_localPort(JNIEnv *env, jclass clazz, jobject fdo)
- {
-     SOCKADDR sa;
--    int sa_len = SOCKADDR_LEN;
-+    socklen_t sa_len = SOCKADDR_LEN;
-     if (getsockname(fdval(env, fdo), (struct sockaddr *)&sa, &sa_len) < 0) {
-         handleSocketError(env, errno);
-         return -1;
-@@ -150,7 +288,7 @@
- Java_sun_nio_ch_Net_localInetAddress(JNIEnv *env, jclass clazz, jobject fdo)
- {
-     SOCKADDR sa;
--    int sa_len = SOCKADDR_LEN;
-+    socklen_t sa_len = SOCKADDR_LEN;
-     int port;
-     if (getsockname(fdval(env, fdo), (struct sockaddr *)&sa, &sa_len) < 0) {
-         handleSocketError(env, errno);
-@@ -159,119 +297,115 @@
-     return NET_SockaddrToInetAddress(env, (struct sockaddr *)&sa, &port);
- }
- 
--
--#ifdef NEEDED
--
--/* ## This is gross.  We should generate platform-specific constant
-- * ## definitions into a .java file and use those directly.
-- */
--
--static int
--mapOption(JNIEnv *env, int opt, int *klevel, int *kopt)
--{
--
--    switch (opt) {
--
--    case java_net_SocketOptions_IP_TOS:
--        *klevel = IPPROTO_IP;
--        *kopt = IP_TOS;
--        break;
--
--    case java_net_SocketOptions_SO_BROADCAST:
--    case java_net_SocketOptions_SO_KEEPALIVE:
--    case java_net_SocketOptions_SO_LINGER:
--    case java_net_SocketOptions_SO_OOBINLINE:
--    case java_net_SocketOptions_SO_RCVBUF:
--    case java_net_SocketOptions_SO_REUSEADDR:
--    case java_net_SocketOptions_SO_SNDBUF:
--        *klevel = SOL_SOCKET;
--        break;
--
--    case java_net_SocketOptions_TCP_NODELAY:
--        *klevel = IPPROTO_IP;
--        *kopt = TCP_NODELAY;
--        return 0;
--
--    default:
--        JNU_ThrowByName(env, "java/lang/IllegalArgumentException", NULL);
--        return -1;
--    }
--
--    switch (opt) {
--
--    case java_net_SocketOptions_SO_BROADCAST:   *kopt = SO_BROADCAST;  break;
--    case java_net_SocketOptions_SO_KEEPALIVE:   *kopt = SO_KEEPALIVE;  break;
--    case java_net_SocketOptions_SO_LINGER:      *kopt = SO_LINGER;  break;
--    case java_net_SocketOptions_SO_OOBINLINE:   *kopt = SO_OOBINLINE;  break;
--    case java_net_SocketOptions_SO_RCVBUF:      *kopt = SO_RCVBUF;  break;
--    case java_net_SocketOptions_SO_REUSEADDR:   *kopt = SO_REUSEADDR;  break;
--    case java_net_SocketOptions_SO_SNDBUF:      *kopt = SO_SNDBUF;  break;
--
--    default:
--        return -1;
--    }
--
--    return 0;
--}
--#endif
--
--
- JNIEXPORT jint JNICALL
--Java_sun_nio_ch_Net_getIntOption0(JNIEnv *env, jclass clazz,
--                                  jobject fdo, jint opt)
-+Java_sun_nio_ch_Net_getIntOption0(JNIEnv *env, jclass clazz, jobject fdo,
-+                                  jboolean mayNeedConversion, jint level, jint opt)
- {
--    int klevel, kopt;
-     int result;
-     struct linger linger;
-+    u_char carg;
-     void *arg;
--    int arglen;
-+    int arglen, n;
- 
--    if (NET_MapSocketOption(opt, &klevel, &kopt) < 0) {
--        JNU_ThrowByNameWithLastError(env,
--                                     JNU_JAVANETPKG "SocketException",
--                                     "Unsupported socket option");
--        return -1;
-+    /* Option value is an int except for a few specific cases */
-+
-+    arg = (void *)&result;
-+    arglen = sizeof(result);
-+
-+    if (level == IPPROTO_IP &&
-+        (opt == IP_MULTICAST_TTL || opt == IP_MULTICAST_LOOP)) {
-+        arg = (void*)&carg;
-+        arglen = sizeof(carg);
-     }
- 
--    if (opt == java_net_SocketOptions_SO_LINGER) {
-+    if (level == SOL_SOCKET && opt == SO_LINGER) {
-         arg = (void *)&linger;
-         arglen = sizeof(linger);
--    } else {
--        arg = (void *)&result;
--        arglen = sizeof(result);
-     }
- 
--    if (NET_GetSockOpt(fdval(env, fdo), klevel, kopt, arg, &arglen) < 0) {
-+    if (mayNeedConversion) {
-+        n = NET_GetSockOpt(fdval(env, fdo), level, opt, arg, &arglen);
-+    } else {
-+        n = getsockopt(fdval(env, fdo), level, opt, arg, &arglen);
-+    }
-+    if (n < 0) {
-         JNU_ThrowByNameWithLastError(env,
-                                      JNU_JAVANETPKG "SocketException",
-                                      "sun.nio.ch.Net.getIntOption");
-         return -1;
-     }
- 
--    if (opt == java_net_SocketOptions_SO_LINGER)
--        return linger.l_onoff ? linger.l_linger : -1;
--    else
--        return result;
-+    if (level == IPPROTO_IP &&
-+        (opt == IP_MULTICAST_TTL || opt == IP_MULTICAST_LOOP))
-+    {
-+        return (jint)carg;
-+    }
-+
-+    if (level == SOL_SOCKET && opt == SO_LINGER)
-+        return linger.l_onoff ? (jint)linger.l_linger : (jint)-1;
-+
-+    return (jint)result;
- }
- 
- JNIEXPORT void JNICALL
- Java_sun_nio_ch_Net_setIntOption0(JNIEnv *env, jclass clazz,
-                                   jobject fdo, jint opt, jint arg)
- {
--    int klevel, kopt;
-+  int klevel, kopt;
-+  int result;
-+  struct linger linger;
-+  void *parg;
-+  int arglen;
-+ 
-+  if (NET_MapSocketOption(opt, &klevel, &kopt) < 0) {
-+    JNU_ThrowByNameWithLastError(env,
-+				 JNU_JAVANETPKG "SocketException",
-+				 "Unsupported socket option");
-+    return;
-+  }
-+ 
-+  if (opt == java_net_SocketOptions_SO_LINGER) {
-+    parg = (void *)&linger;
-+    arglen = sizeof(linger);
-+    if (arg >= 0) {
-+             linger.l_onoff = 0;
-+             linger.l_linger = 0;
-+         }
-+    } else {
-+        parg = (void *)&arg;
-+        arglen = sizeof(arg);
-+     }
-+ 
-+    if (NET_SetSockOpt(fdval(env, fdo), klevel, kopt, parg, arglen) < 0) {
-+      JNU_ThrowByNameWithLastError(env,
-+				   JNU_JAVANETPKG "SocketException",
-+				   "sun.nio.ch.Net.setIntOption");
-+    }
-+}
-+
-+JNIEXPORT void JNICALL
-+Java_sun_nio_ch_Net_setIntOption1(JNIEnv *env, jclass clazz, jobject fdo,
-+                                  jboolean mayNeedConversion, jint level, jint opt, jint arg)
-+{
-     int result;
-     struct linger linger;
-+    u_char carg;
-     void *parg;
--    int arglen;
-+    int arglen, n;
- 
--    if (NET_MapSocketOption(opt, &klevel, &kopt) < 0) {
--        JNU_ThrowByNameWithLastError(env,
--                                     JNU_JAVANETPKG "SocketException",
--                                     "Unsupported socket option");
--        return;
-+    /* Option value is an int except for a few specific cases */
-+
-+    parg = (void*)&arg;
-+    arglen = sizeof(arg);
-+
-+    if (level == IPPROTO_IP &&
-+        (opt == IP_MULTICAST_TTL || opt == IP_MULTICAST_LOOP)) {
-+        parg = (void*)&carg;
-+        arglen = sizeof(carg);
-+        carg = (u_char)arg;
-     }
- 
--    if (opt == java_net_SocketOptions_SO_LINGER) {
-+    if (level == SOL_SOCKET && opt == SO_LINGER) {
-         parg = (void *)&linger;
-         arglen = sizeof(linger);
-         if (arg >= 0) {
-@@ -281,19 +415,199 @@
-             linger.l_onoff = 0;
-             linger.l_linger = 0;
-         }
--    } else {
--        parg = (void *)&arg;
--        arglen = sizeof(arg);
-     }
- 
--    if (NET_SetSockOpt(fdval(env, fdo), klevel, kopt, parg, arglen) < 0) {
-+    if (mayNeedConversion) {
-+        n = NET_SetSockOpt(fdval(env, fdo), level, opt, parg, arglen);
-+    } else {
-+        n = setsockopt(fdval(env, fdo), level, opt, parg, arglen);
-+    }
-+    if (n < 0) {
-         JNU_ThrowByNameWithLastError(env,
-                                      JNU_JAVANETPKG "SocketException",
-                                      "sun.nio.ch.Net.setIntOption");
-     }
- }
- 
-+JNIEXPORT jint JNICALL
-+Java_sun_nio_ch_Net_joinOrDrop4(JNIEnv *env, jobject this, jboolean join, jobject fdo,
-+                                jint group, jint interf, jint source)
-+{
-+    struct ip_mreq mreq;
-+    struct my_ip_mreq_source mreq_source;
-+    int opt, n, optlen;
-+    void* optval;
-+
-+    if (source == 0) {
-+        mreq.imr_multiaddr.s_addr = htonl(group);
-+        mreq.imr_interface.s_addr = htonl(interf);
-+        opt = (join) ? IP_ADD_MEMBERSHIP : IP_DROP_MEMBERSHIP;
-+        optval = (void*)&mreq;
-+        optlen = sizeof(mreq);
-+    } else {
-+        mreq_source.imr_multiaddr.s_addr = htonl(group);
-+        mreq_source.imr_sourceaddr.s_addr = htonl(source);
-+        mreq_source.imr_interface.s_addr = htonl(interf);
-+        opt = (join) ? IP_ADD_SOURCE_MEMBERSHIP : IP_DROP_SOURCE_MEMBERSHIP;
-+        optval = (void*)&mreq_source;
-+        optlen = sizeof(mreq_source);
-+    }
-+
-+    n = setsockopt(fdval(env,fdo), IPPROTO_IP, opt, optval, optlen);
-+    if (n < 0) {
-+        if (join && (errno == ENOPROTOOPT))
-+            return IOS_UNAVAILABLE;
-+        handleSocketError(env, errno);
-+    }
-+    return 0;
-+}
-+
-+JNIEXPORT jint JNICALL
-+Java_sun_nio_ch_Net_blockOrUnblock4(JNIEnv *env, jobject this, jboolean block, jobject fdo,
-+                                    jint group, jint interf, jint source)
-+{
-+    struct my_ip_mreq_source mreq_source;
-+    int n;
-+    int opt = (block) ? IP_BLOCK_SOURCE : IP_UNBLOCK_SOURCE;
-+
-+    mreq_source.imr_multiaddr.s_addr = htonl(group);
-+    mreq_source.imr_sourceaddr.s_addr = htonl(source);
-+    mreq_source.imr_interface.s_addr = htonl(interf);
-+
-+    n = setsockopt(fdval(env,fdo), IPPROTO_IP, opt,
-+                   (void*)&mreq_source, sizeof(mreq_source));
-+    if (n < 0) {
-+        if (block && (errno == ENOPROTOOPT))
-+            return IOS_UNAVAILABLE;
-+        handleSocketError(env, errno);
-+    }
-+    return 0;
-+}
-+
-+JNIEXPORT jint JNICALL
-+Java_sun_nio_ch_Net_joinOrDrop6(JNIEnv *env, jobject this, jboolean join, jobject fdo,
-+                                jbyteArray group, jint index, jbyteArray source)
-+{
-+    struct ipv6_mreq mreq6;
-+    struct my_group_source_req req;
-+    int opt, n, optlen;
-+    void* optval;
-+
-+    if (source == NULL) {
-+        COPY_INET6_ADDRESS(env, group, (jbyte*)&(mreq6.ipv6mr_multiaddr));
-+        mreq6.ipv6mr_interface = (int)index;
-+        opt = (join) ? IPV6_ADD_MEMBERSHIP : IPV6_DROP_MEMBERSHIP;
-+        optval = (void*)&mreq6;
-+        optlen = sizeof(mreq6);
-+    } else {
-+#ifdef __linux__
-+        /* Include-mode filtering broken on Linux at least to 2.6.24 */
-+        return IOS_UNAVAILABLE;
-+#else
-+        initGroupSourceReq(env, group, index, source, &req);
-+        opt = (join) ? MCAST_JOIN_SOURCE_GROUP : MCAST_LEAVE_SOURCE_GROUP;
-+        optval = (void*)&req;
-+        optlen = sizeof(req);
-+#endif
-+    }
-+
-+    n = setsockopt(fdval(env,fdo), IPPROTO_IPV6, opt, optval, optlen);
-+    if (n < 0) {
-+        if (join && (errno == ENOPROTOOPT))
-+            return IOS_UNAVAILABLE;
-+        handleSocketError(env, errno);
-+    }
-+    return 0;
-+}
-+
-+JNIEXPORT jint JNICALL
-+Java_sun_nio_ch_Net_blockOrUnblock6(JNIEnv *env, jobject this, jboolean block, jobject fdo,
-+                                    jbyteArray group, jint index, jbyteArray source)
-+{
-+    struct my_group_source_req req;
-+    int n;
-+    int opt = (block) ? MCAST_BLOCK_SOURCE : MCAST_UNBLOCK_SOURCE;
-+
-+    initGroupSourceReq(env, group, index, source, &req);
-+
-+    n = setsockopt(fdval(env,fdo), IPPROTO_IPV6, opt,
-+        (void*)&req, sizeof(req));
-+    if (n < 0) {
-+        if (block && (errno == ENOPROTOOPT))
-+            return IOS_UNAVAILABLE;
-+        handleSocketError(env, errno);
-+    }
-+    return 0;
-+}
-+
-+JNIEXPORT void JNICALL
-+Java_sun_nio_ch_Net_setInterface4(JNIEnv* env, jobject this, jobject fdo, jint interf)
-+{
-+    struct in_addr in;
-+    int arglen = sizeof(struct in_addr);
-+    int n;
-+
-+    in.s_addr = htonl(interf);
-+
-+    n = setsockopt(fdval(env, fdo), IPPROTO_IP, IP_MULTICAST_IF,
-+                   (void*)&(in.s_addr), arglen);
-+    if (n < 0) {
-+        handleSocketError(env, errno);
-+    }
-+}
-+
-+JNIEXPORT jint JNICALL
-+Java_sun_nio_ch_Net_getInterface4(JNIEnv* env, jobject this, jobject fdo)
-+{
-+    struct in_addr in;
-+    int arglen = sizeof(struct in_addr);
-+    int n;
-+
-+    n = getsockopt(fdval(env, fdo), IPPROTO_IP, IP_MULTICAST_IF, (void*)&in, &arglen);
-+    if (n < 0) {
-+        handleSocketError(env, errno);
-+        return -1;
-+    }
-+    return ntohl(in.s_addr);
-+}
-+
-+JNIEXPORT void JNICALL
-+Java_sun_nio_ch_Net_setInterface6(JNIEnv* env, jobject this, jobject fdo, jint index)
-+{
-+    int value = (jint)index;
-+    int arglen = sizeof(value);
-+    int n;
-+
-+    n = setsockopt(fdval(env, fdo), IPPROTO_IPV6, IPV6_MULTICAST_IF,
-+                   (void*)&(index), arglen);
-+    if (n < 0) {
-+        handleSocketError(env, errno);
-+    }
-+}
-+
-+JNIEXPORT jint JNICALL
-+Java_sun_nio_ch_Net_getInterface6(JNIEnv* env, jobject this, jobject fdo)
-+{
-+    int index;
-+    int arglen = sizeof(index);
-+    int n;
-+
-+    n = getsockopt(fdval(env, fdo), IPPROTO_IPV6, IPV6_MULTICAST_IF, (void*)&index, &arglen);
-+    if (n < 0) {
-+        handleSocketError(env, errno);
-+        return -1;
-+    }
-+    return (jint)index;
-+}
- 
-+JNIEXPORT void JNICALL
-+Java_sun_nio_ch_Net_shutdown(JNIEnv *env, jclass cl, jobject fdo, jint jhow)
-+{
-+    int how = (jhow == sun_nio_ch_Net_SHUT_RD) ? SHUT_RD :
-+        (jhow == sun_nio_ch_Net_SHUT_WR) ? SHUT_WR : SHUT_RDWR;
-+    if (shutdown(fdval(env, fdo), how) < 0)
-+        handleSocketError(env, errno);
-+}
- 
- /* Declared in nio_util.h */
- 
-diff -Nru openjdk.orig/jdk/src/solaris/native/sun/nio/ch/nio_util.h openjdk/jdk/src/solaris/native/sun/nio/ch/nio_util.h
---- openjdk.orig/jdk/src/solaris/native/sun/nio/ch/nio_util.h	2009-01-26 22:44:30.000000000 +0000
-+++ openjdk/jdk/src/solaris/native/sun/nio/ch/nio_util.h	2009-01-26 22:44:22.000000000 +0000
-@@ -1,5 +1,5 @@
- /*
-- * Copyright 2001-2002 Sun Microsystems, Inc.  All Rights Reserved.
-+ * Copyright 2001-2008 Sun Microsystems, Inc.  All Rights Reserved.
-  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
-  *
-  * This code is free software; you can redistribute it and/or modify it
-@@ -27,8 +27,15 @@
- #include "jni_util.h"
- #include "jvm.h"
- #include "jlong.h"
-+#include <errno.h>
- #include <sys/types.h>
- 
-+#define RESTARTABLE(_cmd, _result) do { \
-+  do { \
-+    _result = _cmd; \
-+  } while((_result == -1) && (errno == EINTR)); \
-+} while(0)
-+
- 
- /* NIO utility procedures */
- 
 diff -Nru openjdk.orig/jdk/src/windows/classes/sun/nio/ch/FileDispatcher.java openjdk/jdk/src/windows/classes/sun/nio/ch/FileDispatcher.java
---- openjdk.orig/jdk/src/windows/classes/sun/nio/ch/FileDispatcher.java	2009-01-19 22:35:32.000000000 +0000
-+++ openjdk/jdk/src/windows/classes/sun/nio/ch/FileDispatcher.java	2009-01-19 22:37:37.000000000 +0000
+--- openjdk.orig/jdk/src/windows/classes/sun/nio/ch/FileDispatcher.java	2009-02-11 23:11:51.000000000 +0000
++++ openjdk/jdk/src/windows/classes/sun/nio/ch/FileDispatcher.java	2009-02-11 23:14:46.000000000 +0000
 @@ -36,6 +36,11 @@
  class FileDispatcher extends NativeDispatcher
  {
