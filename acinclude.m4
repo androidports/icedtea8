@@ -436,6 +436,7 @@ AC_DEFUN([WITH_OPENJDK_SRC_ZIP],
   [
     ALT_OPENJDK_SRC_ZIP=${withval}
     AM_CONDITIONAL(USE_ALT_OPENJDK_SRC_ZIP, test x = x)
+    AC_SUBST(ALT_OPENJDK_SRC_ZIP)
   ],
   [ 
     ALT_OPENJDK_SRC_ZIP="not specified"
@@ -555,6 +556,31 @@ AC_DEFUN([FIND_XERCES2_JAR],
   fi
   AC_MSG_RESULT(${XERCES2_JAR})
   AC_SUBST(XERCES2_JAR)
+])
+
+AC_DEFUN([FIND_NETBEANS],
+[
+  AC_ARG_WITH([netbeans],
+              [AS_HELP_STRING(--with-netbeans,specify location of netbeans)],
+  [
+    if test -f "${withval}"; then
+      AC_MSG_CHECKING(netbeans)
+      NETBEANS="${withval}"
+      AC_MSG_RESULT(${withval})
+    else
+      AC_PATH_PROG(NETBEANS, "${withval}")
+    fi
+  ],
+  [
+    NETBEANS=
+  ])
+  if test -z "${NETBEANS}"; then
+    AC_PATH_PROG(NETBEANS, "netbeans")
+  fi
+  if test -z "${NETBEANS}"; then
+    AC_MSG_ERROR("NetBeans was not found.")
+  fi
+  AC_SUBST(NETBEANS)
 ])
 
 AC_DEFUN([FIND_NETBEANS],
@@ -850,6 +876,93 @@ AC_DEFUN([AC_CHECK_WITH_CACAO_SRC_ZIP],
   AC_SUBST(ALT_CACAO_SRC_ZIP)
 ])
 
+AC_DEFUN([ENABLE_HG],
+[
+  AC_MSG_CHECKING(whether to retrieve the source code from Mercurial)
+  AC_ARG_ENABLE([hg],
+                [AS_HELP_STRING(--enable-hg,download source code from Mercurial [[default=no]])],
+  [
+    case "${enableval}" in
+      no)
+	enable_hg=no
+        ;;
+      *)
+        enable_hg=yes
+        ;;
+    esac
+  ],
+  [
+    case "${project}" in
+      jdk7)
+        enable_hg=no
+        ;;
+      *)
+        enable_hg=yes
+        ;;
+    esac
+  ])
+  AC_MSG_RESULT([${enable_hg}])
+  AM_CONDITIONAL([USE_HG], test x"${enable_hg}" = "xyes")
+])
+
+AC_DEFUN([WITH_VERSION_SUFFIX],
+[
+  AC_MSG_CHECKING(if a version suffix has been specified)
+  AC_ARG_WITH([version-suffix],
+              [AS_HELP_STRING(--with-version-suffix,appends the given text to the JDK version)],
+  [
+    case "${withval}" in
+      yes)
+	version_suffix=
+	AC_MSG_RESULT([no])
+        ;;
+      no)
+	version_suffix=
+	AC_MSG_RESULT([no])
+	;;
+      *)
+        version_suffix=${withval}
+	AC_MSG_RESULT([${version_suffix}])
+        ;;
+    esac
+  ],
+  [
+    version_suffix=
+    AC_MSG_RESULT([no])
+  ])
+  AC_SUBST(VERSION_SUFFIX, $version_suffix)
+])
+
+AC_DEFUN([WITH_PROJECT],
+[
+  AC_MSG_CHECKING(which OpenJDK project is being used)
+  AC_ARG_WITH([project],
+              [AS_HELP_STRING(--with-project,choose the OpenJDK project to use: jdk7 closures cvmi caciocavallo bsd nio2 [[default=jdk7]])],
+  [
+    case "${withval}" in
+      yes)
+	project=jdk7
+        ;;
+      no)
+	project=jdk7
+	;;
+      *)
+        project=${withval}
+        ;;
+    esac
+  ],
+  [
+    project=jdk7
+  ])
+  AC_MSG_RESULT([${project}])
+  AC_SUBST(PROJECT_NAME, $project)
+  AM_CONDITIONAL([USE_CLOSURES], test x"${project}" = "xclosures")
+  AM_CONDITIONAL([USE_CVMI], test x"${project}" = "xcvmi")
+  AM_CONDITIONAL([USE_CACIOCAVALLO], test x"${project}" = "xcaciocavallo")
+  AM_CONDITIONAL([USE_BSD], test x"${project}" = "xbsd")
+  AM_CONDITIONAL([USE_NIO2], test x"${project}" = "xnio2")
+])
+
 AC_DEFUN([AC_CHECK_WITH_GCJ],
 [
   AC_MSG_CHECKING([whether to compile ecj natively])
@@ -865,6 +978,7 @@ AC_DEFUN([AC_CHECK_WITH_GCJ],
   if test "x${GCJ}" = xyes; then
     AC_PATH_TOOL([GCJ],[gcj])
   fi
+  AM_CONDITIONAL([BUILD_NATIVE_ECJ], test x"${GCJ}" != xno)
   AC_SUBST([GCJ])
 ])
 
@@ -883,11 +997,11 @@ AC_DEFUN([AC_CHECK_WITH_HOTSPOT_BUILD],
   if test "x${HSBUILD}" = xyes; then
 	HSBUILD="${DEFAULT_BUILD}"
   elif test "x${HSBUILD}" = xno; then
-	HSBUILD="original"
+	HSBUILD="default"
   fi
   AC_MSG_RESULT([${HSBUILD}])
   AC_SUBST([HSBUILD])
-  AM_CONDITIONAL(WITH_ALT_HSBUILD, test "x${HSBUILD}" != "xoriginal")
+  AM_CONDITIONAL(WITH_ALT_HSBUILD, test "x${HSBUILD}" != "xdefault")
 ])
 
 AC_DEFUN([WITH_HOTSPOT_SRC_ZIP],

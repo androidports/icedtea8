@@ -1,6 +1,6 @@
-OPENJDK_DATE = 25_nov_2008
-OPENJDK_MD5SUM = 9f9773a822156dd3d576d83d794364ce
-OPENJDK_VERSION = b14
+OPENJDK_DATE = 26_feb_2009
+OPENJDK_MD5SUM = 2401015f65b5c099acf87b3f0b9e8404
+OPENJDK_VERSION = b49
 
 CACAO_VERSION = 0.99.3
 CACAO_MD5SUM = 80de3ad344c1a20c086ec5f1390bd1b8
@@ -8,12 +8,6 @@ CACAO_MD5SUM = 80de3ad344c1a20c086ec5f1390bd1b8
 NETBEANS_PROFILER_MD5SUM = 786ab31817cbd902a7211cd6a6161750
 VISUALVM_MD5SUM = 1174486e82a65840b44c47166d79f212
 
-if ENABLE_GCJWEBPLUGIN
-GCJWEBPLUGIN_CLEAN = clean-gcjwebplugin
-GCJWEBPLUGIN_TARGET = gcjwebplugin.so
-else
-GCJWEBPLUGIN_CLEAN =
-GCJWEBPLUGIN_TARGET =
 if ENABLE_PLUGIN
 ICEDTEAPLUGIN_CLEAN = clean-IcedTeaPlugin
 ICEDTEAPLUGIN_TARGET = IcedTeaPlugin.so
@@ -25,25 +19,20 @@ ICEDTEAPLUGIN_TARGET =
 PLUGIN_PATCH = patches/icedtea-plugin.patch
 LIVECONNECT_DIR =
 endif
-endif
 
 if ENABLE_PULSE_JAVA
 # include the makefile in pulseaudio subdir
 PULSE_JAVA_DIR = $(abs_top_srcdir)/pulseaudio
 PULSE_JAVA_NATIVE_SRCDIR = $(PULSE_JAVA_DIR)/src/native
+PULSE_JAVA_NATIVE_BUILDDIR = $(abs_top_builddir)/pulseaudio
 PULSE_JAVA_JAVA_SRCDIR = $(PULSE_JAVA_DIR)/src/java
 PULSE_JAVA_CLASS_DIR = $(abs_top_builddir)/pulseaudio
 else 
 PULSE_JAVA_DIR =
 PULSE_JAVA_NATIVE_SRCDIR =
+PULSE_JAVA_NATIVE_BUILDDIR = 
 PULSE_JAVA_JAVA_SRCDIR =
 PULSE_JAVA_CLASS_DIR =
-endif
-
-if WITH_ALT_HSBUILD
-HOTSPOT_MAKE_DIR = make
-else
-HOTSPOT_MAKE_DIR = build
 endif
 
 # Top-Level Targets
@@ -67,13 +56,15 @@ distclean-local: clean-copy clean-jtreg clean-jtreg-reports clean-pulse-java
 	rm -rf netbeans
 if ENABLE_PLUGIN
 	rm -f IcedTeaPlugin.o IcedTeaPlugin.so
-else
-if ENABLE_GCJWEBPLUGIN
-	rm -f gcjwebplugin.so
-endif
 endif
 	rm -rf cacao
 	rm -f jni-common.o
+if BUILD_NATIVE_ECJ
+	rm -f native-ecj
+endif
+	if [ $(abs_top_srcdir) != $(abs_top_builddir) ]; then \
+	  rm -rf $(abs_top_builddir)/generated ; \
+	fi
 
 install:
 
@@ -84,30 +75,1279 @@ install:
 	clean-bootstrap-directory-symlink-ecj icedtea icedtea-debug \
 	clean-icedtea icedtea-against-icedtea clean-icedtea-ecj clean-plugs \
 	clean-tools-jar clean-shared-objects clean-visualvm clean-nbplatform \
-	clean-copy clean-hotspot-tools clean-rt $(GCJWEBPLUGIN_CLEAN) \
-	$(ICEDTEAPLUGIN_CLEAN) hotspot hotspot-helper clean-extra \
-	clean-jtreg clean-jtreg-reports 
+	clean-copy clean-hotspot-tools clean-rt $(ICEDTEAPLUGIN_CLEAN) \
+	hotspot hotspot-helper clean-extra clean-jtreg clean-jtreg-reports 
 
-EXTRA_DIST = rt generated \
-	patches/* \
-	gcjwebplugin.cc tools-copy contrib ports \
-	extra overlays \
+GENERATED_FILES = generated/com/sun/java/swing/plaf/gtk/resources/gtk_it.java \
+	generated/com/sun/java/swing/plaf/gtk/resources/gtk_de.java \
+	generated/com/sun/java/swing/plaf/gtk/resources/gtk_zh_CN.java \
+	generated/com/sun/java/swing/plaf/gtk/resources/gtk_ko.java \
+	generated/com/sun/java/swing/plaf/gtk/resources/gtk_es.java \
+	generated/com/sun/java/swing/plaf/gtk/resources/gtk.java \
+	generated/com/sun/java/swing/plaf/gtk/resources/gtk_sv.java \
+	generated/com/sun/java/swing/plaf/gtk/resources/gtk_fr.java \
+	generated/com/sun/java/swing/plaf/gtk/resources/gtk_zh_TW.java \
+	generated/com/sun/java/swing/plaf/gtk/resources/gtk_zh_HK.java \
+	generated/com/sun/java/swing/plaf/gtk/resources/gtk_ja.java \
+	generated/com/sun/java/swing/plaf/motif/resources/motif_es.java \
+	generated/com/sun/java/swing/plaf/motif/resources/motif_sv.java \
+	generated/com/sun/java/swing/plaf/motif/resources/motif_fr.java \
+	generated/com/sun/java/swing/plaf/motif/resources/motif_zh_CN.java \
+	generated/com/sun/java/swing/plaf/motif/resources/motif_ja.java \
+	generated/com/sun/java/swing/plaf/motif/resources/motif_it.java \
+	generated/com/sun/java/swing/plaf/motif/resources/motif_de.java \
+	generated/com/sun/java/swing/plaf/motif/resources/motif_zh_TW.java \
+	generated/com/sun/java/swing/plaf/motif/resources/motif_ko.java \
+	generated/com/sun/java/swing/plaf/motif/resources/motif_zh_HK.java \
+	generated/com/sun/java/swing/plaf/motif/resources/motif.java \
+	generated/com/sun/java/swing/plaf/windows/resources/windows_it.java \
+	generated/com/sun/java/swing/plaf/windows/resources/windows_de.java \
+	generated/com/sun/java/swing/plaf/windows/resources/windows_zh_CN.java \
+	generated/com/sun/java/swing/plaf/windows/resources/windows.java \
+	generated/com/sun/java/swing/plaf/windows/resources/windows_ko.java \
+	generated/com/sun/java/swing/plaf/windows/resources/windows_es.java \
+	generated/com/sun/java/swing/plaf/windows/resources/windows_sv.java \
+	generated/com/sun/java/swing/plaf/windows/resources/windows_fr.java \
+	generated/com/sun/java/swing/plaf/windows/resources/windows_zh_TW.java \
+	generated/com/sun/java/swing/plaf/windows/resources/windows_zh_HK.java \
+	generated/com/sun/java/swing/plaf/windows/resources/windows_ja.java \
+	generated/com/sun/corba/se/spi/activation/ORBPortInfoHelper.java \
+	generated/com/sun/corba/se/spi/activation/Server.java \
+	generated/com/sun/corba/se/spi/activation/ServerIdHelper.java \
+	generated/com/sun/corba/se/spi/activation/BadServerDefinition.java \
+	generated/com/sun/corba/se/spi/activation/EndpointInfoListHelper.java \
+	generated/com/sun/corba/se/spi/activation/ServerIdsHolder.java \
+	generated/com/sun/corba/se/spi/activation/ServerNotRegisteredHelper.java \
+	generated/com/sun/corba/se/spi/activation/_ServerStub.java \
+	generated/com/sun/corba/se/spi/activation/ServerManagerHolder.java \
+	generated/com/sun/corba/se/spi/activation/ActivatorOperations.java \
+	generated/com/sun/corba/se/spi/activation/LocatorPackage/ServerLocationPerORBHelper.java \
+	generated/com/sun/corba/se/spi/activation/LocatorPackage/ServerLocationPerORBHolder.java \
+	generated/com/sun/corba/se/spi/activation/LocatorPackage/ServerLocation.java \
+	generated/com/sun/corba/se/spi/activation/LocatorPackage/ServerLocationPerORB.java \
+	generated/com/sun/corba/se/spi/activation/LocatorPackage/ServerLocationHelper.java \
+	generated/com/sun/corba/se/spi/activation/LocatorPackage/ServerLocationHolder.java \
+	generated/com/sun/corba/se/spi/activation/ServerAlreadyActiveHelper.java \
+	generated/com/sun/corba/se/spi/activation/ServerHelper.java \
+	generated/com/sun/corba/se/spi/activation/TCPPortHelper.java \
+	generated/com/sun/corba/se/spi/activation/NoSuchEndPoint.java \
+	generated/com/sun/corba/se/spi/activation/EndPointInfo.java \
+	generated/com/sun/corba/se/spi/activation/_ServerManagerImplBase.java \
+	generated/com/sun/corba/se/spi/activation/Repository.java \
+	generated/com/sun/corba/se/spi/activation/BadServerDefinitionHolder.java \
+	generated/com/sun/corba/se/spi/activation/ORBidListHolder.java \
+	generated/com/sun/corba/se/spi/activation/ServerAlreadyInstalledHelper.java \
+	generated/com/sun/corba/se/spi/activation/NoSuchEndPointHelper.java \
+	generated/com/sun/corba/se/spi/activation/ORBPortInfoHolder.java \
+	generated/com/sun/corba/se/spi/activation/ServerHeldDownHelper.java \
+	generated/com/sun/corba/se/spi/activation/EndpointInfoListHolder.java \
+	generated/com/sun/corba/se/spi/activation/ServerNotRegisteredHolder.java \
+	generated/com/sun/corba/se/spi/activation/ORBPortInfoListHelper.java \
+	generated/com/sun/corba/se/spi/activation/RepositoryOperations.java \
+	generated/com/sun/corba/se/spi/activation/ServerNotActiveHelper.java \
+	generated/com/sun/corba/se/spi/activation/_LocatorStub.java \
+	generated/com/sun/corba/se/spi/activation/ServerAlreadyActiveHolder.java \
+	generated/com/sun/corba/se/spi/activation/ServerHolder.java \
+	generated/com/sun/corba/se/spi/activation/_ServerImplBase.java \
+	generated/com/sun/corba/se/spi/activation/_InitialNameServiceStub.java \
+	generated/com/sun/corba/se/spi/activation/ActivatorHelper.java \
+	generated/com/sun/corba/se/spi/activation/ServerAlreadyRegisteredHelper.java \
+	generated/com/sun/corba/se/spi/activation/EndPointInfoHelper.java \
+	generated/com/sun/corba/se/spi/activation/ServerNotActive.java \
+	generated/com/sun/corba/se/spi/activation/InitialNameServicePackage/NameAlreadyBoundHelper.java \
+	generated/com/sun/corba/se/spi/activation/InitialNameServicePackage/NameAlreadyBoundHolder.java \
+	generated/com/sun/corba/se/spi/activation/InitialNameServicePackage/NameAlreadyBound.java \
+	generated/com/sun/corba/se/spi/activation/ServerAlreadyInstalledHolder.java \
+	generated/com/sun/corba/se/spi/activation/NoSuchEndPointHolder.java \
+	generated/com/sun/corba/se/spi/activation/_InitialNameServiceImplBase.java \
+	generated/com/sun/corba/se/spi/activation/LocatorOperations.java \
+	generated/com/sun/corba/se/spi/activation/_ActivatorStub.java \
+	generated/com/sun/corba/se/spi/activation/ServerHeldDownHolder.java \
+	generated/com/sun/corba/se/spi/activation/ServerAlreadyActive.java \
+	generated/com/sun/corba/se/spi/activation/IIOP_CLEAR_TEXT.java \
+	generated/com/sun/corba/se/spi/activation/ORBPortInfoListHolder.java \
+	generated/com/sun/corba/se/spi/activation/ServerManagerOperations.java \
+	generated/com/sun/corba/se/spi/activation/ServerNotActiveHolder.java \
+	generated/com/sun/corba/se/spi/activation/ServerAlreadyRegistered.java \
+	generated/com/sun/corba/se/spi/activation/ServerAlreadyUninstalledHelper.java \
+	generated/com/sun/corba/se/spi/activation/_ServerManagerStub.java \
+	generated/com/sun/corba/se/spi/activation/RepositoryPackage/StringSeqHelper.java \
+	generated/com/sun/corba/se/spi/activation/RepositoryPackage/StringSeqHolder.java \
+	generated/com/sun/corba/se/spi/activation/RepositoryPackage/ServerDef.java \
+	generated/com/sun/corba/se/spi/activation/RepositoryPackage/ServerDefHelper.java \
+	generated/com/sun/corba/se/spi/activation/RepositoryPackage/ServerDefHolder.java \
+	generated/com/sun/corba/se/spi/activation/ActivatorHolder.java \
+	generated/com/sun/corba/se/spi/activation/ServerAlreadyUninstalled.java \
+	generated/com/sun/corba/se/spi/activation/InvalidORBidHelper.java \
+	generated/com/sun/corba/se/spi/activation/ServerAlreadyRegisteredHolder.java \
+	generated/com/sun/corba/se/spi/activation/EndPointInfoHolder.java \
+	generated/com/sun/corba/se/spi/activation/Activator.java \
+	generated/com/sun/corba/se/spi/activation/ServerManager.java \
+	generated/com/sun/corba/se/spi/activation/ORBidHelper.java \
+	generated/com/sun/corba/se/spi/activation/InitialNameServiceHelper.java \
+	generated/com/sun/corba/se/spi/activation/ServerOperations.java \
+	generated/com/sun/corba/se/spi/activation/RepositoryHelper.java \
+	generated/com/sun/corba/se/spi/activation/ORBAlreadyRegisteredHelper.java \
+	generated/com/sun/corba/se/spi/activation/LocatorHelper.java \
+	generated/com/sun/corba/se/spi/activation/ServerAlreadyUninstalledHolder.java \
+	generated/com/sun/corba/se/spi/activation/POANameHelper.java \
+	generated/com/sun/corba/se/spi/activation/_RepositoryImplBase.java \
+	generated/com/sun/corba/se/spi/activation/ServerIdsHelper.java \
+	generated/com/sun/corba/se/spi/activation/_ActivatorImplBase.java \
+	generated/com/sun/corba/se/spi/activation/InvalidORBidHolder.java \
+	generated/com/sun/corba/se/spi/activation/ServerManagerHelper.java \
+	generated/com/sun/corba/se/spi/activation/ServerHeldDown.java \
+	generated/com/sun/corba/se/spi/activation/ORBPortInfo.java \
+	generated/com/sun/corba/se/spi/activation/InitialNameServiceHolder.java \
+	generated/com/sun/corba/se/spi/activation/InvalidORBid.java \
+	generated/com/sun/corba/se/spi/activation/ServerAlreadyInstalled.java \
+	generated/com/sun/corba/se/spi/activation/_LocatorImplBase.java \
+	generated/com/sun/corba/se/spi/activation/InitialNameService.java \
+	generated/com/sun/corba/se/spi/activation/ORBAlreadyRegistered.java \
+	generated/com/sun/corba/se/spi/activation/RepositoryHolder.java \
+	generated/com/sun/corba/se/spi/activation/ORBAlreadyRegisteredHolder.java \
+	generated/com/sun/corba/se/spi/activation/LocatorHolder.java \
+	generated/com/sun/corba/se/spi/activation/Locator.java \
+	generated/com/sun/corba/se/spi/activation/InitialNameServiceOperations.java \
+	generated/com/sun/corba/se/spi/activation/_RepositoryStub.java \
+	generated/com/sun/corba/se/spi/activation/BadServerDefinitionHelper.java \
+	generated/com/sun/corba/se/spi/activation/ORBidListHelper.java \
+	generated/com/sun/corba/se/spi/activation/POANameHolder.java \
+	generated/com/sun/corba/se/spi/activation/ServerNotRegistered.java \
+	generated/com/sun/corba/se/impl/logging/InterceptorsSystemException.resource \
+	generated/com/sun/corba/se/impl/logging/ActivationSystemException.java \
+	generated/com/sun/corba/se/impl/logging/LogStrings.properties \
+	generated/com/sun/corba/se/impl/logging/IORSystemException.resource \
+	generated/com/sun/corba/se/impl/logging/UtilSystemException.resource \
+	generated/com/sun/corba/se/impl/logging/NamingSystemException.resource \
+	generated/com/sun/corba/se/impl/logging/ORBUtilSystemException.java \
+	generated/com/sun/corba/se/impl/logging/InterceptorsSystemException.java \
+	generated/com/sun/corba/se/impl/logging/ActivationSystemException.resource \
+	generated/com/sun/corba/se/impl/logging/POASystemException.java \
+	generated/com/sun/corba/se/impl/logging/IORSystemException.java \
+	generated/com/sun/corba/se/impl/logging/POASystemException.resource \
+	generated/com/sun/corba/se/impl/logging/OMGSystemException.java \
+	generated/com/sun/corba/se/impl/logging/ORBUtilSystemException.resource \
+	generated/com/sun/corba/se/impl/logging/NamingSystemException.java \
+	generated/com/sun/corba/se/impl/logging/UtilSystemException.java \
+	generated/com/sun/corba/se/impl/logging/OMGSystemException.resource \
+	generated/com/sun/corba/se/PortableActivationIDL/ORBProxyHelper.java \
+	generated/com/sun/corba/se/PortableActivationIDL/ORBPortInfoHelper.java \
+	generated/com/sun/corba/se/PortableActivationIDL/BadServerDefinition.java \
+	generated/com/sun/corba/se/PortableActivationIDL/EndpointInfoListHelper.java \
+	generated/com/sun/corba/se/PortableActivationIDL/ServerIdsHolder.java \
+	generated/com/sun/corba/se/PortableActivationIDL/ServerNotRegisteredHelper.java \
+	generated/com/sun/corba/se/PortableActivationIDL/ServerManagerHolder.java \
+	generated/com/sun/corba/se/PortableActivationIDL/ActivatorOperations.java \
+	generated/com/sun/corba/se/PortableActivationIDL/LocatorPackage/ServerLocationPerTypeHelper.java \
+	generated/com/sun/corba/se/PortableActivationIDL/LocatorPackage/ServerLocationPerORBHelper.java \
+	generated/com/sun/corba/se/PortableActivationIDL/LocatorPackage/ServerLocationPerTypeHolder.java \
+	generated/com/sun/corba/se/PortableActivationIDL/LocatorPackage/ServerLocationPerORBHolder.java \
+	generated/com/sun/corba/se/PortableActivationIDL/LocatorPackage/ServerLocationPerType.java \
+	generated/com/sun/corba/se/PortableActivationIDL/LocatorPackage/ServerLocationPerORB.java \
+	generated/com/sun/corba/se/PortableActivationIDL/ServerAlreadyActiveHelper.java \
+	generated/com/sun/corba/se/PortableActivationIDL/TCPPortHelper.java \
+	generated/com/sun/corba/se/PortableActivationIDL/ServerProxyOperations.java \
+	generated/com/sun/corba/se/PortableActivationIDL/NoSuchEndPoint.java \
+	generated/com/sun/corba/se/PortableActivationIDL/EndPointInfo.java \
+	generated/com/sun/corba/se/PortableActivationIDL/_ServerManagerImplBase.java \
+	generated/com/sun/corba/se/PortableActivationIDL/ServerProxyHelper.java \
+	generated/com/sun/corba/se/PortableActivationIDL/Repository.java \
+	generated/com/sun/corba/se/PortableActivationIDL/BadServerDefinitionHolder.java \
+	generated/com/sun/corba/se/PortableActivationIDL/ORBidListHolder.java \
+	generated/com/sun/corba/se/PortableActivationIDL/ServerAlreadyInstalledHelper.java \
+	generated/com/sun/corba/se/PortableActivationIDL/NoSuchEndPointHelper.java \
+	generated/com/sun/corba/se/PortableActivationIDL/ORBProxyHolder.java \
+	generated/com/sun/corba/se/PortableActivationIDL/ORBPortInfoHolder.java \
+	generated/com/sun/corba/se/PortableActivationIDL/ServerHeldDownHelper.java \
+	generated/com/sun/corba/se/PortableActivationIDL/_ORBProxyStub.java \
+	generated/com/sun/corba/se/PortableActivationIDL/EndpointInfoListHolder.java \
+	generated/com/sun/corba/se/PortableActivationIDL/ServerNotRegisteredHolder.java \
+	generated/com/sun/corba/se/PortableActivationIDL/ORBPortInfoListHelper.java \
+	generated/com/sun/corba/se/PortableActivationIDL/RepositoryOperations.java \
+	generated/com/sun/corba/se/PortableActivationIDL/ServerNotActiveHelper.java \
+	generated/com/sun/corba/se/PortableActivationIDL/_LocatorStub.java \
+	generated/com/sun/corba/se/PortableActivationIDL/ServerAlreadyActiveHolder.java \
+	generated/com/sun/corba/se/PortableActivationIDL/_ServerProxyStub.java \
+	generated/com/sun/corba/se/PortableActivationIDL/_InitialNameServiceStub.java \
+	generated/com/sun/corba/se/PortableActivationIDL/ActivatorHelper.java \
+	generated/com/sun/corba/se/PortableActivationIDL/ServerAlreadyRegisteredHelper.java \
+	generated/com/sun/corba/se/PortableActivationIDL/EndPointInfoHelper.java \
+	generated/com/sun/corba/se/PortableActivationIDL/ServerNotActive.java \
+	generated/com/sun/corba/se/PortableActivationIDL/ServerProxyHolder.java \
+	generated/com/sun/corba/se/PortableActivationIDL/InitialNameServicePackage/NameAlreadyBoundHelper.java \
+	generated/com/sun/corba/se/PortableActivationIDL/InitialNameServicePackage/NameAlreadyBoundHolder.java \
+	generated/com/sun/corba/se/PortableActivationIDL/InitialNameServicePackage/NameAlreadyBound.java \
+	generated/com/sun/corba/se/PortableActivationIDL/ServerAlreadyInstalledHolder.java \
+	generated/com/sun/corba/se/PortableActivationIDL/NoSuchEndPointHolder.java \
+	generated/com/sun/corba/se/PortableActivationIDL/_InitialNameServiceImplBase.java \
+	generated/com/sun/corba/se/PortableActivationIDL/LocatorOperations.java \
+	generated/com/sun/corba/se/PortableActivationIDL/_ActivatorStub.java \
+	generated/com/sun/corba/se/PortableActivationIDL/ServerHeldDownHolder.java \
+	generated/com/sun/corba/se/PortableActivationIDL/ServerAlreadyActive.java \
+	generated/com/sun/corba/se/PortableActivationIDL/IIOP_CLEAR_TEXT.java \
+	generated/com/sun/corba/se/PortableActivationIDL/ORBPortInfoListHolder.java \
+	generated/com/sun/corba/se/PortableActivationIDL/ServerManagerOperations.java \
+	generated/com/sun/corba/se/PortableActivationIDL/ServerNotActiveHolder.java \
+	generated/com/sun/corba/se/PortableActivationIDL/ServerAlreadyRegistered.java \
+	generated/com/sun/corba/se/PortableActivationIDL/ServerAlreadyUninstalledHelper.java \
+	generated/com/sun/corba/se/PortableActivationIDL/_ServerManagerStub.java \
+	generated/com/sun/corba/se/PortableActivationIDL/_ORBProxyImplBase.java \
+	generated/com/sun/corba/se/PortableActivationIDL/RepositoryPackage/ServerDef.java \
+	generated/com/sun/corba/se/PortableActivationIDL/RepositoryPackage/ServerDefHelper.java \
+	generated/com/sun/corba/se/PortableActivationIDL/RepositoryPackage/ServerDefHolder.java \
+	generated/com/sun/corba/se/PortableActivationIDL/RepositoryPackage/AppNamesHelper.java \
+	generated/com/sun/corba/se/PortableActivationIDL/RepositoryPackage/AppNamesHolder.java \
+	generated/com/sun/corba/se/PortableActivationIDL/ActivatorHolder.java \
+	generated/com/sun/corba/se/PortableActivationIDL/ServerAlreadyUninstalled.java \
+	generated/com/sun/corba/se/PortableActivationIDL/InvalidORBidHelper.java \
+	generated/com/sun/corba/se/PortableActivationIDL/ServerAlreadyRegisteredHolder.java \
+	generated/com/sun/corba/se/PortableActivationIDL/EndPointInfoHolder.java \
+	generated/com/sun/corba/se/PortableActivationIDL/Activator.java \
+	generated/com/sun/corba/se/PortableActivationIDL/ServerManager.java \
+	generated/com/sun/corba/se/PortableActivationIDL/InitialNameServiceHelper.java \
+	generated/com/sun/corba/se/PortableActivationIDL/ORBProxy.java \
+	generated/com/sun/corba/se/PortableActivationIDL/ORBProxyOperations.java \
+	generated/com/sun/corba/se/PortableActivationIDL/RepositoryHelper.java \
+	generated/com/sun/corba/se/PortableActivationIDL/ORBAlreadyRegisteredHelper.java \
+	generated/com/sun/corba/se/PortableActivationIDL/LocatorHelper.java \
+	generated/com/sun/corba/se/PortableActivationIDL/ServerAlreadyUninstalledHolder.java \
+	generated/com/sun/corba/se/PortableActivationIDL/_ServerProxyImplBase.java \
+	generated/com/sun/corba/se/PortableActivationIDL/_RepositoryImplBase.java \
+	generated/com/sun/corba/se/PortableActivationIDL/ServerIdsHelper.java \
+	generated/com/sun/corba/se/PortableActivationIDL/_ActivatorImplBase.java \
+	generated/com/sun/corba/se/PortableActivationIDL/InvalidORBidHolder.java \
+	generated/com/sun/corba/se/PortableActivationIDL/ServerManagerHelper.java \
+	generated/com/sun/corba/se/PortableActivationIDL/ServerHeldDown.java \
+	generated/com/sun/corba/se/PortableActivationIDL/ORBPortInfo.java \
+	generated/com/sun/corba/se/PortableActivationIDL/InitialNameServiceHolder.java \
+	generated/com/sun/corba/se/PortableActivationIDL/InvalidORBid.java \
+	generated/com/sun/corba/se/PortableActivationIDL/ServerAlreadyInstalled.java \
+	generated/com/sun/corba/se/PortableActivationIDL/_LocatorImplBase.java \
+	generated/com/sun/corba/se/PortableActivationIDL/InitialNameService.java \
+	generated/com/sun/corba/se/PortableActivationIDL/ORBAlreadyRegistered.java \
+	generated/com/sun/corba/se/PortableActivationIDL/RepositoryHolder.java \
+	generated/com/sun/corba/se/PortableActivationIDL/ORBAlreadyRegisteredHolder.java \
+	generated/com/sun/corba/se/PortableActivationIDL/LocatorHolder.java \
+	generated/com/sun/corba/se/PortableActivationIDL/Locator.java \
+	generated/com/sun/corba/se/PortableActivationIDL/InitialNameServiceOperations.java \
+	generated/com/sun/corba/se/PortableActivationIDL/_RepositoryStub.java \
+	generated/com/sun/corba/se/PortableActivationIDL/ServerProxy.java \
+	generated/com/sun/corba/se/PortableActivationIDL/BadServerDefinitionHelper.java \
+	generated/com/sun/corba/se/PortableActivationIDL/ORBidListHelper.java \
+	generated/com/sun/corba/se/PortableActivationIDL/ServerNotRegistered.java \
+	generated/com/sun/swing/internal/plaf/basic/resources/basic_ko.java \
+	generated/com/sun/swing/internal/plaf/basic/resources/basic_zh_TW.java \
+	generated/com/sun/swing/internal/plaf/basic/resources/basic_es.java \
+	generated/com/sun/swing/internal/plaf/basic/resources/basic_zh_HK.java \
+	generated/com/sun/swing/internal/plaf/basic/resources/basic_sv.java \
+	generated/com/sun/swing/internal/plaf/basic/resources/basic_fr.java \
+	generated/com/sun/swing/internal/plaf/basic/resources/basic_zh_CN.java \
+	generated/com/sun/swing/internal/plaf/basic/resources/basic.java \
+	generated/com/sun/swing/internal/plaf/basic/resources/basic_ja.java \
+	generated/com/sun/swing/internal/plaf/basic/resources/basic_it.java \
+	generated/com/sun/swing/internal/plaf/basic/resources/basic_de.java \
+	generated/com/sun/swing/internal/plaf/metal/resources/metal_ko.java \
+	generated/com/sun/swing/internal/plaf/metal/resources/metal.java \
+	generated/com/sun/swing/internal/plaf/metal/resources/metal_zh_CN.java \
+	generated/com/sun/swing/internal/plaf/metal/resources/metal_es.java \
+	generated/com/sun/swing/internal/plaf/metal/resources/metal_sv.java \
+	generated/com/sun/swing/internal/plaf/metal/resources/metal_fr.java \
+	generated/com/sun/swing/internal/plaf/metal/resources/metal_ja.java \
+	generated/com/sun/swing/internal/plaf/metal/resources/metal_zh_TW.java \
+	generated/com/sun/swing/internal/plaf/metal/resources/metal_it.java \
+	generated/com/sun/swing/internal/plaf/metal/resources/metal_zh_HK.java \
+	generated/com/sun/swing/internal/plaf/metal/resources/metal_de.java \
+	generated/com/sun/swing/internal/plaf/synth/resources/synth_zh_CN.java \
+	generated/com/sun/swing/internal/plaf/synth/resources/synth_ja.java \
+	generated/com/sun/swing/internal/plaf/synth/resources/synth.java \
+	generated/com/sun/swing/internal/plaf/synth/resources/synth_it.java \
+	generated/com/sun/swing/internal/plaf/synth/resources/synth_de.java \
+	generated/com/sun/swing/internal/plaf/synth/resources/synth_ko.java \
+	generated/com/sun/swing/internal/plaf/synth/resources/synth_zh_TW.java \
+	generated/com/sun/swing/internal/plaf/synth/resources/synth_es.java \
+	generated/com/sun/swing/internal/plaf/synth/resources/synth_zh_HK.java \
+	generated/com/sun/swing/internal/plaf/synth/resources/synth_sv.java \
+	generated/com/sun/swing/internal/plaf/synth/resources/synth_fr.java \
+	generated/com/sun/tools/apt/resources/apt_zh_CN.java \
+	generated/com/sun/tools/apt/resources/apt.java \
+	generated/com/sun/tools/apt/resources/apt_ja.java \
+	generated/com/sun/tools/jdi/JDWP.java \
+	generated/com/sun/tools/jdi/resources/jdi_zh_CN.java \
+	generated/com/sun/tools/jdi/resources/jdi.java \
+	generated/com/sun/tools/jdi/resources/jdi_ja.java \
+	generated/com/sun/tools/javac/resources/version.java \
+	generated/com/sun/tools/javac/resources/legacy.java \
+	generated/com/sun/tools/javac/resources/javac.java \
+	generated/com/sun/tools/javac/resources/compiler_ja.java \
+	generated/com/sun/tools/javac/resources/compiler_zh_CN.java \
+	generated/com/sun/tools/javac/resources/javac_zh_CN.java \
+	generated/com/sun/tools/javac/resources/compiler.java \
+	generated/com/sun/tools/javac/resources/javac_ja.java \
+	generated/com/sun/tools/doclets/formats/html/resources/standard.java \
+	generated/com/sun/tools/doclets/formats/html/resources/standard_ja.java \
+	generated/com/sun/tools/doclets/formats/html/resources/standard_zh_CN.java \
+	generated/com/sun/tools/doclets/internal/toolkit/resources/doclets.java \
+	generated/com/sun/tools/doclets/internal/toolkit/resources/doclets_zh_CN.java \
+	generated/com/sun/tools/doclets/internal/toolkit/resources/doclets_ja.java \
+	generated/com/sun/tools/javadoc/resources/javadoc_ja.java \
+	generated/com/sun/tools/javadoc/resources/javadoc_zh_CN.java \
+	generated/com/sun/tools/javadoc/resources/javadoc.java \
+	generated/com/sun/accessibility/internal/resources/accessibility_zh_HK.java \
+	generated/com/sun/accessibility/internal/resources/accessibility_zh_CN.java \
+	generated/com/sun/accessibility/internal/resources/accessibility_ja.java \
+	generated/com/sun/accessibility/internal/resources/accessibility_it.java \
+	generated/com/sun/accessibility/internal/resources/accessibility_de.java \
+	generated/com/sun/accessibility/internal/resources/accessibility_ko.java \
+	generated/com/sun/accessibility/internal/resources/accessibility_en.java \
+	generated/com/sun/accessibility/internal/resources/accessibility.java \
+	generated/com/sun/accessibility/internal/resources/accessibility_es.java \
+	generated/com/sun/accessibility/internal/resources/accessibility_zh_TW.java \
+	generated/com/sun/accessibility/internal/resources/accessibility_sv.java \
+	generated/com/sun/accessibility/internal/resources/accessibility_fr.java \
+	generated/org/omg/IOP/TaggedComponent.java \
+	generated/org/omg/IOP/Codec.java \
+	generated/org/omg/IOP/IORHelper.java \
+	generated/org/omg/IOP/MultipleComponentProfileHolder.java \
+	generated/org/omg/IOP/CodeSets.java \
+	generated/org/omg/IOP/CodecFactory.java \
+	generated/org/omg/IOP/TaggedProfileHelper.java \
+	generated/org/omg/IOP/TAG_RMI_CUSTOM_MAX_STREAM_FORMAT.java \
+	generated/org/omg/IOP/ServiceContextHelper.java \
+	generated/org/omg/IOP/CodecFactoryHelper.java \
+	generated/org/omg/IOP/CodecOperations.java \
+	generated/org/omg/IOP/IORHolder.java \
+	generated/org/omg/IOP/Encoding.java \
+	generated/org/omg/IOP/ServiceContext.java \
+	generated/org/omg/IOP/TAG_MULTIPLE_COMPONENTS.java \
+	generated/org/omg/IOP/TAG_CODE_SETS.java \
+	generated/org/omg/IOP/TaggedProfileHolder.java \
+	generated/org/omg/IOP/ServiceIdHelper.java \
+	generated/org/omg/IOP/ServiceContextHolder.java \
+	generated/org/omg/IOP/TransactionService.java \
+	generated/org/omg/IOP/CodecPackage/InvalidTypeForEncoding.java \
+	generated/org/omg/IOP/CodecPackage/FormatMismatch.java \
+	generated/org/omg/IOP/CodecPackage/FormatMismatchHelper.java \
+	generated/org/omg/IOP/CodecPackage/InvalidTypeForEncodingHelper.java \
+	generated/org/omg/IOP/CodecPackage/TypeMismatchHelper.java \
+	generated/org/omg/IOP/CodecPackage/TypeMismatch.java \
+	generated/org/omg/IOP/TAG_INTERNET_IOP.java \
+	generated/org/omg/IOP/TAG_ORB_TYPE.java \
+	generated/org/omg/IOP/TaggedComponentHelper.java \
+	generated/org/omg/IOP/TAG_JAVA_CODEBASE.java \
+	generated/org/omg/IOP/ProfileIdHelper.java \
+	generated/org/omg/IOP/IOR.java \
+	generated/org/omg/IOP/ServiceContextListHelper.java \
+	generated/org/omg/IOP/RMICustomMaxStreamFormat.java \
+	generated/org/omg/IOP/CodecFactoryPackage/UnknownEncoding.java \
+	generated/org/omg/IOP/CodecFactoryPackage/UnknownEncodingHelper.java \
+	generated/org/omg/IOP/TaggedComponentHolder.java \
+	generated/org/omg/IOP/MultipleComponentProfileHelper.java \
+	generated/org/omg/IOP/ENCODING_CDR_ENCAPS.java \
+	generated/org/omg/IOP/TaggedProfile.java \
+	generated/org/omg/IOP/TAG_ALTERNATE_IIOP_ADDRESS.java \
+	generated/org/omg/IOP/TAG_POLICIES.java \
+	generated/org/omg/IOP/ServiceContextListHolder.java \
+	generated/org/omg/IOP/ExceptionDetailMessage.java \
+	generated/org/omg/IOP/ComponentIdHelper.java \
+	generated/org/omg/IOP/CodecFactoryOperations.java \
+	generated/org/omg/CORBA/WStringSeqHelper.java \
+	generated/org/omg/CORBA/StringSeqHelper.java \
+	generated/org/omg/CORBA/WStringSeqHolder.java \
+	generated/org/omg/CORBA/StringSeqHolder.java \
+	generated/org/omg/CORBA/PolicyErrorHelper.java \
+	generated/org/omg/CORBA/ParameterModeHelper.java \
+	generated/org/omg/CORBA/ParameterMode.java \
+	generated/org/omg/CORBA/PolicyErrorHolder.java \
+	generated/org/omg/CORBA/ParameterModeHolder.java \
+	generated/org/omg/CORBA/PolicyErrorCodeHelper.java \
+	generated/org/omg/PortableInterceptor/ServerIdHelper.java \
+	generated/org/omg/PortableInterceptor/IORInterceptor_3_0Operations.java \
+	generated/org/omg/PortableInterceptor/PolicyFactoryOperations.java \
+	generated/org/omg/PortableInterceptor/ObjectReferenceFactory.java \
+	generated/org/omg/PortableInterceptor/ACTIVE.java \
+	generated/org/omg/PortableInterceptor/CurrentHelper.java \
+	generated/org/omg/PortableInterceptor/IORInfo.java \
+	generated/org/omg/PortableInterceptor/ServerRequestInterceptorOperations.java \
+	generated/org/omg/PortableInterceptor/AdapterStateHelper.java \
+	generated/org/omg/PortableInterceptor/ClientRequestInfoOperations.java \
+	generated/org/omg/PortableInterceptor/ORBInitInfoPackage/DuplicateNameHelper.java \
+	generated/org/omg/PortableInterceptor/ORBInitInfoPackage/InvalidNameHelper.java \
+	generated/org/omg/PortableInterceptor/ORBInitInfoPackage/DuplicateName.java \
+	generated/org/omg/PortableInterceptor/ORBInitInfoPackage/ObjectIdHelper.java \
+	generated/org/omg/PortableInterceptor/ORBInitInfoPackage/InvalidName.java \
+	generated/org/omg/PortableInterceptor/RequestInfo.java \
+	generated/org/omg/PortableInterceptor/ForwardRequest.java \
+	generated/org/omg/PortableInterceptor/IORInfoOperations.java \
+	generated/org/omg/PortableInterceptor/PolicyFactory.java \
+	generated/org/omg/PortableInterceptor/ServerRequestInterceptor.java \
+	generated/org/omg/PortableInterceptor/CurrentOperations.java \
+	generated/org/omg/PortableInterceptor/IORInterceptor.java \
+	generated/org/omg/PortableInterceptor/IORInterceptorOperations.java \
+	generated/org/omg/PortableInterceptor/HOLDING.java \
+	generated/org/omg/PortableInterceptor/ObjectReferenceFactoryHelper.java \
+	generated/org/omg/PortableInterceptor/ServerRequestInfoOperations.java \
+	generated/org/omg/PortableInterceptor/DISCARDING.java \
+	generated/org/omg/PortableInterceptor/ForwardRequestHelper.java \
+	generated/org/omg/PortableInterceptor/ORBInitializerOperations.java \
+	generated/org/omg/PortableInterceptor/USER_EXCEPTION.java \
+	generated/org/omg/PortableInterceptor/ObjectReferenceTemplateSeqHelper.java \
+	generated/org/omg/PortableInterceptor/SUCCESSFUL.java \
+	generated/org/omg/PortableInterceptor/ORBInitializer.java \
+	generated/org/omg/PortableInterceptor/ORBInitInfoOperations.java \
+	generated/org/omg/PortableInterceptor/ObjectReferenceTemplateHelper.java \
+	generated/org/omg/PortableInterceptor/ClientRequestInterceptor.java \
+	generated/org/omg/PortableInterceptor/INACTIVE.java \
+	generated/org/omg/PortableInterceptor/ClientRequestInterceptorOperations.java \
+	generated/org/omg/PortableInterceptor/ObjectReferenceFactoryHolder.java \
+	generated/org/omg/PortableInterceptor/ServerRequestInfo.java \
+	generated/org/omg/PortableInterceptor/AdapterNameHelper.java \
+	generated/org/omg/PortableInterceptor/SYSTEM_EXCEPTION.java \
+	generated/org/omg/PortableInterceptor/LOCATION_FORWARD.java \
+	generated/org/omg/PortableInterceptor/IORInterceptor_3_0Helper.java \
+	generated/org/omg/PortableInterceptor/AdapterManagerIdHelper.java \
+	generated/org/omg/PortableInterceptor/Current.java \
+	generated/org/omg/PortableInterceptor/ORBInitInfo.java \
+	generated/org/omg/PortableInterceptor/ObjectReferenceTemplateSeqHolder.java \
+	generated/org/omg/PortableInterceptor/ClientRequestInfo.java \
+	generated/org/omg/PortableInterceptor/ObjectReferenceTemplateHolder.java \
+	generated/org/omg/PortableInterceptor/ObjectIdHelper.java \
+	generated/org/omg/PortableInterceptor/NON_EXISTENT.java \
+	generated/org/omg/PortableInterceptor/Interceptor.java \
+	generated/org/omg/PortableInterceptor/InvalidSlot.java \
+	generated/org/omg/PortableInterceptor/IORInterceptor_3_0.java \
+	generated/org/omg/PortableInterceptor/IORInterceptor_3_0Holder.java \
+	generated/org/omg/PortableInterceptor/RequestInfoOperations.java \
+	generated/org/omg/PortableInterceptor/UNKNOWN.java \
+	generated/org/omg/PortableInterceptor/InterceptorOperations.java \
+	generated/org/omg/PortableInterceptor/ORBIdHelper.java \
+	generated/org/omg/PortableInterceptor/InvalidSlotHelper.java \
+	generated/org/omg/PortableInterceptor/ObjectReferenceTemplate.java \
+	generated/org/omg/PortableInterceptor/TRANSPORT_RETRY.java \
+	generated/org/omg/CosNaming/BindingListHelper.java \
+	generated/org/omg/CosNaming/BindingTypeHolder.java \
+	generated/org/omg/CosNaming/NameHolder.java \
+	generated/org/omg/CosNaming/NamingContextExt.java \
+	generated/org/omg/CosNaming/NamingContextPOA.java \
+	generated/org/omg/CosNaming/BindingType.java \
+	generated/org/omg/CosNaming/NamingContextExtHelper.java \
+	generated/org/omg/CosNaming/_BindingIteratorStub.java \
+	generated/org/omg/CosNaming/BindingIterator.java \
+	generated/org/omg/CosNaming/BindingListHolder.java \
+	generated/org/omg/CosNaming/_NamingContextStub.java \
+	generated/org/omg/CosNaming/NamingContextExtHolder.java \
+	generated/org/omg/CosNaming/IstringHelper.java \
+	generated/org/omg/CosNaming/NameComponentHelper.java \
+	generated/org/omg/CosNaming/BindingIteratorPOA.java \
+	generated/org/omg/CosNaming/NamingContext.java \
+	generated/org/omg/CosNaming/_NamingContextExtStub.java \
+	generated/org/omg/CosNaming/NamingContextExtOperations.java \
+	generated/org/omg/CosNaming/BindingHelper.java \
+	generated/org/omg/CosNaming/BindingIteratorHelper.java \
+	generated/org/omg/CosNaming/NamingContextHelper.java \
+	generated/org/omg/CosNaming/NamingContextExtPOA.java \
+	generated/org/omg/CosNaming/NameComponentHolder.java \
+	generated/org/omg/CosNaming/BindingIteratorOperations.java \
+	generated/org/omg/CosNaming/BindingTypeHelper.java \
+	generated/org/omg/CosNaming/NameHelper.java \
+	generated/org/omg/CosNaming/NamingContextPackage/NotFoundReasonHolder.java \
+	generated/org/omg/CosNaming/NamingContextPackage/CannotProceed.java \
+	generated/org/omg/CosNaming/NamingContextPackage/NotFoundHelper.java \
+	generated/org/omg/CosNaming/NamingContextPackage/AlreadyBound.java \
+	generated/org/omg/CosNaming/NamingContextPackage/AlreadyBoundHelper.java \
+	generated/org/omg/CosNaming/NamingContextPackage/NotFound.java \
+	generated/org/omg/CosNaming/NamingContextPackage/NotFoundReason.java \
+	generated/org/omg/CosNaming/NamingContextPackage/NotFoundHolder.java \
+	generated/org/omg/CosNaming/NamingContextPackage/AlreadyBoundHolder.java \
+	generated/org/omg/CosNaming/NamingContextPackage/CannotProceedHelper.java \
+	generated/org/omg/CosNaming/NamingContextPackage/NotEmptyHelper.java \
+	generated/org/omg/CosNaming/NamingContextPackage/InvalidNameHelper.java \
+	generated/org/omg/CosNaming/NamingContextPackage/CannotProceedHolder.java \
+	generated/org/omg/CosNaming/NamingContextPackage/InvalidName.java \
+	generated/org/omg/CosNaming/NamingContextPackage/NotEmptyHolder.java \
+	generated/org/omg/CosNaming/NamingContextPackage/InvalidNameHolder.java \
+	generated/org/omg/CosNaming/NamingContextPackage/NotFoundReasonHelper.java \
+	generated/org/omg/CosNaming/NamingContextPackage/NotEmpty.java \
+	generated/org/omg/CosNaming/NamingContextOperations.java \
+	generated/org/omg/CosNaming/Binding.java \
+	generated/org/omg/CosNaming/NamingContextExtPackage/AddressHelper.java \
+	generated/org/omg/CosNaming/NamingContextExtPackage/InvalidAddressHolder.java \
+	generated/org/omg/CosNaming/NamingContextExtPackage/URLStringHelper.java \
+	generated/org/omg/CosNaming/NamingContextExtPackage/InvalidAddress.java \
+	generated/org/omg/CosNaming/NamingContextExtPackage/StringNameHelper.java \
+	generated/org/omg/CosNaming/NamingContextExtPackage/InvalidAddressHelper.java \
+	generated/org/omg/CosNaming/BindingHolder.java \
+	generated/org/omg/CosNaming/BindingIteratorHolder.java \
+	generated/org/omg/CosNaming/NamingContextHolder.java \
+	generated/org/omg/CosNaming/NameComponent.java \
+	generated/org/omg/Messaging/SYNC_WITH_TRANSPORT.java \
+	generated/org/omg/Messaging/SyncScopeHelper.java \
+	generated/org/omg/Dynamic/Parameter.java \
+	generated/org/omg/DynamicAny/DynArrayHelper.java \
+	generated/org/omg/DynamicAny/DynSequenceOperations.java \
+	generated/org/omg/DynamicAny/DynStructHelper.java \
+	generated/org/omg/DynamicAny/DynEnum.java \
+	generated/org/omg/DynamicAny/DynAnySeqHelper.java \
+	generated/org/omg/DynamicAny/DynFixed.java \
+	generated/org/omg/DynamicAny/DynStruct.java \
+	generated/org/omg/DynamicAny/DynArray.java \
+	generated/org/omg/DynamicAny/_DynSequenceStub.java \
+	generated/org/omg/DynamicAny/DynSequence.java \
+	generated/org/omg/DynamicAny/DynFixedHelper.java \
+	generated/org/omg/DynamicAny/NameValuePair.java \
+	generated/org/omg/DynamicAny/DynAny.java \
+	generated/org/omg/DynamicAny/DynEnumOperations.java \
+	generated/org/omg/DynamicAny/DynAnyPackage/InvalidValueHelper.java \
+	generated/org/omg/DynamicAny/DynAnyPackage/InvalidValue.java \
+	generated/org/omg/DynamicAny/DynAnyPackage/TypeMismatchHelper.java \
+	generated/org/omg/DynamicAny/DynAnyPackage/TypeMismatch.java \
+	generated/org/omg/DynamicAny/DynUnion.java \
+	generated/org/omg/DynamicAny/_DynValueStub.java \
+	generated/org/omg/DynamicAny/FieldNameHelper.java \
+	generated/org/omg/DynamicAny/NameValuePairSeqHelper.java \
+	generated/org/omg/DynamicAny/DynValueCommonOperations.java \
+	generated/org/omg/DynamicAny/DynUnionHelper.java \
+	generated/org/omg/DynamicAny/_DynUnionStub.java \
+	generated/org/omg/DynamicAny/NameDynAnyPair.java \
+	generated/org/omg/DynamicAny/DynValueBox.java \
+	generated/org/omg/DynamicAny/DynSequenceHelper.java \
+	generated/org/omg/DynamicAny/_DynFixedStub.java \
+	generated/org/omg/DynamicAny/DynArrayOperations.java \
+	generated/org/omg/DynamicAny/DynValueCommon.java \
+	generated/org/omg/DynamicAny/DynAnyFactoryOperations.java \
+	generated/org/omg/DynamicAny/DynValueBoxOperations.java \
+	generated/org/omg/DynamicAny/DynAnyFactory.java \
+	generated/org/omg/DynamicAny/_DynArrayStub.java \
+	generated/org/omg/DynamicAny/NameDynAnyPairHelper.java \
+	generated/org/omg/DynamicAny/DynUnionOperations.java \
+	generated/org/omg/DynamicAny/DynValueHelper.java \
+	generated/org/omg/DynamicAny/DynAnyOperations.java \
+	generated/org/omg/DynamicAny/_DynAnyStub.java \
+	generated/org/omg/DynamicAny/DynFixedOperations.java \
+	generated/org/omg/DynamicAny/DynValue.java \
+	generated/org/omg/DynamicAny/_DynStructStub.java \
+	generated/org/omg/DynamicAny/NameValuePairHelper.java \
+	generated/org/omg/DynamicAny/NameDynAnyPairSeqHelper.java \
+	generated/org/omg/DynamicAny/DynAnyFactoryPackage/InconsistentTypeCode.java \
+	generated/org/omg/DynamicAny/DynAnyFactoryPackage/InconsistentTypeCodeHelper.java \
+	generated/org/omg/DynamicAny/AnySeqHelper.java \
+	generated/org/omg/DynamicAny/_DynAnyFactoryStub.java \
+	generated/org/omg/DynamicAny/_DynEnumStub.java \
+	generated/org/omg/DynamicAny/DynAnyHelper.java \
+	generated/org/omg/DynamicAny/DynStructOperations.java \
+	generated/org/omg/DynamicAny/DynValueOperations.java \
+	generated/org/omg/DynamicAny/DynAnyFactoryHelper.java \
+	generated/org/omg/DynamicAny/DynEnumHelper.java \
+	generated/org/omg/PortableServer/ThreadPolicy.java \
+	generated/org/omg/PortableServer/LifespanPolicyValue.java \
+	generated/org/omg/PortableServer/_ServantLocatorStub.java \
+	generated/org/omg/PortableServer/AdapterActivator.java \
+	generated/org/omg/PortableServer/ForwardRequest.java \
+	generated/org/omg/PortableServer/CurrentPackage/NoContext.java \
+	generated/org/omg/PortableServer/CurrentPackage/NoContextHelper.java \
+	generated/org/omg/PortableServer/ServantManager.java \
+	generated/org/omg/PortableServer/IdAssignmentPolicy.java \
+	generated/org/omg/PortableServer/_ServantActivatorStub.java \
+	generated/org/omg/PortableServer/IdAssignmentPolicyOperations.java \
+	generated/org/omg/PortableServer/LifespanPolicyOperations.java \
+	generated/org/omg/PortableServer/CurrentOperations.java \
+	generated/org/omg/PortableServer/POAManager.java \
+	generated/org/omg/PortableServer/ServantLocatorOperations.java \
+	generated/org/omg/PortableServer/ForwardRequestHelper.java \
+	generated/org/omg/PortableServer/ServantRetentionPolicy.java \
+	generated/org/omg/PortableServer/ServantRetentionPolicyValue.java \
+	generated/org/omg/PortableServer/RequestProcessingPolicyOperations.java \
+	generated/org/omg/PortableServer/ImplicitActivationPolicyValue.java \
+	generated/org/omg/PortableServer/ServantManagerOperations.java \
+	generated/org/omg/PortableServer/ServantLocatorPOA.java \
+	generated/org/omg/PortableServer/ServantActivatorHelper.java \
+	generated/org/omg/PortableServer/ImplicitActivationPolicy.java \
+	generated/org/omg/PortableServer/SERVANT_RETENTION_POLICY_ID.java \
+	generated/org/omg/PortableServer/REQUEST_PROCESSING_POLICY_ID.java \
+	generated/org/omg/PortableServer/THREAD_POLICY_ID.java \
+	generated/org/omg/PortableServer/Current.java \
+	generated/org/omg/PortableServer/ServantActivatorOperations.java \
+	generated/org/omg/PortableServer/LIFESPAN_POLICY_ID.java \
+	generated/org/omg/PortableServer/POAOperations.java \
+	generated/org/omg/PortableServer/POAManagerPackage/AdapterInactiveHelper.java \
+	generated/org/omg/PortableServer/POAManagerPackage/State.java \
+	generated/org/omg/PortableServer/POAManagerPackage/AdapterInactive.java \
+	generated/org/omg/PortableServer/IdAssignmentPolicyValue.java \
+	generated/org/omg/PortableServer/ThreadPolicyValue.java \
+	generated/org/omg/PortableServer/POA.java \
+	generated/org/omg/PortableServer/ServantLocatorHelper.java \
+	generated/org/omg/PortableServer/RequestProcessingPolicyValue.java \
+	generated/org/omg/PortableServer/ServantActivator.java \
+	generated/org/omg/PortableServer/ID_ASSIGNMENT_POLICY_ID.java \
+	generated/org/omg/PortableServer/ServantActivatorPOA.java \
+	generated/org/omg/PortableServer/RequestProcessingPolicy.java \
+	generated/org/omg/PortableServer/AdapterActivatorOperations.java \
+	generated/org/omg/PortableServer/ThreadPolicyOperations.java \
+	generated/org/omg/PortableServer/ImplicitActivationPolicyOperations.java \
+	generated/org/omg/PortableServer/ServantRetentionPolicyOperations.java \
+	generated/org/omg/PortableServer/POAPackage/AdapterNonExistentHelper.java \
+	generated/org/omg/PortableServer/POAPackage/WrongPolicy.java \
+	generated/org/omg/PortableServer/POAPackage/ObjectAlreadyActiveHelper.java \
+	generated/org/omg/PortableServer/POAPackage/NoServant.java \
+	generated/org/omg/PortableServer/POAPackage/AdapterAlreadyExists.java \
+	generated/org/omg/PortableServer/POAPackage/NoServantHelper.java \
+	generated/org/omg/PortableServer/POAPackage/ObjectAlreadyActive.java \
+	generated/org/omg/PortableServer/POAPackage/AdapterNonExistent.java \
+	generated/org/omg/PortableServer/POAPackage/AdapterAlreadyExistsHelper.java \
+	generated/org/omg/PortableServer/POAPackage/WrongAdapter.java \
+	generated/org/omg/PortableServer/POAPackage/ServantAlreadyActiveHelper.java \
+	generated/org/omg/PortableServer/POAPackage/InvalidPolicyHelper.java \
+	generated/org/omg/PortableServer/POAPackage/ServantNotActiveHelper.java \
+	generated/org/omg/PortableServer/POAPackage/InvalidPolicy.java \
+	generated/org/omg/PortableServer/POAPackage/ServantNotActive.java \
+	generated/org/omg/PortableServer/POAPackage/ObjectNotActiveHelper.java \
+	generated/org/omg/PortableServer/POAPackage/WrongPolicyHelper.java \
+	generated/org/omg/PortableServer/POAPackage/ObjectNotActive.java \
+	generated/org/omg/PortableServer/POAPackage/ServantAlreadyActive.java \
+	generated/org/omg/PortableServer/POAPackage/WrongAdapterHelper.java \
+	generated/org/omg/PortableServer/IMPLICIT_ACTIVATION_POLICY_ID.java \
+	generated/org/omg/PortableServer/IdUniquenessPolicyValue.java \
+	generated/org/omg/PortableServer/POAManagerOperations.java \
+	generated/org/omg/PortableServer/LifespanPolicy.java \
+	generated/org/omg/PortableServer/ID_UNIQUENESS_POLICY_ID.java \
+	generated/org/omg/PortableServer/IdUniquenessPolicyOperations.java \
+	generated/org/omg/PortableServer/ServantLocator.java \
+	generated/org/omg/PortableServer/IdUniquenessPolicy.java \
+	generated/sun/awt/X11/XSelectionEvent.java \
+	generated/sun/awt/X11/XWindowAttributes.java \
+	generated/sun/awt/X11/XGCValues.java \
+	generated/sun/awt/X11/XCreateWindowEvent.java \
+	generated/sun/awt/X11/XMapEvent.java \
+	generated/sun/awt/X11/XdbeSwapInfo.java \
+	generated/sun/awt/X11/XIMCallback.java \
+	generated/sun/awt/X11/XPoint.java \
+	generated/sun/awt/X11/awtImageData.java \
+	generated/sun/awt/X11/XAWTIcon64_java_icon16_png.java \
+	generated/sun/awt/X11/XAWTIcon32_java_icon16_png.java \
+	generated/sun/awt/X11/XColormapEvent.java \
+	generated/sun/awt/X11/XImage.java \
+	generated/sun/awt/X11/XNoExposeEvent.java \
+	generated/sun/awt/X11/Depth.java \
+	generated/sun/awt/X11/XSelectionClearEvent.java \
+	generated/sun/awt/X11/XResizeRequestEvent.java \
+	generated/sun/awt/X11/XIMText.java \
+	generated/sun/awt/X11/XAnyEvent.java \
+	generated/sun/awt/X11/XGraphicsExposeEvent.java \
+	generated/sun/awt/X11/XReparentEvent.java \
+	generated/sun/awt/X11/Screen.java \
+	generated/sun/awt/X11/XmbTextItem.java \
+	generated/sun/awt/X11/XErrorEvent.java \
+	generated/sun/awt/X11/XIMHotKeyTrigger.java \
+	generated/sun/awt/X11/XIMPreeditDrawCallbackStruct.java \
+	generated/sun/awt/X11/XKeyboardControl.java \
+	generated/sun/awt/X11/XPixmapFormatValues.java \
+	generated/sun/awt/X11/XIMStyles.java \
+	generated/sun/awt/X11/ColorEntry.java \
+	generated/sun/awt/X11/XExposeEvent.java \
+	generated/sun/awt/X11/XHostAddress.java \
+	generated/sun/awt/X11/PropMwmHints.java \
+	generated/sun/awt/X11/XCirculateRequestEvent.java \
+	generated/sun/awt/X11/XWindowChanges.java \
+	generated/sun/awt/X11/XwcTextItem.java \
+	generated/sun/awt/X11/XAWTIcon64_java_icon24_png.java \
+	generated/sun/awt/X11/XAWTIcon32_java_icon24_png.java \
+	generated/sun/awt/X11/XMotionEvent.java \
+	generated/sun/awt/X11/ScreenFormat.java \
+	generated/sun/awt/X11/XVisualInfo.java \
+	generated/sun/awt/X11/XOMCharSetList.java \
+	generated/sun/awt/X11/XIMValuesList.java \
+	generated/sun/awt/X11/XStandardColormap.java \
+	generated/sun/awt/X11/XVisibilityEvent.java \
+	generated/sun/awt/X11/XCrossingEvent.java \
+	generated/sun/awt/X11/XButtonEvent.java \
+	generated/sun/awt/X11/AwtGraphicsConfigData.java \
+	generated/sun/awt/X11/XComposeStatus.java \
+	generated/sun/awt/X11/XModifierKeymap.java \
+	generated/sun/awt/X11/XCharStruct.java \
+	generated/sun/awt/X11/XIMPreeditCaretCallbackStruct.java \
+	generated/sun/awt/X11/generator/sizer.32.c \
+	generated/sun/awt/X11/generator/sizer.64.c \
+	generated/sun/awt/X11/generator/sizer.32 \
+	generated/sun/awt/X11/generator/sizer.64 \
+	generated/sun/awt/X11/generator/sizes.32 \
+	generated/sun/awt/X11/generator/sizes.64 \
+	generated/sun/awt/X11/AwtScreenData.java \
+	generated/sun/awt/X11/XDestroyWindowEvent.java \
+	generated/sun/awt/X11/XChar2b.java \
+	generated/sun/awt/X11/Visual.java \
+	generated/sun/awt/X11/XMapRequestEvent.java \
+	generated/sun/awt/X11/XOMOrientation.java \
+	generated/sun/awt/X11/ColorData.java \
+	generated/sun/awt/X11/XUnmapEvent.java \
+	generated/sun/awt/X11/XRectangle.java \
+	generated/sun/awt/X11/XAWTIcon64_java_icon32_png.java \
+	generated/sun/awt/X11/XExtCodes.java \
+	generated/sun/awt/X11/XAWTIcon32_java_icon32_png.java \
+	generated/sun/awt/X11/XIMHotKeyTriggers.java \
+	generated/sun/awt/X11/XFontStruct.java \
+	generated/sun/awt/X11/XConfigureRequestEvent.java \
+	generated/sun/awt/X11/XKeyEvent.java \
+	generated/sun/awt/X11/XColor.java \
+	generated/sun/awt/X11/XFontProp.java \
+	generated/sun/awt/X11/XArc.java \
+	generated/sun/awt/X11/XFocusChangeEvent.java \
+	generated/sun/awt/X11/XKeymapEvent.java \
+	generated/sun/awt/X11/XClientMessageEvent.java \
+	generated/sun/awt/X11/XExtData.java \
+	generated/sun/awt/X11/XConfigureEvent.java \
+	generated/sun/awt/X11/XKeyboardState.java \
+	generated/sun/awt/X11/XGravityEvent.java \
+	generated/sun/awt/X11/XOMFontInfo.java \
+	generated/sun/awt/X11/XSizeHints.java \
+	generated/sun/awt/X11/XTextItem.java \
+	generated/sun/awt/X11/XAWTIcon64_java_icon48_png.java \
+	generated/sun/awt/X11/XAWTIcon32_java_icon48_png.java \
+	generated/sun/awt/X11/XSegment.java \
+	generated/sun/awt/X11/XIMStringConversionText.java \
+	generated/sun/awt/X11/XMappingEvent.java \
+	generated/sun/awt/X11/XTimeCoord.java \
+	generated/sun/awt/X11/XIMStringConversionCallbackStruct.java \
+	generated/sun/awt/X11/XTextItem16.java \
+	generated/sun/awt/X11/XIMPreeditStateNotifyCallbackStruct.java \
+	generated/sun/awt/X11/XClassHint.java \
+	generated/sun/awt/X11/XTextProperty.java \
+	generated/sun/awt/X11/XIconSize.java \
+	generated/sun/awt/X11/XFontSetExtents.java \
+	generated/sun/awt/X11/XSetWindowAttributes.java \
+	generated/sun/awt/X11/XPropertyEvent.java \
+	generated/sun/awt/X11/XEvent.java \
+	generated/sun/awt/X11/XSelectionRequestEvent.java \
+	generated/sun/awt/X11/XIMStatusDrawCallbackStruct.java \
+	generated/sun/awt/X11/XWMHints.java \
+	generated/sun/awt/X11/XCirculateEvent.java \
+	generated/sun/awt/resources/awt_sv.java \
+	generated/sun/awt/resources/awt_fr.java \
+	generated/sun/awt/resources/awt.java \
+	generated/sun/awt/resources/awt_ja.java \
+	generated/sun/awt/resources/awt_zh_TW.java \
+	generated/sun/awt/resources/awt_it.java \
+	generated/sun/awt/resources/awt_zh_HK.java \
+	generated/sun/awt/resources/awt_de.java \
+	generated/sun/awt/resources/awt_ko.java \
+	generated/sun/awt/resources/awt_zh_CN.java \
+	generated/sun/awt/resources/awt_es.java \
+	generated/sun/nio/ch/SocketOptionRegistry.java \
+	generated/sun/nio/ch/AlreadyBoundException.java \
+	generated/sun/nio/cs/StandardCharsets.java \
+	generated/sun/misc/Version.java \
+	generated/sun/util/LocaleDataMetaInfo.java \
+	generated/sun/util/logging/resources/logging_de.java \
+	generated/sun/util/logging/resources/logging_ko.java \
+	generated/sun/util/logging/resources/logging_es.java \
+	generated/sun/util/logging/resources/logging_sv.java \
+	generated/sun/util/logging/resources/logging_fr.java \
+	generated/sun/util/logging/resources/logging_zh_TW.java \
+	generated/sun/util/logging/resources/logging_zh_HK.java \
+	generated/sun/util/logging/resources/logging_ja.java \
+	generated/sun/util/logging/resources/logging_zh_CN.java \
+	generated/sun/util/logging/resources/logging.java \
+	generated/sun/util/logging/resources/logging_it.java \
+	generated/sun/util/CoreResourceBundleControl.java \
+	generated/sun/util/resources/CurrencyNames_es_SV.java \
+	generated/sun/util/resources/LocaleNames_ca.java \
+	generated/sun/util/resources/LocaleNames_ja.java \
+	generated/sun/util/resources/CalendarData_cs.java \
+	generated/sun/util/resources/CurrencyNames_ar_JO.java \
+	generated/sun/util/resources/CurrencyNames_no_NO.java \
+	generated/sun/util/resources/CurrencyNames_sv_SE.java \
+	generated/sun/util/resources/LocaleNames_pl.java \
+	generated/sun/util/resources/LocaleNames_in.java \
+	generated/sun/util/resources/CurrencyNames_en_GB.java \
+	generated/sun/util/resources/CurrencyNames_it_CH.java \
+	generated/sun/util/resources/CurrencyNames_de_AT.java \
+	generated/sun/util/resources/CurrencyNames_fr_CA.java \
+	generated/sun/util/resources/CurrencyNames_it_IT.java \
+	generated/sun/util/resources/CurrencyNames_ar_YE.java \
+	generated/sun/util/resources/CurrencyNames_es_NI.java \
+	generated/sun/util/resources/CurrencyNames_da_DK.java \
+	generated/sun/util/resources/CurrencyNames_ca_ES.java \
+	generated/sun/util/resources/LocaleNames_el_CY.java \
+	generated/sun/util/resources/LocaleNames_is.java \
+	generated/sun/util/resources/CurrencyNames_zh_TW.java \
+	generated/sun/util/resources/CurrencyNames_el_GR.java \
+	generated/sun/util/resources/LocaleNames_it.java \
+	generated/sun/util/resources/CalendarData_ko.java \
+	generated/sun/util/resources/CurrencyNames_ja.java \
+	generated/sun/util/resources/LocaleNames_da.java \
+	generated/sun/util/resources/CurrencyNames_es_MX.java \
+	generated/sun/util/resources/CurrencyNames_ar_LB.java \
+	generated/sun/util/resources/LocaleNames_pt.java \
+	generated/sun/util/resources/CurrencyNames_ms_MY.java \
+	generated/sun/util/resources/CurrencyNames_en_MT.java \
+	generated/sun/util/resources/CurrencyNames_ar_SA.java \
+	generated/sun/util/resources/CalendarData_ro.java \
+	generated/sun/util/resources/LocaleNames_iw.java \
+	generated/sun/util/resources/CurrencyNames_fr_CH.java \
+	generated/sun/util/resources/CurrencyNames_pl_PL.java \
+	generated/sun/util/resources/CurrencyNames_de_CH.java \
+	generated/sun/util/resources/CurrencyNames_ar_EG.java \
+	generated/sun/util/resources/CurrencyNames_ar_SD.java \
+	generated/sun/util/resources/LocaleNames_de.java \
+	generated/sun/util/resources/CalendarData_el_CY.java \
+	generated/sun/util/resources/CurrencyNames_es_VE.java \
+	generated/sun/util/resources/CurrencyNames_es_GT.java \
+	generated/sun/util/resources/CurrencyNames_cs_CZ.java \
+	generated/sun/util/resources/CalendarData_el.java \
+	generated/sun/util/resources/CalendarData_mt_MT.java \
+	generated/sun/util/resources/CalendarData_zh.java \
+	generated/sun/util/resources/LocaleNames_zh_SG.java \
+	generated/sun/util/resources/CurrencyNames_sr_BA.java \
+	generated/sun/util/resources/LocaleNames_cs.java \
+	generated/sun/util/resources/CalendarData_ru.java \
+	generated/sun/util/resources/CurrencyNames_it.java \
+	generated/sun/util/resources/CalendarData_en.java \
+	generated/sun/util/resources/CurrencyNames_es_US.java \
+	generated/sun/util/resources/CalendarData_sk.java \
+	generated/sun/util/resources/CurrencyNames_lt_LT.java \
+	generated/sun/util/resources/CurrencyNames_hu_HU.java \
+	generated/sun/util/resources/CalendarData_sl.java \
+	generated/sun/util/resources/CurrencyNames_ar_MA.java \
+	generated/sun/util/resources/CurrencyNames_ar_KW.java \
+	generated/sun/util/resources/CurrencyNames_es_PA.java \
+	generated/sun/util/resources/CurrencyNames_es_HN.java \
+	generated/sun/util/resources/CurrencyNames_de_DE.java \
+	generated/sun/util/resources/CurrencyNames_ru_RU.java \
+	generated/sun/util/resources/CurrencyNames_nl_NL.java \
+	generated/sun/util/resources/CurrencyNames_et_EE.java \
+	generated/sun/util/resources/CurrencyNames_ar_DZ.java \
+	generated/sun/util/resources/CurrencyNames_en_US.java \
+	generated/sun/util/resources/CurrencyNames_sl_SI.java \
+	generated/sun/util/resources/CalendarData_es.java \
+	generated/sun/util/resources/CurrencyNames_de.java \
+	generated/sun/util/resources/CurrencyNames_mk_MK.java \
+	generated/sun/util/resources/CurrencyNames_es_AR.java \
+	generated/sun/util/resources/LocaleNames_pt_BR.java \
+	generated/sun/util/resources/CalendarData_fi.java \
+	generated/sun/util/resources/CalendarData_et.java \
+	generated/sun/util/resources/CurrencyNames_es_UY.java \
+	generated/sun/util/resources/CalendarData_sq.java \
+	generated/sun/util/resources/LocaleNames_en_SG.java \
+	generated/sun/util/resources/CurrencyNames_tr_TR.java \
+	generated/sun/util/resources/CurrencyNames_es_PE.java \
+	generated/sun/util/resources/CalendarData_sr.java \
+	generated/sun/util/resources/CalendarData_lt.java \
+	generated/sun/util/resources/LocaleNames_ko.java \
+	generated/sun/util/resources/CalendarData_th.java \
+	generated/sun/util/resources/CurrencyNames_in_ID.java \
+	generated/sun/util/resources/CalendarData_mk.java \
+	generated/sun/util/resources/LocaleNames_ro.java \
+	generated/sun/util/resources/CalendarData_lv.java \
+	generated/sun/util/resources/CurrencyNames_en_IE.java \
+	generated/sun/util/resources/CurrencyNames_en_NZ.java \
+	generated/sun/util/resources/LocaleNames_pt_PT.java \
+	generated/sun/util/resources/CalendarData_sv.java \
+	generated/sun/util/resources/CurrencyNames_hi_IN.java \
+	generated/sun/util/resources/CurrencyNames_fi_FI.java \
+	generated/sun/util/resources/CurrencyNames.java \
+	generated/sun/util/resources/CurrencyNames_lv_LV.java \
+	generated/sun/util/resources/CurrencyNames_th_TH.java \
+	generated/sun/util/resources/CurrencyNames_en_AU.java \
+	generated/sun/util/resources/CurrencyNames_es_BO.java \
+	generated/sun/util/resources/CurrencyNames_uk_UA.java \
+	generated/sun/util/resources/LocaleNames_el.java \
+	generated/sun/util/resources/CurrencyNames_en_PH.java \
+	generated/sun/util/resources/LocaleNames_zh.java \
+	generated/sun/util/resources/CalendarData_fr.java \
+	generated/sun/util/resources/CurrencyNames_ar_LY.java \
+	generated/sun/util/resources/CurrencyNames_en_CA.java \
+	generated/sun/util/resources/LocaleNames_ru.java \
+	generated/sun/util/resources/LocaleNames_en.java \
+	generated/sun/util/resources/CurrencyNames_nl_BE.java \
+	generated/sun/util/resources/LocaleNames_sk.java \
+	generated/sun/util/resources/CurrencyNames_ko.java \
+	generated/sun/util/resources/CurrencyNames_ar_TN.java \
+	generated/sun/util/resources/CurrencyNames_ar_SY.java \
+	generated/sun/util/resources/LocaleNames_sl.java \
+	generated/sun/util/resources/CurrencyNames_ga_IE.java \
+	generated/sun/util/resources/CalendarData_tr.java \
+	generated/sun/util/resources/CalendarData_mt.java \
+	generated/sun/util/resources/CalendarData_es_ES.java \
+	generated/sun/util/resources/CurrencyNames_en_IN.java \
+	generated/sun/util/resources/CurrencyNames_is_IS.java \
+	generated/sun/util/resources/CalendarData_pt_PT.java \
+	generated/sun/util/resources/CurrencyNames_es_PR.java \
+	generated/sun/util/resources/CurrencyNames_zh_CN.java \
+	generated/sun/util/resources/CurrencyNames_hr_HR.java \
+	generated/sun/util/resources/CurrencyNames_ja_JP.java \
+	generated/sun/util/resources/LocaleNames_es.java \
+	generated/sun/util/resources/CalendarData_nl.java \
+	generated/sun/util/resources/CurrencyNames_es_CL.java \
+	generated/sun/util/resources/LocaleNames_fi.java \
+	generated/sun/util/resources/CalendarData_uk.java \
+	generated/sun/util/resources/LocaleNames_et.java \
+	generated/sun/util/resources/LocaleNames_sq.java \
+	generated/sun/util/resources/LocaleNames_sr.java \
+	generated/sun/util/resources/LocaleNames_lt.java \
+	generated/sun/util/resources/CalendarData_no.java \
+	generated/sun/util/resources/LocaleNames_th.java \
+	generated/sun/util/resources/CurrencyNames_es_CO.java \
+	generated/sun/util/resources/LocaleNames_ga.java \
+	generated/sun/util/resources/LocaleNames_mk.java \
+	generated/sun/util/resources/LocaleNames_lv.java \
+	generated/sun/util/resources/LocaleNames_zh_TW.java \
+	generated/sun/util/resources/CurrencyNames_ar_AE.java \
+	generated/sun/util/resources/CurrencyNames_es_PY.java \
+	generated/sun/util/resources/LocaleNames_sv.java \
+	generated/sun/util/resources/CurrencyNames_es_CR.java \
+	generated/sun/util/resources/CalendarData_en_GB.java \
+	generated/sun/util/resources/CalendarData_hi.java \
+	generated/sun/util/resources/CurrencyNames_sr_CS.java \
+	generated/sun/util/resources/LocaleNames_en_MT.java \
+	generated/sun/util/resources/CurrencyNames_el_CY.java \
+	generated/sun/util/resources/CurrencyNames_fr_LU.java \
+	generated/sun/util/resources/CalendarData_fr_CA.java \
+	generated/sun/util/resources/CurrencyNames_es.java \
+	generated/sun/util/resources/CurrencyNames_mt_MT.java \
+	generated/sun/util/resources/CalendarData_vi.java \
+	generated/sun/util/resources/LocaleNames_fr.java \
+	generated/sun/util/resources/CurrencyNames_de_LU.java \
+	generated/sun/util/resources/CurrencyNames_bg_BG.java \
+	generated/sun/util/resources/CurrencyNames_sq_AL.java \
+	generated/sun/util/resources/CurrencyNames_iw_IL.java \
+	generated/sun/util/resources/LocaleNames_ms.java \
+	generated/sun/util/resources/CalendarData.java \
+	generated/sun/util/resources/CalendarData_be.java \
+	generated/sun/util/resources/LocaleNames_tr.java \
+	generated/sun/util/resources/LocaleNames_mt.java \
+	generated/sun/util/resources/CurrencyNames_ro_RO.java \
+	generated/sun/util/resources/CurrencyNames_es_EC.java \
+	generated/sun/util/resources/CurrencyNames_es_DO.java \
+	generated/sun/util/resources/CalendarData_bg.java \
+	generated/sun/util/resources/LocaleNames_es_US.java \
+	generated/sun/util/resources/CalendarData_ar.java \
+	generated/sun/util/resources/CalendarData_ms_MY.java \
+	generated/sun/util/resources/CurrencyNames_ar_OM.java \
+	generated/sun/util/resources/CalendarData_en_MT.java \
+	generated/sun/util/resources/CurrencyNames_fr_FR.java \
+	generated/sun/util/resources/CurrencyNames_sv.java \
+	generated/sun/util/resources/CalendarData_hr.java \
+	generated/sun/util/resources/LocaleNames_nl.java \
+	generated/sun/util/resources/LocaleNames_uk.java \
+	generated/sun/util/resources/CurrencyNames_be_BY.java \
+	generated/sun/util/resources/CurrencyNames_ar_BH.java \
+	generated/sun/util/resources/CurrencyNames_sk_SK.java \
+	generated/sun/util/resources/CalendarData_hu.java \
+	generated/sun/util/resources/LocaleNames_no.java \
+	generated/sun/util/resources/CurrencyNames_fr.java \
+	generated/sun/util/resources/CalendarData_ca.java \
+	generated/sun/util/resources/CurrencyNames_en_ZA.java \
+	generated/sun/util/resources/CalendarData_ja.java \
+	generated/sun/util/resources/CalendarData_es_US.java \
+	generated/sun/util/resources/CalendarData_pl.java \
+	generated/sun/util/resources/LocaleNames_hi.java \
+	generated/sun/util/resources/LocaleNames.java \
+	generated/sun/util/resources/CurrencyNames_pt_BR.java \
+	generated/sun/util/resources/CurrencyNames_vi_VN.java \
+	generated/sun/util/resources/CurrencyNames_en_SG.java \
+	generated/sun/util/resources/CurrencyNames_ar_QA.java \
+	generated/sun/util/resources/LocaleNames_vi.java \
+	generated/sun/util/resources/CurrencyNames_sr_ME.java \
+	generated/sun/util/resources/CurrencyNames_de_GR.java \
+	generated/sun/util/resources/CalendarData_is.java \
+	generated/sun/util/resources/CurrencyNames_ko_KR.java \
+	generated/sun/util/resources/LocaleNames_be.java \
+	generated/sun/util/resources/CurrencyNames_ar_IQ.java \
+	generated/sun/util/resources/CalendarData_it.java \
+	generated/sun/util/resources/LocaleNames_en_PH.java \
+	generated/sun/util/resources/CurrencyNames_es_ES.java \
+	generated/sun/util/resources/CurrencyNames_pt_PT.java \
+	generated/sun/util/resources/CalendarData_in_ID.java \
+	generated/sun/util/resources/CalendarData_da.java \
+	generated/sun/util/resources/LocaleNames_bg.java \
+	generated/sun/util/resources/LocaleNames_ar.java \
+	generated/sun/util/resources/CalendarData_pt.java \
+	generated/sun/util/resources/CalendarData_en_IE.java \
+	generated/sun/util/resources/CalendarData_iw.java \
+	generated/sun/util/resources/LocaleNames_hr.java \
+	generated/sun/util/resources/CurrencyNames_fr_BE.java \
+	generated/sun/util/resources/CalendarData_de.java \
+	generated/sun/util/resources/LocaleNames_hu.java \
+	generated/sun/print/resources/serviceui_fr.java \
+	generated/sun/print/resources/serviceui_zh_CN.java \
+	generated/sun/print/resources/serviceui.java \
+	generated/sun/print/resources/serviceui_ja.java \
+	generated/sun/print/resources/serviceui_it.java \
+	generated/sun/print/resources/serviceui_de.java \
+	generated/sun/print/resources/serviceui_ko.java \
+	generated/sun/print/resources/serviceui_zh_TW.java \
+	generated/sun/print/resources/serviceui_zh_HK.java \
+	generated/sun/print/resources/serviceui_es.java \
+	generated/sun/print/resources/serviceui_sv.java \
+	generated/sun/tools/jar/resources/jar_sv.java \
+	generated/sun/tools/jar/resources/jar_zh_CN.java \
+	generated/sun/tools/jar/resources/jar_fr.java \
+	generated/sun/tools/jar/resources/jar_ja.java \
+	generated/sun/tools/jar/resources/jar_it.java \
+	generated/sun/tools/jar/resources/jar_de.java \
+	generated/sun/tools/jar/resources/jar.java \
+	generated/sun/tools/jar/resources/jar_zh_TW.java \
+	generated/sun/tools/jar/resources/jar_zh_HK.java \
+	generated/sun/tools/jar/resources/jar_ko.java \
+	generated/sun/tools/jar/resources/jar_es.java \
+	generated/sun/tools/jconsole/Version.java \
+	generated/sun/management/resources/agent_it.java \
+	generated/sun/management/resources/agent_de.java \
+	generated/sun/management/resources/agent_zh_CN.java \
+	generated/sun/management/resources/agent.java \
+	generated/sun/management/resources/agent_ko.java \
+	generated/sun/management/resources/agent_es.java \
+	generated/sun/management/resources/agent_sv.java \
+	generated/sun/management/resources/agent_fr.java \
+	generated/sun/management/resources/agent_zh_TW.java \
+	generated/sun/management/resources/agent_zh_HK.java \
+	generated/sun/management/resources/agent_ja.java \
+	generated/java/nio/HeapCharBufferR.java \
+	generated/java/nio/DirectCharBufferS.java \
+	generated/java/nio/ByteBufferAsDoubleBufferRB.java \
+	generated/java/nio/DirectCharBufferU.java \
+	generated/java/nio/ByteBufferAsShortBufferL.java \
+	generated/java/nio/HeapByteBuffer.java \
+	generated/java/nio/HeapCharBuffer.java \
+	generated/java/nio/FloatBuffer.java \
+	generated/java/nio/ByteBufferAsDoubleBufferRL.java \
+	generated/java/nio/ReadOnlyBufferException.java \
+	generated/java/nio/DirectDoubleBufferRS.java \
+	generated/java/nio/DirectIntBufferS.java \
+	generated/java/nio/DirectDoubleBufferRU.java \
+	generated/java/nio/DirectIntBufferU.java \
+	generated/java/nio/InvalidMarkException.java \
+	generated/java/nio/channels/NonWritableChannelException.java \
+	generated/java/nio/channels/AsynchronousCloseException.java \
+	generated/java/nio/channels/ConnectionPendingException.java \
+	generated/java/nio/channels/AlreadyConnectedException.java \
+	generated/java/nio/channels/FileLockInterruptionException.java \
+	generated/java/nio/channels/ClosedSelectorException.java \
+	generated/java/nio/channels/UnresolvedAddressException.java \
+	generated/java/nio/channels/NotYetBoundException.java \
+	generated/java/nio/channels/IllegalBlockingModeException.java \
+	generated/java/nio/channels/UnsupportedAddressTypeException.java \
+	generated/java/nio/channels/NotYetConnectedException.java \
+	generated/java/nio/channels/AlreadyBoundException.java \
+	generated/java/nio/channels/NonReadableChannelException.java \
+	generated/java/nio/channels/CancelledKeyException.java \
+	generated/java/nio/channels/NoConnectionPendingException.java \
+	generated/java/nio/channels/ClosedChannelException.java \
+	generated/java/nio/channels/IllegalSelectorException.java \
+	generated/java/nio/channels/OverlappingFileLockException.java \
+	generated/java/nio/channels/ClosedByInterruptException.java \
+	generated/java/nio/ByteBuffer.java \
+	generated/java/nio/HeapLongBuffer.java \
+	generated/java/nio/DirectCharBufferRS.java \
+	generated/java/nio/HeapDoubleBufferR.java \
+	generated/java/nio/CharBuffer.java \
+	generated/java/nio/DirectCharBufferRU.java \
+	generated/java/nio/HeapDoubleBuffer.java \
+	generated/java/nio/ByteBufferAsIntBufferRB.java \
+	generated/java/nio/DirectFloatBufferS.java \
+	generated/java/nio/DirectFloatBufferU.java \
+	generated/java/nio/ByteBufferAsCharBufferRB.java \
+	generated/java/nio/DirectByteBufferR.java \
+	generated/java/nio/HeapIntBuffer.java \
+	generated/java/nio/HeapByteBufferR.java \
+	generated/java/nio/ByteBufferAsFloatBufferRB.java \
+	generated/java/nio/IntBuffer.java \
+	generated/java/nio/ByteBufferAsShortBufferRB.java \
+	generated/java/nio/ByteBufferAsIntBufferRL.java \
+	generated/java/nio/LongBuffer.java \
+	generated/java/nio/DirectLongBufferRS.java \
+	generated/java/nio/HeapFloatBufferR.java \
+	generated/java/nio/ByteBufferAsFloatBufferB.java \
+	generated/java/nio/DirectLongBufferRU.java \
+	generated/java/nio/DirectIntBufferRS.java \
+	generated/java/nio/HeapShortBuffer.java \
+	generated/java/nio/ByteBufferAsDoubleBufferB.java \
+	generated/java/nio/ByteBufferAsCharBufferRL.java \
+	generated/java/nio/DirectIntBufferRU.java \
+	generated/java/nio/ByteBufferAsFloatBufferRL.java \
+	generated/java/nio/DirectByteBuffer.java \
+	generated/java/nio/ByteBufferAsShortBufferRL.java \
+	generated/java/nio/HeapIntBufferR.java \
+	generated/java/nio/ByteBufferAsLongBufferRB.java \
+	generated/java/nio/BufferUnderflowException.java \
+	generated/java/nio/ByteBufferAsFloatBufferL.java \
+	generated/java/nio/ByteBufferAsIntBufferB.java \
+	generated/java/nio/ByteBufferAsDoubleBufferL.java \
+	generated/java/nio/ByteBufferAsLongBufferB.java \
+	generated/java/nio/DirectShortBufferS.java \
+	generated/java/nio/ByteBufferAsLongBufferRL.java \
+	generated/java/nio/DirectFloatBufferRS.java \
+	generated/java/nio/DirectShortBufferU.java \
+	generated/java/nio/ByteBufferAsCharBufferB.java \
+	generated/java/nio/ShortBuffer.java \
+	generated/java/nio/DirectFloatBufferRU.java \
+	generated/java/nio/DirectShortBufferRS.java \
+	generated/java/nio/ByteBufferAsIntBufferL.java \
+	generated/java/nio/DirectShortBufferRU.java \
+	generated/java/nio/DoubleBuffer.java \
+	generated/java/nio/ByteBufferAsLongBufferL.java \
+	generated/java/nio/BufferOverflowException.java \
+	generated/java/nio/HeapShortBufferR.java \
+	generated/java/nio/DirectDoubleBufferS.java \
+	generated/java/nio/ByteBufferAsShortBufferB.java \
+	generated/java/nio/HeapFloatBuffer.java \
+	generated/java/nio/DirectDoubleBufferU.java \
+	generated/java/nio/HeapLongBufferR.java \
+	generated/java/nio/DirectLongBufferS.java \
+	generated/java/nio/charset/CharsetDecoder.java \
+	generated/java/nio/charset/IllegalCharsetNameException.java \
+	generated/java/nio/charset/CharacterCodingException.java \
+	generated/java/nio/charset/CharsetEncoder.java \
+	generated/java/nio/charset/UnsupportedCharsetException.java \
+	generated/java/nio/ByteBufferAsCharBufferL.java \
+	generated/java/nio/DirectLongBufferU.java \
+	generated/java/lang/CharacterData00.java \
+	generated/java/lang/CharacterData01.java \
+	generated/java/lang/CharacterData02.java \
+	generated/java/lang/CharacterDataUndefined.java \
+	generated/java/lang/CharacterData0E.java \
+	generated/java/lang/CharacterDataPrivateUse.java \
+	generated/java/lang/CharacterDataLatin1.java \
+	generated/java/lang/UNIXProcess.java \
+	generated/java/util/CurrencyData.java \
+	generated/javax/management/remote/rmi/RMIConnectionImpl_Stub.java \
+	generated/javax/management/remote/rmi/RMIServerImpl_Stub.java \
+	generated/fontconfig/fontconfig.Fedora.bfc \
+	generated/fontconfig/fontconfig.SuSE.bfc \
+	generated/fontconfig/fontconfig.Ubuntu.bfc \
+	generated/fontconfig/fontconfig.bfc
+
+JTREG_SRCS = $(top_srcdir)/test/jtreg/com/sun/javatest/cof/i18n.properties \
+	$(top_srcdir)/test/jtreg/com/sun/javatest/cof/COF2_0_2.xsd \
+	$(top_srcdir)/test/jtreg/com/sun/javatest/cof/*.java \
+	$(top_srcdir)/test/jtreg/com/sun/javatest/lib/*.java \
+	$(top_srcdir)/test/jtreg/com/sun/javatest/diff/*.java \
+	$(top_srcdir)/test/jtreg/com/sun/javatest/diff/i18n.properties \
+	$(top_srcdir)/test/jtreg/com/sun/javatest/exec/*.java \
+	$(top_srcdir)/test/jtreg/com/sun/javatest/exec/i18n.properties \
+	$(top_srcdir)/test/jtreg/com/sun/javatest/exec/images/*.gif \
+	$(top_srcdir)/test/jtreg/com/sun/javatest/mrep/i18n.properties \
+	$(top_srcdir)/test/jtreg/com/sun/javatest/mrep/*.java \
+	$(top_srcdir)/test/jtreg/com/sun/javatest/mrep/images/dotdotdot.gif \
+	$(top_srcdir)/test/jtreg/com/sun/javatest/mrep/images/Forward16.gif \
+	$(top_srcdir)/test/jtreg/com/sun/javatest/mrep/images/Back16.gif \
+	$(top_srcdir)/test/jtreg/com/sun/javatest/mrep/images/Home16.gif \
+	$(top_srcdir)/test/jtreg/com/sun/javatest/tool/*.java \
+	$(top_srcdir)/test/jtreg/com/sun/javatest/tool/i18n.properties \
+	$(top_srcdir)/test/jtreg/com/sun/javatest/tool/images/*.gif \
+	$(top_srcdir)/test/jtreg/com/sun/javatest/tool/package.html \
+	$(top_srcdir)/test/jtreg/com/sun/javatest/util/*.java \
+	$(top_srcdir)/test/jtreg/com/sun/javatest/util/i18n.properties \
+	$(top_srcdir)/test/jtreg/com/sun/javatest/util/package.html \
+	$(top_srcdir)/test/jtreg/com/sun/javatest/*.java \
+	$(top_srcdir)/test/jtreg/com/sun/javatest/i18n.properties \
+	$(top_srcdir)/test/jtreg/com/sun/javatest/regtest/*.java \
+	$(top_srcdir)/test/jtreg/com/sun/javatest/regtest/i18n.properties \
+	$(top_srcdir)/test/jtreg/com/sun/javatest/agent/*.java \
+	$(top_srcdir)/test/jtreg/com/sun/javatest/agent/i18n.properties \
+	$(top_srcdir)/test/jtreg/com/sun/javatest/agent/jticon.gif \
+	$(top_srcdir)/test/jtreg/com/sun/javatest/agent/package.html \
+	$(top_srcdir)/test/jtreg/com/sun/javatest/batch/i18n.properties \
+	$(top_srcdir)/test/jtreg/com/sun/javatest/batch/*.java \
+	$(top_srcdir)/test/jtreg/com/sun/javatest/batch/package.html \
+	$(top_srcdir)/test/jtreg/com/sun/javatest/audit/i18n.properties \
+	$(top_srcdir)/test/jtreg/com/sun/javatest/audit/*.java \
+	$(top_srcdir)/test/jtreg/com/sun/javatest/audit/images/dotdotdot.gif \
+	$(top_srcdir)/test/jtreg/com/sun/javatest/audit/package.html \
+	$(top_srcdir)/test/jtreg/com/sun/javatest/httpd/*.java \
+	$(top_srcdir)/test/jtreg/com/sun/javatest/httpd/i18n.properties \
+	$(top_srcdir)/test/jtreg/com/sun/javatest/stylesheet.css \
+	$(top_srcdir)/test/jtreg/com/sun/javatest/logging/i18n.properties \
+	$(top_srcdir)/test/jtreg/com/sun/javatest/logging/*.java \
+	$(top_srcdir)/test/jtreg/com/sun/javatest/finder/i18n.properties \
+	$(top_srcdir)/test/jtreg/com/sun/javatest/finder/*.java \
+	$(top_srcdir)/test/jtreg/com/sun/javatest/finder/package.html \
+	$(top_srcdir)/test/jtreg/com/sun/javatest/report/i18n.properties \
+	$(top_srcdir)/test/jtreg/com/sun/javatest/report/package.html \
+	$(top_srcdir)/test/jtreg/com/sun/javatest/report/*.java \
+	$(top_srcdir)/test/jtreg/com/sun/javatest/interview/i18n.properties \
+	$(top_srcdir)/test/jtreg/com/sun/javatest/interview/*.java \
+	$(top_srcdir)/test/jtreg/com/sun/javatest/interview/package.html \
+	$(top_srcdir)/test/jtreg/com/sun/javatest/package.html \
+	$(top_srcdir)/test/jtreg/com/sun/interview/i18n.properties \
+	$(top_srcdir)/test/jtreg/com/sun/interview/*.java \
+	$(top_srcdir)/test/jtreg/com/sun/interview/wizard/*.java \
+	$(top_srcdir)/test/jtreg/com/sun/interview/wizard/i18n.properties \
+	$(top_srcdir)/test/jtreg/com/sun/interview/wizard/done.gif \
+	$(top_srcdir)/test/jtreg/com/sun/interview/wizard/blank.gif \
+	$(top_srcdir)/test/jtreg/com/sun/interview/wizard/history.gif \
+	$(top_srcdir)/test/jtreg/com/sun/interview/wizard/find.gif \
+	$(top_srcdir)/test/jtreg/com/sun/interview/wizard/check.gif \
+	$(top_srcdir)/test/jtreg/com/sun/interview/wizard/arrow.gif \
+	$(top_srcdir)/test/jtreg/com/sun/interview/wizard/back.gif \
+	$(top_srcdir)/test/jtreg/com/sun/interview/wizard/next.gif \
+	$(top_srcdir)/test/jtreg/com/sun/interview/wizard/info.gif \
+	$(top_srcdir)/test/jtreg/com/sun/interview/wizard/package.html \
+	$(top_srcdir)/test/jtreg/com/sun/interview/wizard/cancel.gif \
+	$(top_srcdir)/test/jtreg/com/sun/interview/package.html \
+	$(top_srcdir)/test/jtreg/JavaTest.toolMgrs.lst \
+	$(top_srcdir)/test/jtreg/legal/license.txt \
+	$(top_srcdir)/test/jtreg/legal/copyright.txt \
+	$(top_srcdir)/test/jtreg/README \
+	$(top_srcdir)/test/jtreg/META-INF/MANIFEST.MF \
+	$(top_srcdir)/test/jtreg/excludelist.jdk.jtx \
+	$(top_srcdir)/test/jtreg/JavaTest.cmdMgrs.lst \
+	$(top_srcdir)/test/jtreg/excludelist.langtools.jtx 
+
+PULSEAUDIO_SRCS = $(top_srcdir)/pulseaudio/src/java/org/classpath/icedtea/pulseaudio/*.java \
+	$(top_srcdir)/pulseaudio/src/java/META-INF/services/javax.sound.sampled.spi.MixerProvider \
+	$(top_srcdir)/pulseaudio/src/native/org_classpath_icedtea_pulseaudio_Stream_UnderflowListener.h \
+	$(top_srcdir)/pulseaudio/src/native/org_classpath_icedtea_pulseaudio_Stream_PlaybackStartedListener.h \
+	$(top_srcdir)/pulseaudio/src/native/org_classpath_icedtea_pulseaudio_Stream_OverflowListener.h \
+	$(top_srcdir)/pulseaudio/src/native/org_classpath_icedtea_pulseaudio_Stream_StateListener.h \
+	$(top_srcdir)/pulseaudio/src/native/org_classpath_icedtea_pulseaudio_PulseAudioSourcePort.c \
+	$(top_srcdir)/pulseaudio/src/native/org_classpath_icedtea_pulseaudio_PulseAudioSourcePort.h \
+	$(top_srcdir)/pulseaudio/src/native/org_classpath_icedtea_pulseaudio_Stream_MovedListener.h \
+	$(top_srcdir)/pulseaudio/src/native/org_classpath_icedtea_pulseaudio_PulseAudioTargetPort.c \
+	$(top_srcdir)/pulseaudio/src/native/org_classpath_icedtea_pulseaudio_PulseAudioTargetPort.h \
+	$(top_srcdir)/pulseaudio/src/native/org_classpath_icedtea_pulseaudio_Stream_WriteListener.h \
+	$(top_srcdir)/pulseaudio/src/native/org_classpath_icedtea_pulseaudio_Stream_ReadListener.h \
+	$(top_srcdir)/pulseaudio/src/native/org_classpath_icedtea_pulseaudio_Stream_State.h \
+	$(top_srcdir)/pulseaudio/src/native/org_classpath_icedtea_pulseaudio_Stream_CorkListener.h \
+	$(top_srcdir)/pulseaudio/src/native/org_classpath_icedtea_pulseaudio_Operation_State.h \
+	$(top_srcdir)/pulseaudio/src/native/org_classpath_icedtea_pulseaudio_Stream_LatencyUpdateListener.h \
+	$(top_srcdir)/pulseaudio/src/native/org_classpath_icedtea_pulseaudio_EventLoop.c \
+	$(top_srcdir)/pulseaudio/src/native/org_classpath_icedtea_pulseaudio_EventLoop.h \
+	$(top_srcdir)/pulseaudio/src/native/jni-common.c \
+	$(top_srcdir)/pulseaudio/src/native/jni-common.h \
+	$(top_srcdir)/pulseaudio/src/native/org_classpath_icedtea_pulseaudio_Stream_Format.h \
+	$(top_srcdir)/pulseaudio/src/native/org_classpath_icedtea_pulseaudio_Stream_SuspendedListener.h \
+	$(top_srcdir)/pulseaudio/src/native/org_classpath_icedtea_pulseaudio_Stream_UpdateTimingInfoListener.h \
+	$(top_srcdir)/pulseaudio/src/native/org_classpath_icedtea_pulseaudio_Operation.c \
+	$(top_srcdir)/pulseaudio/src/native/org_classpath_icedtea_pulseaudio_Operation.h \
+	$(top_srcdir)/pulseaudio/src/native/org_classpath_icedtea_pulseaudio_PulseAudioStreamVolumeControl.c \
+	$(top_srcdir)/pulseaudio/src/native/org_classpath_icedtea_pulseaudio_Stream.c \
+	$(top_srcdir)/pulseaudio/src/native/org_classpath_icedtea_pulseaudio_Stream.h \
+	$(top_srcdir)/pulseaudio/TODO \
+	$(top_srcdir)/pulseaudio/README \
+	$(top_srcdir)/pulseaudio/testsounds/README \
+	$(top_srcdir)/pulseaudio/testsounds/startup.wav \
+	$(top_srcdir)/pulseaudio/testsounds/logout.wav \
+	$(top_srcdir)/pulseaudio/testsounds/error.wav \
+	$(top_srcdir)/pulseaudio/unittests/org/classpath/icedtea/pulseaudio/*.java \
+	$(top_srcdir)/pulseaudio/AUTHORS \
+	$(top_srcdir)/pulseaudio/COPYING
+
+EXTRA_DIST = $(GENERATED_FILES) $(top_srcdir)/patches/icedtea-*.patch \
+	tools-copy contrib ports extra overlays \
 	javaws.png javaws.desktop visualvm.desktop \
 	jconsole.desktop policytool.desktop \
-	test/jtreg \
+	$(JTREG_SRCS) \
 	IcedTeaPlugin.cc \
-	HACKING pulseaudio fsg.sh \
-	plugin \
-	hotspot.map \
-	autogen.sh
+	HACKING $(PULSEAUDIO_SRCS) fsg.sh \
+	plugin hotspot.map autogen.sh
 
 # The Binary plugs directory is called jdk1.7.0 for historical reasons. The
 # name is completely irrelevant; only contains the plugs to build IcedTea.
 
 # OpenJDK build environment.
 OS_DIR = $(BUILD_OS_DIR)-$(BUILD_ARCH_DIR)
-BUILD_OUTPUT_DIR = openjdk/control/build/$(OS_DIR)
-ECJ_BUILD_OUTPUT_DIR = openjdk-ecj/control/build/$(OS_DIR)
+BUILD_OUTPUT_DIR = openjdk/build/$(OS_DIR)
+ECJ_BUILD_OUTPUT_DIR = openjdk-ecj/build/$(OS_DIR)
 ICEDTEA_BUILD_DIR = \
 	$(abs_top_builddir)/$(BUILD_OUTPUT_DIR)
 ICEDTEA_RT = \
@@ -140,7 +1380,7 @@ ICEDTEA_ENV = \
 	"ANT_HOME=$(SYSTEM_ANT_DIR)" \
         "BUILD_NUMBER=$(OPENJDK_VERSION)" \
 	"JDK_UPDATE_VERSION=$(JDK_UPDATE_VERSION)" \
-        "JRE_RELEASE_VERSION=1.6.0_$(COMBINED_VERSION)" \
+        "JRE_RELEASE_VERSION=1.7.0_$(COMBINED_VERSION)" \
 	"MILESTONE=fcs" \
 	"LANG=C" \
 	"PATH=$(abs_top_builddir)/bootstrap/jdk1.6.0/bin:$(OS_PATH):$$PATH" \
@@ -210,7 +1450,7 @@ ICEDTEA_ENV_ECJ = \
 	"ANT_HOME=$(SYSTEM_ANT_DIR)" \
 	"BUILD_NUMBER=$(OPENJDK_VERSION)" \
 	"JDK_UPDATE_VERSION=$(JDK_UPDATE_VERSION)" \
-        "JRE_RELEASE_VERSION=1.6.0_$(COMBINED_VERSION)" \
+        "JRE_RELEASE_VERSION=1.7.0_$(COMBINED_VERSION)" \
 	"MILESTONE=fcs" \
 	"LANG=C" \
 	"PATH=$(abs_top_builddir)/bootstrap/jdk1.6.0/bin:$(OS_PATH):$$PATH" \
@@ -276,13 +1516,26 @@ env-ecj:
 snapshot: dist
 	mv $(DIST_ARCHIVES) $(distdir)-`$(HG) tip --template '{node}'`.tar.gz
 
+# Creates archive of openjdk.
+dist-openjdk: stamps/extract-cacao.stamp
+	find openjdk/ -name \\.hg* | xargs rm -rf	
+	$(ZIP) -r openjdk-$(OPENJDK_VERSION) openjdk/
+
 # OpenJDK Source Preparation Targets
 # ==================================
 
 # Download OpenJDK sources.
-OPENJDK_URL = http://download.java.net/openjdk/jdk6/promoted/$(OPENJDK_VERSION)/
+
 HOTSPOT_URL = http://hg.openjdk.java.net/jdk7/hotspot/hotspot/archive/
-OPENJDK_HG_URL = http://hg.openjdk.java.net/jdk6/jdk6
+
+OPENJDK_HG_URL = http://hg.openjdk.java.net/jdk7/jdk7
+CVMI_HG_URL = http://hg.openjdk.java.net/cvmi/cvmi/
+CLOSURES_HG_URL = http://hg.openjdk.java.net/closures/closures/
+CACIOCAVALLO_HG_URL = http://hg.openjdk.java.net/caciocavallo/jdk7/
+BSD_HG_URL = http://hg.openjdk.java.net/bsd-port/bsd-port
+NIO2_HG_URL = http://hg.openjdk.java.net/nio/nio/
+
+OPENJDK_URL = http://www.java.net/download/openjdk/jdk7/promoted/$(OPENJDK_VERSION)/
 
 if USE_ALT_OPENJDK_SRC_ZIP
   OPENJDK_SRC_ZIP = $(ALT_OPENJDK_SRC_ZIP)
@@ -290,7 +1543,7 @@ else
 if USE_HG
   OPENJDK_SRC_ZIP = 
 else
-  OPENJDK_SRC_ZIP = openjdk-6-src-$(OPENJDK_VERSION)-$(OPENJDK_DATE).tar.gz
+  OPENJDK_SRC_ZIP = openjdk-7-ea-src-$(OPENJDK_VERSION)-$(OPENJDK_DATE).zip
 endif
 endif
 
@@ -309,37 +1562,24 @@ else
   CACAO_SRC_ZIP = cacao-$(CACAO_VERSION).tar.gz
 endif
 
-# VisualVM sources. Alternatives cannot be used here.
-NETBEANS_PROFILER_URL = http://icedtea.classpath.org/visualvm/
-NETBEANS_PROFILER_SRC_ZIP = netbeans-profiler-visualvm_release65_mod.tar.gz
-
-VISUALVM_URL = https://visualvm.dev.java.net/files/documents/7163/127067/
-VISUALVM_SRC_ZIP = visualvm-11-src.tar.gz
-
-
-stamps/hgforest.stamp:
-if OPENJDK_SRC_DIR_FOUND
-else
-if USE_ALT_OPENJDK_SRC_ZIP
-else
-if !USE_HG
-else
-	if ! $(HG) fclone -h; \
-          then \
-          echo "No forest extension found. Please refer to" \
-            "http://selenic.com/mercurial/wiki/index.cgi/ForestExtension"; \
-          exit 1; \
-          fi;
-endif
-endif
-endif
-	mkdir -p stamps 
-	touch stamps/hgforest.stamp
-
 stamps/download.stamp: stamps/hgforest.stamp
-if OPENJDK_SRC_DIR_FOUND
-else
+if !OPENJDK_SRC_DIR_FOUND
 if USE_ALT_OPENJDK_SRC_ZIP
+else
+if USE_CLOSURES
+	$(HG) fclone $(CLOSURES_HG_URL) openjdk; 
+else
+if USE_CVMI
+	$(HG) fclone $(CVMI_HG_URL) openjdk; 
+else
+if USE_CACIOCAVALLO
+	$(HG) fclone $(CACIOCAVALLO_HG_URL) openjdk;
+else
+if USE_BSD
+	$(HG) fclone $(BSD_HG_URL) openjdk;
+else
+if USE_NIO2
+	hg fclone $(NIO2_HG_URL) openjdk;
 else
 if USE_HG
 if WITH_HGREV
@@ -359,9 +1599,13 @@ else
 	fi
 endif
 endif
+endif
+endif
+endif
+endif
+endif
+endif
 if WITH_ALT_HSBUILD
-if USE_ALT_HOTSPOT_SRC_ZIP
-else
 	hotspot_md5sum="`$(AWK) 'version==$$1 {print $$3}' version=$(HSBUILD) \
 	  $(abs_top_srcdir)/hotspot.map`" ; \
 	if ! echo "$${hotspot_md5sum}  $(HOTSPOT_SRC_ZIP)" \
@@ -375,8 +1619,6 @@ else
 	    $(abs_top_srcdir)/hotspot.map`" ; \
 	  $(WGET) $(HOTSPOT_URL)$${changeset}.tar.gz -O $(HOTSPOT_SRC_ZIP) ; \
 	fi
-endif
-endif
 endif
 if WITH_CACAO
 if !USE_SYSTEM_CACAO
@@ -420,8 +1662,47 @@ endif
 	mkdir -p stamps
 	touch stamps/download.stamp
 
+# VisualVM sources. Alternatives cannot be used here.
+NETBEANS_PROFILER_URL = http://icedtea.classpath.org/visualvm/
+NETBEANS_PROFILER_SRC_ZIP = netbeans-profiler-visualvm_release65_mod.tar.gz
+
+VISUALVM_URL = https://visualvm.dev.java.net/files/documents/7163/127067/
+VISUALVM_SRC_ZIP = visualvm-11-src.tar.gz
+
+
+# VisualVM sources. Alternatives cannot be used here.
+NETBEANS_PROFILER_URL = http://icedtea.classpath.org/visualvm/
+NETBEANS_PROFILER_SRC_ZIP = netbeans-profiler-visualvm_release65_mod.tar.gz
+
+VISUALVM_URL = https://visualvm.dev.java.net/files/documents/7163/127067/
+VISUALVM_SRC_ZIP = visualvm-11-src.tar.gz
+
+
+stamps/hgforest.stamp:
+if OPENJDK_SRC_DIR_FOUND
+else
+if USE_ALT_OPENJDK_SRC_ZIP
+else
+if !USE_HG
+else
+	if ! $(HG) fclone -h; \
+          then \
+          echo "No forest extension found. Please refer to" \
+            "http://selenic.com/mercurial/wiki/index.cgi/ForestExtension"; \
+          exit 1; \
+          fi;
+endif
+endif
+endif
+	mkdir -p stamps 
+	touch stamps/hgforest.stamp
+
 clean-hgforest:
 	rm -f stamps/hgforest.stamp
+
+clean-extract:
+	rm -f stamps/extract.stamp
+	rm -rf openjdk
 
 clean-download:
 	rm -f stamps/download.stamp
@@ -433,16 +1714,20 @@ if WITH_VISUALVM
 	rm -f $(VISUALVM_SRC_ZIP)
 	rm -f $(NETBEANS_PROFILER_SRC_ZIP)
 endif
+if WITH_VISUALVM
+	rm -f $(VISUALVM_SRC_ZIP)
+	rm -f $(NETBEANS_PROFILER_SRC_ZIP)
+endif
 
 # Link ports sources into tree
 stamps/ports.stamp: stamps/extract.stamp
-	for target in $(abs_top_srcdir)/ports/hotspot/build/*/makefiles/* \
+	for target in $(abs_top_srcdir)/ports/hotspot/make/*/makefiles/* \
 		      $(abs_top_srcdir)/ports/hotspot/src/*cpu/* \
 		      $(abs_top_srcdir)/ports/hotspot/src/share/vm/*; do \
-	  link=$$(dirname $$target | sed 's/^.*ports/openjdk/'|sed "s#hotspot/build#hotspot/$(HOTSPOT_MAKE_DIR)#"); \
+	  link=$$(dirname $$target | sed 's/^.*ports/openjdk/'|sed "s#hotspot/build#hotspot/make#"); \
 	  ln -sfv $$target $$link; \
 	done
-	ln -sf $(abs_top_builddir)/platform_zero openjdk/hotspot/$(HOTSPOT_MAKE_DIR)/linux
+	ln -sf $(abs_top_builddir)/platform_zero openjdk/hotspot/make/linux
 	if ! test "x$(ICEDTEA_CORE_BUILD)$(ICEDTEA_SHARK_BUILD)$(WITH_CACAO)" \
 	  = "xno" ; then \
 	  mkdir -p openjdk/jdk/src/solaris/bin/$(BUILD_ARCH_DIR) ; \
@@ -456,24 +1741,12 @@ stamps/ports.stamp: stamps/extract.stamp
 	mkdir -p stamps
 	touch stamps/ports.stamp
 
-# If new gcc is installed, apply 4.3 patch
-if GCC_OLD
-  GCC_PATCH =
-else
-  GCC_PATCH = patches/icedtea-gcc-4.3.patch \
-	patches/hotspot/$(HSBUILD)/icedtea-gcc-4.3.patch
-endif
+# Patches from the other OpenJDK trees (should be removed
+# when in an official bxx release)
+OPENJDK_PATCHES = 
 
-# If ZERO_BUILD is set then we are building zero and need
-# to patch up to OpenJDK 7 HotSpot for the C++ interpreter.
-if WITH_ALT_HSBUILD
-ZERO_PATCHES =
-else
+# If ZERO_BUILD is set then we are building zero.
 ZERO_PATCHES = \
-	patches/icedtea-hotspot-6b14-7b24.patch \
-	patches/icedtea-hotspot7-build-fixes.patch
-endif
-ZERO_PATCHES += \
 	patches/hotspot/$(HSBUILD)/icedtea-bytecodeInterpreter.patch \
 	patches/icedtea-signature-iterator.patch \
 	patches/icedtea-test-atomic-operations.patch \
@@ -481,27 +1754,13 @@ ZERO_PATCHES += \
 	patches/icedtea-ia64-bugfix.patch \
 	patches/hotspot/$(HSBUILD)/icedtea-parisc-opt.patch
 
-if !WITH_ALT_HSBUILD
-ZERO_PATCHES += \
-	patches/icedtea-signed-types.patch \
-	patches/icedtea-hotspot-citypeflow.patch
-endif
-
 # Patches needed when not using the newer OpenJDK 7 HotSpot for zero.
-NON_ZERO_PATCHES = \
-	patches/icedtea-signed-types-hot6.patch \
-	patches/icedtea-lucene-crash.patch \
-	patches/icedtea-6700047-loopopts.patch \
-	patches/icedtea-6712835-ifnode.patch
+NON_ZERO_PATCHES = 
 
 if ZERO_BUILD
   ZERO_PATCHES_COND = $(ZERO_PATCHES)
 else
-if WITH_ALT_HSBUILD
   ZERO_PATCHES_COND = 
-else
-  ZERO_PATCHES_COND = $(NON_ZERO_PATCHES)
-endif
 endif
 
 # If Shark is required, apply shark patch
@@ -511,10 +1770,11 @@ else
   SHARK_PATCH =
 endif
 
-ICEDTEA_FSG_PATCHES =
+ICEDTEA_FSG_PATCHES = \
+	patches/icedtea-idl.patch \
+	patches/icedtea-jscheme.patch
 
 ICEDTEA_PATCHES = \
-	$(ZERO_PATCHES_COND) \
 	patches/icedtea-version.patch \
 	patches/hotspot/$(HSBUILD)/icedtea-version.patch \
 	patches/icedtea-copy-plugs.patch \
@@ -540,28 +1800,10 @@ ICEDTEA_PATCHES = \
 	patches/hotspot/$(HSBUILD)/icedtea-memory-limits.patch \
 	patches/icedtea-sunsrc.patch \
 	patches/icedtea-libraries.patch \
-	patches/icedtea-javafiles.patch \
 	patches/icedtea-core-build.patch \
-	patches/icedtea-jvmtiEnv.patch
-
-if WITH_ALT_HSBUILD
-ICEDTEA_PATCHES += \
-	patches/hotspot/$(HSBUILD)/icedtea-core-build.patch
-else
-if ZERO_BUILD
-ICEDTEA_PATCHES += \
-	patches/hotspot/$(HSBUILD)/icedtea-core-zero-build.patch
-else
-ICEDTEA_PATCHES += \
-	patches/hotspot/$(HSBUILD)/icedtea-core-build.patch
-endif
-endif
-
-ICEDTEA_PATCHES += \
+	patches/hotspot/$(HSBUILD)/icedtea-core-build.patch \
 	patches/icedtea-linker-options.patch \
 	patches/hotspot/$(HSBUILD)/icedtea-static-libstdc++.patch \
-	patches/icedtea-timerqueue.patch \
-	patches/icedtea-lib64.patch \
 	patches/icedtea-zero-build.patch \
 	patches/hotspot/$(HSBUILD)/icedtea-zero-build.patch \
 	patches/icedtea-print-lsb-release.patch \
@@ -569,17 +1811,18 @@ ICEDTEA_PATCHES += \
 	patches/icedtea-uname.patch \
 	patches/icedtea-ia64-fdlibm.patch \
 	patches/icedtea-fonts.patch \
+	patches/hotspot/$(HSBUILD)/icedtea-sparc-ptracefix.patch \
+	patches/hotspot/$(HSBUILD)/icedtea-sparc-trapsfix.patch \
 	patches/icedtea-override-redirect-metacity.patch \
-	patches/icedtea-no-bcopy.patch \
 	patches/icedtea-shark-build.patch \
 	patches/hotspot/$(HSBUILD)/icedtea-shark-build.patch \
 	patches/icedtea-toolkit.patch \
+	patches/icedtea-security-updates.patch \
 	patches/icedtea-jdk-docs-target.patch \
-	patches/icedtea-nomotif-6706121.patch \
-	patches/icedtea-nomotif.patch \
+	patches/icedtea-mbeanintrospector.patch \
+	patches/icedtea-hotspot-gcc-pr36917.patch \
 	patches/icedtea-alpha-fixes.patch \
 	patches/icedtea-alt-jar.patch \
-	patches/icedtea-enum-bug-181.patch \
 	patches/icedtea-jdk-use-ssize_t.patch \
 	patches/hotspot/$(HSBUILD)/icedtea-use-idx_t.patch \
 	patches/hotspot/$(HSBUILD)/icedtea-params-cast-size_t.patch \
@@ -587,46 +1830,37 @@ ICEDTEA_PATCHES += \
 	$(SHARK_PATCH) \
 	$(GCC_PATCH) \
 	patches/icedtea-arch.patch \
+	patches/icedtea-signed-types.patch \
 	patches/icedtea-lc_ctype.patch \
 	patches/icedtea-messageutils.patch \
 	patches/icedtea-javac-debuginfo.patch \
 	patches/icedtea-xjc.patch \
 	patches/icedtea-renderer-crossing.patch \
+	patches/icedtea-snmp.patch \
+	patches/icedtea-tests-jdk.patch \
 	patches/icedtea-stroker-finish.patch \
 	patches/icedtea-alsa-default-device.patch \
 	patches/icedtea-linker-libs-order.patch \
-	patches/icedtea-f2i-overflow.patch \
-	patches/icedtea-6761856-freetypescaler.patch \
-	patches/icedtea-display-mode-changer.patch \
 	patches/icedtea-testenv.patch \
-	patches/icedtea-samejvm-safe.patch \
-	patches/icedtea-6728542-epoll.patch \
-	patches/icedtea-io_util-overflow.patch \
-	patches/icedtea-cc-interp-jvmti.patch \
 	patches/icedtea-pr261.patch \
 	patches/icedtea-doc-headers.patch \
-	patches/openjdk/bidi-tests.patch \
-	patches/openjdk/annotation-tests.patch
-
-if WITH_ALT_HSBUILD
-ICEDTEA_PATCHES += \
-	patches/icedtea-format-warnings.patch \
-	patches/icedtea-fortify-source.patch \
-	patches/hotspot/$(HSBUILD)/icedtea-sparc-buildfixes.patch \
-	patches/hotspot/$(HSBUILD)/icedtea-6791168.patch \
-	patches/hotspot/$(HSBUILD)/icedtea-includedb.patch
-endif
-
-if !WITH_ALT_HSBUILD
-ICEDTEA_PATCHES += \
-	patches/icedtea-bytecodeInterpreterWithChecks.patch \
-	patches/icedtea-sparc.patch
-endif
-
-ICEDTEA_PATCHES += \
-	patches/hotspot/$(HSBUILD)/icedtea-sparc64-linux.patch \
-	patches/hotspot/$(HSBUILD)/icedtea-sparc-ptracefix.patch \
-	patches/hotspot/$(HSBUILD)/icedtea-sparc-trapsfix.patch
+	$(ZERO_PATCHES_COND) \
+        patches/security/icedtea-6484091.patch \
+        patches/security/icedtea-6497740.patch \
+        patches/security/icedtea-6588160.patch \
+        patches/security/icedtea-6592792.patch \
+        patches/security/icedtea-6721753.patch \
+        patches/security/icedtea-6726779.patch \
+        patches/security/icedtea-6733959.patch \
+        patches/security/icedtea-6734167.patch \
+        patches/security/icedtea-6755943.patch \
+        patches/security/icedtea-6766136.patch \
+	patches/hotspot/$(HSBUILD)/icedtea-includedb.patch \
+	patches/icedtea-demo-swingapplet.patch \
+	patches/icedtea-java2d-dasher.patch \
+	patches/icedtea-jvmtiEnv.patch \
+	patches/icedtea-xml-encodinginfo.patch \
+	$(DISTRIBUTION_PATCHES)
 
 if WITH_RHINO
 ICEDTEA_PATCHES += \
@@ -646,51 +1880,63 @@ ICEDTEA_PATCHES += \
 endif
 
 if ENABLE_XRENDER
+# match against $(abs_top_srcdir) and then remove it again,
+# because stamps/patch.stamp target will also add it
 XRENDER_PATCHES = patches/xrender/icedtea-???.patch
 XRENDER_PATCH_FILES = $(sort $(wildcard $(abs_top_srcdir)/$(XRENDER_PATCHES)))
 ICEDTEA_PATCHES += $(sort $(subst $(abs_top_srcdir)/,,$(XRENDER_PATCH_FILES)))
+endif
+
+if !USE_CVMI
+ICEDTEA_PATCHES += \
+	patches/icedtea-javafiles.patch
 endif
 
 if ENABLE_NIO2
 ICEDTEA_PATCHES += patches/icedtea-nio2.patch
 endif
 
-ICEDTEA_PATCHES += \
-	$(DISTRIBUTION_PATCHES) \
-	patches/icedtea-demo-swingapplet.patch \
-	patches/icedtea-awt-window-size.patch \
-	patches/icedtea-java2d-dasher.patch \
-	patches/hotspot/$(HSBUILD)/icedtea-format.patch \
-	patches/icedtea-cc-interp-backedge.patch \
-	patches/icedtea-xml-encodinginfo.patch
-
 stamps/extract.stamp: stamps/download.stamp
 if OPENJDK_SRC_DIR_FOUND
 	cp -a $(OPENJDK_SRC_DIR) openjdk
 else
-	if ! test -d openjdk ; \
-	then \
-	  mkdir openjdk ; \
-	  $(TAR) xf $(OPENJDK_SRC_ZIP) -C openjdk; \
-	  chmod -R ug+w openjdk ; \
-	  if test "x${HSBUILD}" != "xoriginal"; then \
-	    rm -rf openjdk/hotspot ; \
-	  fi ; \
-	  sh $(abs_top_srcdir)/fsg.sh ; \
-	fi
+	if ! test -d openjdk ; then \
+	  if [ ! -z $(OPENJDK_SRC_ZIP) ] ; then \
+	    case "$(OPENJDK_SRC_ZIP)" in \
+	      *.zip) $(UNZIP) -q $(OPENJDK_SRC_ZIP) ;; \
+	      *.tar.*) $(TAR) xf $(OPENJDK_SRC_ZIP) ;; \
+	    esac; \
+	    if test "x${HSBUILD}" != "xdefault"; then \
+	      rm -rf openjdk/hotspot ; \
+	    fi ; \
+	  else \
+	    echo "ERROR: Couldn't extract OpenJDK"; \
+	    false; \
+	  fi; \
+	fi; 
+endif
 if WITH_ALT_HSBUILD
 	if test -e ${HOTSPOT_SRC_ZIP} ; \
 	then \
 	  if ! test -d openjdk/hotspot ; \
 	  then \
-	    $(TAR) xf $(HOTSPOT_SRC_ZIP) ; \
-	    chmod -R ug+w hotspot-* ; \
+	    case "$(HOTSPOT_SRC_ZIP)" in \
+	      *.zip) $(UNZIP) -q $(HOTSPOT_SRC_ZIP) ;; \
+	      *.tar.*) $(TAR) xf $(HOTSPOT_SRC_ZIP) ;; \
+	    esac; \
 	    mv hotspot-$$($(AWK) 'version==$$1 {print $$2}' version=$(HSBUILD) \
 	      $(abs_top_srcdir)/hotspot.map) openjdk/hotspot ; \
 	  fi ; \
 	fi
 endif
-endif
+	chmod -R ug+w openjdk 
+	sh $(srcdir)/fsg.sh ; 
+	find openjdk -name '*.java' \
+	  -exec sed -i 's/^[[:space:]]*@Override//' {} + ; \
+	mkdir -p stamps 
+	touch stamps/extract.stamp
+
+stamps/extract-cacao.stamp: stamps/extract.stamp
 if WITH_CACAO
 if !USE_SYSTEM_CACAO
 	if ! test -d cacao ; \
@@ -702,34 +1948,35 @@ if !USE_SYSTEM_CACAO
 	fi
 endif
 endif
-if WITH_VISUALVM
-	if ! test -d netbeans ; \
-	then \
-	  mkdir netbeans ; \
-	  $(TAR) xf $(NETBEANS_PROFILER_SRC_ZIP) -C netbeans ; \
-	fi
+	touch stamps/extract-cacao.stamp
 
-	if ! test -d visualvm ; \
-	then \
-	  $(TAR) xf $(VISUALVM_SRC_ZIP) ; \
-	fi
-endif
+stamps/generated.stamp: stamps/extract-cacao.stamp
 	if [ ! -e $(abs_top_builddir)/generated ]; then \
 	  cp -a $(abs_top_srcdir)/generated $(abs_top_builddir); \
 	  find $(abs_top_builddir)/generated -type f -exec chmod 640 '{}' ';' \
 	    -o -type d -exec chmod 750 '{}' ';'; \
 	fi
-	mkdir -p stamps
-	touch stamps/extract.stamp
-
-clean-extract:
-	rm -f stamps/extract.stamp
+	touch stamps/generated.stamp
 
 stamps/patch.stamp: stamps/patch-fsg.stamp
 	mkdir -p stamps ; \
 	rm -f stamps/patch.stamp.tmp ; \
 	touch stamps/patch.stamp.tmp ; \
 	all_patches_ok=yes; \
+	cd $(abs_top_builddir)/openjdk/jdk; \
+	for p in $(OPENJDK_PATCHES) ; \
+	do \
+	  if test x$${all_patches_ok} == "xyes" \
+	     && echo Checking $$p \
+	     && $(PATCH) -l -p1 --dry-run -s -t -f -F 0 < $(abs_top_srcdir)/$$p ; \
+	  then \
+	    echo Applying $$p ; \
+	    $(PATCH) -l -p1 < $(abs_top_srcdir)/$$p ; \
+	  else \
+	    test x$${all_patches_ok} == "xyes" && all_patches_ok=$$p ; \
+	  fi ; \
+	done ; \
+	cd $(abs_top_builddir) ; \
 	for p in $(ICEDTEA_PATCHES) ; \
 	do \
 	  if test x$${all_patches_ok} = "xyes" \
@@ -756,29 +2003,11 @@ stamps/patch.stamp: stamps/patch-fsg.stamp
 	  exit 2; \
 	fi
 
-	if [ -e $(abs_top_srcdir)/.hg ] && which $(HG) >/dev/null; then \
-	  revision="-r`(cd $(abs_top_srcdir); $(HG) tip --template '{node|short}')`" ; \
-	fi ; \
-	icedtea_version="$(PACKAGE_VERSION)$${revision}" ; \
-	if ! test "x$(WITH_CACAO)" = "xno"; then \
-	  echo "JDK_DERIVATIVE_NAME=$${icedtea_version}" \
-	    >>openjdk/jdk/make/common/shared/Defs.gmk ; \
-	  echo "PRODUCT_NAME=IcedTea6" \
-	    >>openjdk/jdk/make/common/shared/Defs.gmk ; \
-	else \
-	  echo "JDK_DERIVATIVE_NAME=IcedTea6 $${icedtea_version}" \
-	    >>openjdk/jdk/make/common/shared/Defs.gmk ; \
-	fi
-
-	if [ -n "$(PKGVERSION)" ]; then \
-	  echo "DISTRO_PACKAGE_VERSION=$(PKGVERSION)" \
-	    >>openjdk/jdk/make/common/shared/Defs.gmk ; \
-	fi
-
 if ENABLE_PLUGIN
 	cp -a $(abs_top_srcdir)/plugin/icedtea/sun/applet/*java openjdk/jdk/src/share/classes/sun/applet/
 	mkdir -p rt
 	cp -a $(abs_top_srcdir)/plugin/icedtea/netscape rt/
+	chmod -R ug+w rt 
 endif
 
 clean-patch:
@@ -795,6 +2024,19 @@ clean-patch:
 	    all_patches_ok=no ; \
 	  fi ; \
 	done ; \
+	cd $(abs_top_builddir)/openjdk/jdk; \
+	for p in $(OPENJDK_PATCHES) ; \
+	do \
+	  echo Checking $$p ; \
+	  if $(PATCH) -l -p1 -R --dry-run -s -t -f < $(abs_top_srcdir)/$$p ; \
+	  then \
+	    echo Reverting $$p ; \
+	    $(PATCH) -l -p1 -R < $(abs_top_srcdir)/$$p ; \
+	  else \
+	    all_patches_ok=no ; \
+	  fi ; \
+	done ; \
+	cd $(abs_top_builddir) ; \
 	if ! test x$${all_patches_ok} = "xyes" ; then \
 	  echo "WARNING Not all patches reverted cleanly" ; \
 	fi
@@ -804,7 +2046,7 @@ clean-patch:
 		rm -f openjdk/jdk/src/share/classes/sun/applet/`basename $file` ; \
 	done ;
 
-stamps/patch-fsg.stamp: stamps/extract.stamp
+stamps/patch-fsg.stamp: stamps/generated.stamp
 	mkdir -p stamps ; \
 	rm -f stamps/patch-fsg.stamp.tmp ; \
 	touch stamps/patch-fsg.stamp.tmp ; \
@@ -854,7 +2096,34 @@ clean-patch-fsg:
 	fi
 
 stamps/overlay.stamp: stamps/patch.stamp
+	if [ -e $(abs_top_srcdir)/.hg ] && which $(HG) >/dev/null; then \
+	  revision="-r`(cd $(abs_top_srcdir); $(HG) tip --template '{node|short}')`" ; \
+	fi ; \
+	icedtea_version="$(PACKAGE_VERSION)$${revision}" ; \
+	if ! test "x$(WITH_CACAO)" = "xno"; then \
+	  echo "JDK_DERIVATIVE_NAME=$${icedtea_version}" \
+	    >>openjdk/jdk/make/common/shared/Defs.gmk ; \
+	  echo "PRODUCT_NAME=IcedTea6" \
+	    >>openjdk/jdk/make/common/shared/Defs.gmk ; \
+	else \
+	  echo "JDK_DERIVATIVE_NAME=IcedTea6 $${icedtea_version}" \
+	    >>openjdk/jdk/make/common/shared/Defs.gmk ; \
+	fi
+	if [ -n "$(PKGVERSION)" ]; then \
+	  icedtea_version="$${icedtea_version} ($(PKGVERSION))" ; \
+	  echo "DISTRO_PACKAGE_VERSION=$(PKGVERSION)" \
+	    >>openjdk/jdk/make/common/shared/Defs.gmk ; \
+	fi; \
+	if test x"$(PROJECT_NAME)" != "xjdk7"; then \
+	  proj_suffix="-$(PROJECT_NAME)"; \
+	fi ; \
+	if test x"$(VERSION_SUFFIX)" != "x"; then \
+	  ver_suffix="-$(VERSION_SUFFIX)"; \
+	fi ; \
+	sed -i "s#BUILD_VARIANT_RELEASE)#BUILD_VARIANT_RELEASE)$${proj_suffix}$${ver_suffix}#" \
+	  openjdk/jdk/make/common/shared/Defs.gmk; \
 	cp -r $(abs_top_srcdir)/overlays/openjdk/* openjdk/
+	chmod -R ug+w openjdk 
 if ENABLE_NIO2
 	cp -r $(abs_top_srcdir)/overlays/nio2/openjdk/* openjdk/
 endif
@@ -864,26 +2133,26 @@ endif
 # ======================================
 
 # Copy over OpenJDK sources for ecj.
-stamps/extract-ecj.stamp: stamps/overlay.stamp
+stamps/clone-ecj.stamp: stamps/overlay.stamp
 	if ! test -d openjdk-ecj ; then \
 	    cp -pPRl openjdk openjdk-ecj ; \
 	fi
 	mkdir -p stamps
-	touch stamps/extract-ecj.stamp
+	touch stamps/clone-ecj.stamp
 
-clean-extract-ecj:
-	rm -f stamps/extract-ecj.stamp
+clean-clone-ecj:
+	rm -f stamps/clone-ecj.stamp
 	rm -rf openjdk-ecj
 
 # Link ports sources into tree
-stamps/ports-ecj.stamp: stamps/extract-ecj.stamp
-	for target in $(abs_top_srcdir)/ports/hotspot/build/*/makefiles/* \
+stamps/ports-ecj.stamp: stamps/clone-ecj.stamp
+	for target in $(abs_top_srcdir)/ports/hotspot/make/*/makefiles/* \
 		      $(abs_top_srcdir)/ports/hotspot/src/*cpu/* \
 		      $(abs_top_srcdir)/ports/hotspot/src/share/vm/*; do \
-	  link=$$(dirname $$target | sed 's/^.*ports/openjdk-ecj/'|sed "s#hotspot/build#hotspot/$(HOTSPOT_MAKE_DIR)#"); \
+	  link=$$(dirname $$target | sed 's/^.*ports/openjdk-ecj/'|sed "s#hotspot/build#hotspot/make#"); \
 	  ln -sfv $$target $$link; \
 	done
-	ln -sf $(abs_top_builddir)/platform_zero openjdk-ecj/hotspot/$(HOTSPOT_MAKE_DIR)/linux
+	ln -sf $(abs_top_builddir)/platform_zero openjdk-ecj/hotspot/make/linux
 	if ! test "x$(ICEDTEA_CORE_BUILD)$(ICEDTEA_SHARK_BUILD)$(WITH_CACAO)" \
 	  = "xno"; then \
 	  mkdir -p openjdk-ecj/jdk/src/solaris/bin/$(BUILD_ARCH_DIR); \
@@ -901,9 +2170,10 @@ stamps/ports-ecj.stamp: stamps/extract-ecj.stamp
 ICEDTEA_ECJ_PATCHES = patches/ecj/icedtea.patch \
 	patches/ecj/icedtea-hotspot-$(HSBUILD).patch \
 	patches/ecj/icedtea-spp.patch \
-	patches/ecj/icedtea-jopt.patch
+	patches/ecj/icedtea-jopt.patch \
+	patches/ecj/icedtea-sbcs.patch
 
-stamps/patch-ecj.stamp: stamps/extract-ecj.stamp
+stamps/patch-ecj.stamp: stamps/clone-ecj.stamp
 	mkdir -p stamps; \
 	rm -f stamps/patch-ecj.stamp.tmp ; \
 	touch stamps/patch-ecj.stamp.tmp ; \
@@ -1020,6 +2290,8 @@ stamps/bootstrap-directory-ecj.stamp: stamps/native-ecj.stamp
 	  bootstrap/ecj/lib/endorsed/xalan-j2-serializer.jar
 	ln -sf $(XERCES2_JAR) bootstrap/ecj/lib/endorsed/xerces-j2.jar
 	mkdir -p bootstrap/ecj/jre/lib; \
+	ln -sf $(SYSTEM_GCJ_DIR)/jre/lib/rt.jar \
+	  bootstrap/ecj/jre/lib/rt-system.jar; \
 	ln -sf $(SYSTEM_GCJ_DIR)/jre/lib/$(JRE_ARCH_DIR) \
 	  bootstrap/ecj/jre/lib/; \
 	if ! test -d bootstrap/ecj/jre/lib/$(INSTALL_ARCH_DIR); \
@@ -1087,30 +2359,24 @@ else
   ICEDTEA_DEBUG_BUILD_TARGET=debug_build
 endif
 
+NETX_RESOURCE_DIR=openjdk/jdk/src/share/classes/net/sourceforge/jnlp/resources
+
 # If you change anything here in the icedtea target, please make sure
 # you change it in the icedtea-debug target as well.
 stamps/icedtea.stamp: stamps/bootstrap-directory-symlink.stamp \
 	stamps/hotspot-tools.stamp stamps/plugs.stamp \
 	stamps/ports.stamp stamps/patch.stamp stamps/overlay.stamp \
-	$(GCJWEBPLUGIN_TARGET) $(ICEDTEAPLUGIN_TARGET) \
-	extra-lib/about.jar stamps/cacao.stamp stamps/visualvm.stamp \
-	stamps/pulse-java.stamp
+	$(ICEDTEAPLUGIN_TARGET) extra-lib/about.jar stamps/cacao.stamp \
+	stamps/pulse-java.stamp stamps/visualvm.stamp
 	$(ARCH_PREFIX) $(MAKE) \
 	  $(ICEDTEA_ENV) \
-	  -C openjdk/control/make/ \
+	  -C openjdk/ \
 	  $(ICEDTEA_BUILD_TARGET)
-if ENABLE_GCJWEBPLUGIN
-	cp -pPRf gcjwebplugin.so \
-	  $(BUILD_OUTPUT_DIR)/j2sdk-image/jre/lib/$(INSTALL_ARCH_DIR)
-	cp -pPRf gcjwebplugin.so \
-	  $(BUILD_OUTPUT_DIR)/j2re-image/lib/$(INSTALL_ARCH_DIR)
-else
 if ENABLE_PLUGIN
 	cp -pPRf IcedTeaPlugin.so \
 	  $(BUILD_OUTPUT_DIR)/j2sdk-image/jre/lib/$(INSTALL_ARCH_DIR)
 	cp -pPRf IcedTeaPlugin.so \
 	  $(BUILD_OUTPUT_DIR)/j2re-image/lib/$(INSTALL_ARCH_DIR)
-endif
 endif
 if ENABLE_PULSE_JAVA
 	cp -pPRf libpulse-java.so \
@@ -1142,10 +2408,10 @@ if WITH_VISUALVM
 	cp -r netbeans/nbbuild/netbeans_visualvm/profiler3 \
 	  $(BUILD_OUTPUT_DIR)/j2sdk-image/lib/visualvm	
 endif
-	cp $(abs_top_srcdir)/rt/net/sourceforge/jnlp/resources/about.jnlp \
+	cp $(NETX_RESOURCE_DIR)/about.jnlp \
 	  extra-lib/about.jar \
-	  $(BUILD_OUTPUT_DIR)/j2re-image/lib ; \
-	cp $(abs_top_srcdir)/rt/net/sourceforge/jnlp/resources/about.jnlp \
+	  $(BUILD_OUTPUT_DIR)/j2re-image/lib
+	cp $(NETX_RESOURCE_DIR)/about.jnlp \
 	  extra-lib/about.jar \
 	  $(BUILD_OUTPUT_DIR)/j2sdk-image/jre/lib
 	@echo "IcedTea is served:" $(BUILD_OUTPUT_DIR)
@@ -1155,25 +2421,17 @@ endif
 stamps/icedtea-debug.stamp: stamps/bootstrap-directory-symlink.stamp \
 	stamps/hotspot-tools.stamp stamps/plugs.stamp \
 	stamps/ports.stamp stamps/patch.stamp stamps/overlay.stamp \
-	$(GCJWEBPLUGIN_TARGET) $(ICEDTEAPLUGIN_TARGET) \
-	extra-lib/about.jar stamps/cacao.stamp stamps/visualvm.stamp \
-	stamps/pulse-java.stamp
+	$(ICEDTEAPLUGIN_TARGET) extra-lib/about.jar stamps/cacao.stamp \
+	stamps/pulse-java.stamp stamps/visualvm.stamp
 	$(ARCH_PREFIX) $(MAKE) \
 	  $(ICEDTEA_ENV) \
-	  -C openjdk/control/make \
+	  -C openjdk/ \
 	  $(ICEDTEA_DEBUG_BUILD_TARGET)
-if ENABLE_GCJWEBPLUGIN
-	cp -pPRf gcjwebplugin.so \
-	  $(BUILD_OUTPUT_DIR)-debug/j2sdk-image/jre/lib/$(INSTALL_ARCH_DIR)
-	cp -pPRf gcjwebplugin.so \
-	  $(BUILD_OUTPUT_DIR)-debug/j2re-image/lib/$(INSTALL_ARCH_DIR)
-else
 if ENABLE_PLUGIN
 	cp -pPRf IcedTeaPlugin.so \
 	  $(BUILD_OUTPUT_DIR)-debug/j2sdk-image/jre/lib/$(INSTALL_ARCH_DIR)
 	cp -pPRf IcedTeaPlugin.so \
 	  $(BUILD_OUTPUT_DIR)-debug/j2re-image/lib/$(INSTALL_ARCH_DIR)
-endif
 endif
 if ENABLE_PULSE_JAVA
 	cp -pPRf libpulse-java.so \
@@ -1205,10 +2463,10 @@ if WITH_VISUALVM
 	cp -r netbeans/nbbuild/netbeans_visualvm/profiler3 \
 	  $(BUILD_OUTPUT_DIR)/j2sdk-image/lib/visualvm
 endif
-	cp $(abs_top_srcdir)/rt/net/sourceforge/jnlp/resources/default.jnlp \
+	cp $(NETX_RESOURCE_DIR)/default.jnlp \
 	  extra-lib/about.jar \
-	  $(BUILD_OUTPUT_DIR)-debug/j2re-image/lib ; \
-	cp $(abs_top_srcdir)/rt/net/sourceforge/jnlp/resources/default.jnlp \
+	  $(BUILD_OUTPUT_DIR)-debug/j2re-image/lib
+	cp $(NETX_RESOURCE_DIR)/default.jnlp \
 	  extra-lib/about.jar \
 	  $(BUILD_OUTPUT_DIR)-debug/j2sdk-image/jre/lib
 	@echo "IcedTea (debug build) is served:" \
@@ -1216,10 +2474,10 @@ endif
 	mkdir -p stamps
 	touch stamps/icedtea-debug.stamp
 
-clean-icedtea: stamps/extract.stamp
+clean-icedtea: stamps/download.stamp
 	$(ARCH_PREFIX) $(MAKE) \
 	  $(ICEDTEA_ENV) \
-	  -C openjdk/control/make clobber
+	  -C openjdk/make clobber
 	rm -f stamps/icedtea.stamp stamps/icedtea-debug.stamp
 
 icedtea-against-icedtea: \
@@ -1233,12 +2491,12 @@ icedtea-debug-against-icedtea: \
 # OpenJDK ecj Targets
 # ===================
 
-stamps/native-ecj.stamp: 
-	mkdir -p stamps ; \
-	if test "x${GCJ}" != "xno"; then \
-	  ${GCJ} ${CFLAGS} -Wl,-Bsymbolic -findirect-dispatch -o native-ecj \
-	    --main=org.eclipse.jdt.internal.compiler.batch.Main ${ECJ_JAR} ; \
-	fi ; \
+stamps/native-ecj.stamp:
+	mkdir -p stamps 
+if BUILD_NATIVE_ECJ
+	${GCJ} ${CFLAGS} -Wl,-Bsymbolic -findirect-dispatch -o native-ecj \
+	    --main=org.eclipse.jdt.internal.compiler.batch.Main ${ECJ_JAR}
+endif
 	touch stamps/native-ecj.stamp
 
 stamps/icedtea-ecj.stamp: stamps/bootstrap-directory-symlink-ecj.stamp \
@@ -1246,7 +2504,7 @@ stamps/icedtea-ecj.stamp: stamps/bootstrap-directory-symlink-ecj.stamp \
 	stamps/ports-ecj.stamp stamps/patch-ecj.stamp stamps/cacao.stamp
 	$(ARCH_PREFIX) $(MAKE) \
 	  $(ICEDTEA_ENV_ECJ) \
-	  -C openjdk-ecj/control/make \
+	  -C openjdk-ecj \
 	  $(ICEDTEA_BUILD_TARGET)
 	@echo "ecj-poured IcedTea is served:" \
 	  $(ECJ_BUILD_OUTPUT_DIR)
@@ -1268,17 +2526,15 @@ hotspot-helper: stamps/bootstrap-directory-symlink-ecj.stamp \
 	stamps/ports-ecj.stamp stamps/patch-ecj.stamp
 	$(ARCH_PREFIX) $(MAKE) \
 	  $(ICEDTEA_ENV_ECJ) \
-	  -C openjdk-ecj/control/make hotspot
+	  -C openjdk-ecj hotspot
 
-clean-icedtea-ecj: stamps/extract-ecj.stamp
+clean-icedtea-ecj: stamps/clone-ecj.stamp
 	rm -f stamps/icedtea-ecj.stamp
 	$(ARCH_PREFIX) $(MAKE) \
 	  $(ICEDTEA_ENV_ECJ) \
-	  -C openjdk-ecj/control/make clobber
+	  -C openjdk-ecj clobber
 
-stamps/icedtea-against-ecj.stamp: \
-	stamps/bootstrap-directory-symlink-ecj.stamp \
-	stamps/icedtea-ecj.stamp
+stamps/icedtea-against-ecj.stamp: stamps/icedtea-ecj.stamp
 	mkdir -p stamps
 	touch stamps/icedtea-against-ecj.stamp
 
@@ -1300,7 +2556,6 @@ clean-plugs: clean-plugs clean-shared-objects \
 
 clean-tools-jar: clean-hotspot-tools
 	rm -f stamps/hotspot-tools.stamp
-	rm -rf tools/
 	rm -f bootstrap/jdk1.7.0/jre/lib/tools.jar
 
 # Sources copied from OpenJDK.
@@ -1310,8 +2565,8 @@ ICEDTEA_COPY_DIRS = \
 	com/sun/jdi/connect/spi \
 	com/sun/jdi/event \
 	com/sun/jdi/request \
-	com/sun/jmx/snmp/agent \
 	com/sun/tools/jdi \
+	com/sun/net/httpserver \
 	java/io \
 	java/util \
 	java/rmi \
@@ -1359,7 +2614,6 @@ stamps/hotspot-tools-copy-source-files.stamp: stamps/overlay.stamp
 	  cp -pPRf openjdk/jdk/src/share/classes/$$copy_dir/* \
 	    hotspot-tools/$$copy_dir ; \
 	done
-
 	for copy_dir in \
 	  `cat $(abs_top_srcdir)/tools-copy/tools-langtools-copy-files.txt` ; \
 	do \
@@ -1367,7 +2621,6 @@ stamps/hotspot-tools-copy-source-files.stamp: stamps/overlay.stamp
 	  cp -pPRf openjdk/langtools/src/share/classes/$$copy_dir/* \
 	    hotspot-tools/$$copy_dir ; \
 	done
-
 	for copy_dir in \
 	  `cat $(abs_top_srcdir)/tools-copy/tools-corba-copy-files.txt` ; \
 	do \
@@ -1375,7 +2628,6 @@ stamps/hotspot-tools-copy-source-files.stamp: stamps/overlay.stamp
 	  cp -pPRf openjdk/corba/src/share/classes/$$copy_dir/* \
 	    hotspot-tools/$$copy_dir ; \
 	done
-
 	for copy_dir in \
 	  `cat $(abs_top_srcdir)/tools-copy/tools-jaxws-copy-files.txt` ; \
 	do \
@@ -1383,16 +2635,15 @@ stamps/hotspot-tools-copy-source-files.stamp: stamps/overlay.stamp
 	  cp -pPRf openjdk/jaxws/src/share/classes/$$copy_dir/* \
 	    hotspot-tools/$$copy_dir ; \
 	done
-
 	mkdir -p stamps
 	touch stamps/hotspot-tools-copy-source-files.stamp
 
-hotspot-tools-source-files.txt: stamps/extract.stamp \
+hotspot-tools-source-files.txt: stamps/generated.stamp \
 	stamps/hotspot-tools-copy-source-files.stamp
 	find hotspot-tools -name '*.java' | sort > $@
 	mkdir -p lib/hotspot-tools
 
-ABS_SOURCE_DIRS = $(abs_top_builddir)/generated:$(abs_top_srcdir)/rt
+ABS_SOURCE_DIRS = $(abs_top_builddir)/generated
 stamps/hotspot-tools-class-files.stamp: hotspot-tools-source-files.txt
 	if ! test -d $(ICEDTEA_BOOT_DIR) ; \
 	then \
@@ -1422,10 +2673,10 @@ clean-hotspot-tools:
 bootstrap/jdk1.7.0/jre/lib/tools.jar: stamps/hotspot-tools-class-files.stamp
 	mkdir -p bootstrap/jdk1.7.0/jre/lib/
 	if ! test -d $(ICEDTEA_BOOT_DIR) ; \
-	then \
+        then \
 	  $(JAR) cf $@ -C lib/hotspot-tools com -C lib/hotspot-tools sun \
-            -C lib/hotspot-tools org -C lib/hotspot-tools java \
-            -C lib/hotspot-tools javax ; \
+	    -C lib/hotspot-tools org -C lib/hotspot-tools java \
+	    -C lib/hotspot-tools javax ; \
 	else \
 	  $(ICEDTEA_BOOT_DIR)/bin/jar cf $@ -C lib/hotspot-tools com \
 	    -C lib/hotspot-tools sun \
@@ -1441,13 +2692,13 @@ bootstrap/jdk1.7.0/jre/lib/tools.jar: stamps/hotspot-tools-class-files.stamp
 
 # rt-closed.jar class files.
 rt-source-files.txt: stamps/extract.stamp stamps/copy-source-files.stamp
-	find $(abs_top_srcdir)/rt $(abs_top_builddir)/rt -name '*.java' \
+	find $(abs_top_builddir)/rt -name '*.java' \
 	  | sort -u > $@
 
 stamps/rt-class-files.stamp: rt-source-files.txt
 	mkdir -p lib/rt
 	if ! test -d $(ICEDTEA_BOOT_DIR) ; \
-	then \
+        then \
 	  $(JAVAC) $(MEMORY_LIMIT) -g -d lib/rt \
 	    -source 1.5 \
 	    -sourcepath \
@@ -1460,8 +2711,6 @@ stamps/rt-class-files.stamp: rt-source-files.txt
 	      '$(OPENJDK_SOURCEPATH_DIRS):$(abs_top_builddir)/generated' \
             -bootclasspath \'\' @$< ; \
 	fi
-	cp -r $(abs_top_srcdir)/rt/net/sourceforge/jnlp/resources \
-	  lib/rt/net/sourceforge/jnlp/
 	mkdir -p stamps
 	touch stamps/rt-class-files.stamp
 
@@ -1476,10 +2725,10 @@ bootstrap/jdk1.7.0/jre/lib/rt-closed.jar: stamps/rt-class-files.stamp
 	if ! test -d $(ICEDTEA_BOOT_DIR) ; \
 	then \
 	  $(JAR) cf $@ -C lib/rt com -C lib/rt java \
-	    -C lib/rt javax $(LIVECONNECT_DIR) -C lib/rt net -C lib/rt sun ; \
+	    -C lib/rt javax $(LIVECONNECT_DIR) -C lib/rt sun ; \
 	else \
 	  $(ICEDTEA_BOOT_DIR)/bin/jar cf $@ -C lib/rt com -C lib/rt java \
-	    -C lib/rt javax $(LIVECONNECT_DIR) -C lib/rt net -C lib/rt sun ; \
+	    -C lib/rt javax $(LIVECONNECT_DIR) -C lib/rt sun ; \
 	fi
 	if test -d bootstrap/ecj/jre/lib ; \
 	then \
@@ -1498,16 +2747,18 @@ stamps/extra-class-files.stamp: extra-source-files.txt \
 	then \
 	  $(JAVAC) $(MEMORY_LIMIT) -g -d extra-lib \
 	    -source 1.5 \
-	    -sourcepath extra -cp bootstrap/jdk1.7.0/jre/lib/rt-closed.jar \
+	    -sourcepath extra -cp $(ICEDTEA_BOOT_DIR)/jre/lib/rt.jar \
 	    -bootclasspath \'\' @extra-source-files.txt ; \
 	else \
 	  $(ICEDTEA_BOOT_DIR)/bin/javac $(MEMORY_LIMIT) -g -d extra-lib \
             -source 1.5 \
-            -sourcepath extra -cp bootstrap/jdk1.7.0/jre/lib/rt-closed.jar \
+            -sourcepath extra -cp $(ICEDTEA_BOOT_DIR)/jre/lib/rt.jar \
             -bootclasspath \'\' @extra-source-files.txt ; \
 	fi
 	cp -r $(abs_top_srcdir)/extra/net/sourceforge/jnlp/about/resources \
-	  extra-lib/net/sourceforge/jnlp/about
+	  extra-lib/net/sourceforge/jnlp/about	
+	find extra-lib/net/sourceforge/jnlp/about -type f -exec chmod 640 '{}' ';' \
+	  -o -type d -exec chmod 750 '{}' ';'
 	mkdir -p stamps
 	touch $@
 
@@ -1547,24 +2798,6 @@ clean-cacao:
 	rm -rf cacao
 	rm -f stamps/cacao.stamp
 
-if ENABLE_GCJWEBPLUGIN
-# gcjwebplugin.so.
-gcjwebplugin.so: gcjwebplugin.cc
-	if [ -e $(abs_top_srcdir)/.hg ] && which $(HG) >/dev/null; then \
-	  revision="-r`(cd $(abs_top_srcdir); $(HG) tip --template '{rev}')`" ; \
-	fi ; \
-	if [ -n "$(PKGVERSION)" ]; then plugin_version=" ($(PKGVERSION))"; fi; \
-	plugin_version=" $(PACKAGE_VERSION)$$revision$$plugin_version"; \
-	$(CXX) $(CXXFLAGS) $(MOZILLA_CFLAGS) \
-	  $(MOZILLA_LIBS) $(GLIB_CFLAGS) $(GLIB_LIBS) \
-	  $(GTK_CFLAGS) $(GTK_LIBS) \
-	  -DPACKAGE_VERSION="\"$(PACKAGE_VERSION)\"" \
-	  -DPLUGIN_VERSION="\"$$plugin_version\"" \
-	  -fPIC -shared -o $@ $<
-
-clean-gcjwebplugin:
-	rm -f gcjwebplugin.so
-else
 if ENABLE_PLUGIN
 # IcedTeaPlugin.so.
 # Separate compile and link invocations to ensure intermediate object
@@ -1593,7 +2826,6 @@ clean-IcedTeaPlugin:
 	rm -f IcedTeaPlugin.o
 	rm -f IcedTeaPlugin.so
 endif
-endif
 
 
 # PulseAudio based mixer
@@ -1602,11 +2834,11 @@ endif
 stamps/pulse-java.stamp: stamps/pulse-java-jar.stamp stamps/pulse-java-headers.stamp
 if ENABLE_PULSE_JAVA
 	$(CC) $(CFLAGS) -fPIC -c -I$(ICEDTEA_BOOT_DIR)/include/linux -I$(ICEDTEA_BOOT_DIR)/include $(PULSE_JAVA_NATIVE_SRCDIR)/jni-common.c
-	$(CC) $(LIBPULSE_CFLAGS) $(CFLAGS) -fPIC -c -I$(ICEDTEA_BOOT_DIR)/include/linux -I$(ICEDTEA_BOOT_DIR)/include $(PULSE_JAVA_NATIVE_SRCDIR)/org_classpath_icedtea_pulseaudio_EventLoop.c
-	$(CC) $(LIBPULSE_CFLAGS) $(CFLAGS) -fPIC -c -I$(ICEDTEA_BOOT_DIR)/include/linux -I$(ICEDTEA_BOOT_DIR)/include $(PULSE_JAVA_NATIVE_SRCDIR)/org_classpath_icedtea_pulseaudio_Operation.c
-	$(CC) $(LIBPULSE_CFLAGS) $(CFLAGS) -fPIC -c -I$(ICEDTEA_BOOT_DIR)/include/linux -I$(ICEDTEA_BOOT_DIR)/include $(PULSE_JAVA_NATIVE_SRCDIR)/org_classpath_icedtea_pulseaudio_Stream.c
-	$(CC) $(LIBPULSE_CFLAGS) $(CFLAGS) -fPIC -c -I$(ICEDTEA_BOOT_DIR)/include/linux -I$(ICEDTEA_BOOT_DIR)/include $(PULSE_JAVA_NATIVE_SRCDIR)/org_classpath_icedtea_pulseaudio_PulseAudioSourcePort.c 
-	$(CC) $(LIBPULSE_CFLAGS) $(CFLAGS) -fPIC -c -I$(ICEDTEA_BOOT_DIR)/include/linux -I$(ICEDTEA_BOOT_DIR)/include $(PULSE_JAVA_NATIVE_SRCDIR)/org_classpath_icedtea_pulseaudio_PulseAudioTargetPort.c
+	$(CC) $(LIBPULSE_CFLAGS) $(CFLAGS) -fPIC -c -I$(ICEDTEA_BOOT_DIR)/include/linux -I$(ICEDTEA_BOOT_DIR)/include -I$(builddir)/pulseaudio $(PULSE_JAVA_NATIVE_SRCDIR)/org_classpath_icedtea_pulseaudio_EventLoop.c
+	$(CC) $(LIBPULSE_CFLAGS) $(CFLAGS) -fPIC -c -I$(ICEDTEA_BOOT_DIR)/include/linux -I$(ICEDTEA_BOOT_DIR)/include -I$(builddir)/pulseaudio $(PULSE_JAVA_NATIVE_SRCDIR)/org_classpath_icedtea_pulseaudio_Operation.c
+	$(CC) $(LIBPULSE_CFLAGS) $(CFLAGS) -fPIC -c -I$(ICEDTEA_BOOT_DIR)/include/linux -I$(ICEDTEA_BOOT_DIR)/include -I$(builddir)/pulseaudio $(PULSE_JAVA_NATIVE_SRCDIR)/org_classpath_icedtea_pulseaudio_Stream.c
+	$(CC) $(LIBPULSE_CFLAGS) $(CFLAGS) -fPIC -c -I$(ICEDTEA_BOOT_DIR)/include/linux -I$(ICEDTEA_BOOT_DIR)/include -I$(builddir)/pulseaudio $(PULSE_JAVA_NATIVE_SRCDIR)/org_classpath_icedtea_pulseaudio_PulseAudioSourcePort.c 
+	$(CC) $(LIBPULSE_CFLAGS) $(CFLAGS) -fPIC -c -I$(ICEDTEA_BOOT_DIR)/include/linux -I$(ICEDTEA_BOOT_DIR)/include -I$(builddir)/pulseaudio $(PULSE_JAVA_NATIVE_SRCDIR)/org_classpath_icedtea_pulseaudio_PulseAudioTargetPort.c
 	$(CC) $(LDFLAGS) -shared org_*pulseaudio*.o jni-common.o $(LIBPULSE_LIBS) -o libpulse-java.so 
 	mv org_classpath_icedtea_pulseaudio_*.o $(PULSE_JAVA_CLASS_DIR)
 	mv jni-common.o $(PULSE_JAVA_CLASS_DIR)
@@ -1647,6 +2879,7 @@ if ENABLE_PULSE_JAVA
 		) \
         fi
 	cp  -r $(PULSE_JAVA_JAVA_SRCDIR)/META-INF $(PULSE_JAVA_CLASS_DIR)
+	chmod -R ug+w $(PULSE_JAVA_CLASS_DIR)/META-INF
 endif
 	mkdir -p stamps
 	touch stamps/pulse-java-class.stamp
@@ -1656,17 +2889,17 @@ stamps/pulse-java-headers.stamp: stamps/pulse-java-class.stamp
 if ENABLE_PULSE_JAVA
 	if ! test -d $(ICEDTEA_BOOT_DIR) ; \
 	then \
-	  $(JAVAH) -d $(PULSE_JAVA_NATIVE_SRCDIR) -classpath $(PULSE_JAVA_CLASS_DIR) org.classpath.icedtea.pulseaudio.EventLoop ; \
-	  $(JAVAH) -d $(PULSE_JAVA_NATIVE_SRCDIR) -classpath $(PULSE_JAVA_CLASS_DIR) org.classpath.icedtea.pulseaudio.Stream ; \
-	  $(JAVAH) -d $(PULSE_JAVA_NATIVE_SRCDIR) -classpath $(PULSE_JAVA_CLASS_DIR) org.classpath.icedtea.pulseaudio.Operation; \
-	  $(JAVAH) -d $(PULSE_JAVA_NATIVE_SRCDIR) -classpath $(PULSE_JAVA_CLASS_DIR) org.classpath.icedtea.pulseaudio.PulseAudioSourcePort ; \
-	  $(JAVAH) -d $(PULSE_JAVA_NATIVE_SRCDIR) -classpath $(PULSE_JAVA_CLASS_DIR) org.classpath.icedtea.pulseaudio.PulseAudioTargetPort ; \
+	  $(JAVAH) -d $(PULSE_JAVA_NATIVE_BUILDDIR) -classpath $(PULSE_JAVA_CLASS_DIR) org.classpath.icedtea.pulseaudio.EventLoop ; \
+	  $(JAVAH) -d $(PULSE_JAVA_NATIVE_BUILDDIR) -classpath $(PULSE_JAVA_CLASS_DIR) org.classpath.icedtea.pulseaudio.Stream ; \
+	  $(JAVAH) -d $(PULSE_JAVA_NATIVE_BUILDDIR) -classpath $(PULSE_JAVA_CLASS_DIR) org.classpath.icedtea.pulseaudio.Operation; \
+	  $(JAVAH) -d $(PULSE_JAVA_NATIVE_BUILDDIR) -classpath $(PULSE_JAVA_CLASS_DIR) org.classpath.icedtea.pulseaudio.PulseAudioSourcePort ; \
+	  $(JAVAH) -d $(PULSE_JAVA_NATIVE_BUILDDIR) -classpath $(PULSE_JAVA_CLASS_DIR) org.classpath.icedtea.pulseaudio.PulseAudioTargetPort ; \
 	else \
-	  $(ICEDTEA_BOOT_DIR)/bin/javah -d $(PULSE_JAVA_NATIVE_SRCDIR) -classpath $(PULSE_JAVA_CLASS_DIR) org.classpath.icedtea.pulseaudio.EventLoop ; \
-	  $(ICEDTEA_BOOT_DIR)/bin/javah -d $(PULSE_JAVA_NATIVE_SRCDIR) -classpath $(PULSE_JAVA_CLASS_DIR) org.classpath.icedtea.pulseaudio.Stream ; \
-	  $(ICEDTEA_BOOT_DIR)/bin/javah -d $(PULSE_JAVA_NATIVE_SRCDIR) -classpath $(PULSE_JAVA_CLASS_DIR) org.classpath.icedtea.pulseaudio.Operation; \
-	  $(ICEDTEA_BOOT_DIR)/bin/javah -d $(PULSE_JAVA_NATIVE_SRCDIR) -classpath $(PULSE_JAVA_CLASS_DIR) org.classpath.icedtea.pulseaudio.PulseAudioSourcePort ; \
-	  $(ICEDTEA_BOOT_DIR)/bin/javah -d $(PULSE_JAVA_NATIVE_SRCDIR) -classpath $(PULSE_JAVA_CLASS_DIR) org.classpath.icedtea.pulseaudio.PulseAudioTargetPort ; \
+	  $(ICEDTEA_BOOT_DIR)/bin/javah -d $(PULSE_JAVA_NATIVE_BUILDDIR) -classpath $(PULSE_JAVA_CLASS_DIR) org.classpath.icedtea.pulseaudio.EventLoop ; \
+	  $(ICEDTEA_BOOT_DIR)/bin/javah -d $(PULSE_JAVA_NATIVE_BUILDDIR) -classpath $(PULSE_JAVA_CLASS_DIR) org.classpath.icedtea.pulseaudio.Stream ; \
+	  $(ICEDTEA_BOOT_DIR)/bin/javah -d $(PULSE_JAVA_NATIVE_BUILDDIR) -classpath $(PULSE_JAVA_CLASS_DIR) org.classpath.icedtea.pulseaudio.Operation; \
+	  $(ICEDTEA_BOOT_DIR)/bin/javah -d $(PULSE_JAVA_NATIVE_BUILDDIR) -classpath $(PULSE_JAVA_CLASS_DIR) org.classpath.icedtea.pulseaudio.PulseAudioSourcePort ; \
+	  $(ICEDTEA_BOOT_DIR)/bin/javah -d $(PULSE_JAVA_NATIVE_BUILDDIR) -classpath $(PULSE_JAVA_CLASS_DIR) org.classpath.icedtea.pulseaudio.PulseAudioTargetPort ; \
 	fi
 endif
 	mkdir -p stamps
@@ -1676,10 +2909,11 @@ endif
 clean-pulse-java:
 if ENABLE_PULSE_JAVA
 	[ -z "$(PULSE_JAVA_CLASS_DIR)" ] || find $(PULSE_JAVA_CLASS_DIR) -name '*.class' | xargs -r rm -f
-	[ -z "$(PULSE_JAVA_NATIVE_SRCDIR)" ] || rm -f $(PULSE_JAVA_NATIVE_SRCDIR)/org_*.h $(PULSE_JAVA_NATIVE_SRCDIR)/*.o
+	[ -z "$(PULSE_JAVA_NATIVE_BUILDDIR)" ] || rm -f $(PULSE_JAVA_NATIVE_BUILDDIR)/org_*.h $(PULSE_JAVA_NATIVE_BUILDDIR)/*.o
 	rm -f stamps/pulse-java*.stamp
 	rm -f pulse-java.jar
 	rm -f libpulse-java.so
+	rm -rf $(PULSE_JAVA_CLASS_DIR)/META-INF
 endif
 
 # end of pulse-java
@@ -1718,6 +2952,7 @@ check-langtools: stamps/jtreg.stamp
 	$(ICEDTEA_BOOT_DIR)/bin/java -jar test/jtreg.jar -v1 -a -ignore:quiet \
 		-w:test/langtools/JTwork -r:test/langtools/JTreport \
 		-s -jdk:`pwd`/$(BUILD_OUTPUT_DIR)/j2sdk-image \
+		-exclude:$(abs_top_srcdir)/test/jtreg/excludelist.langtools.jtx \
 		`pwd`/openjdk/langtools/test \
 	    | tee test/$@.log
 
@@ -1726,6 +2961,7 @@ check-jdk: stamps/jtreg.stamp
 	$(ICEDTEA_BOOT_DIR)/bin/java -jar test/jtreg.jar -v1 -a -ignore:quiet \
 		-w:test/jdk/JTwork -r:test/jdk/JTreport \
 		-s -jdk:`pwd`/$(BUILD_OUTPUT_DIR)/j2sdk-image \
+		-exclude:$(abs_top_srcdir)/test/jtreg/excludelist.jdk.jtx \
 		`pwd`/openjdk/jdk/test \
 	    | tee test/$@.log
 
@@ -1787,8 +3023,7 @@ clean-visualvm:
 	rm -rf visualvm
 	rm -f stamps/visualvm.stamp
 
-stamps/nbplatform.stamp: $(BOOTSTRAP_DIRECTORY_STAMP) stamps/extract.stamp \
-	stamps/download.stamp
+stamps/nbplatform.stamp: $(BOOTSTRAP_DIRECTORY_STAMP) stamps/extract-visualvm.stamp
 if WITH_VISUALVM
 	mkdir netbeans ; \
 	cd netbeans ; \
@@ -1819,6 +3054,22 @@ endif
 	mkdir -p stamps
 	touch $@
 
+stamps/extract-visualvm.stamp:
+if WITH_VISUALVM
+	if ! test -d netbeans ; \
+	then \
+	  mkdir netbeans ; \
+	  $(TAR) xf $(NETBEANS_PROFILER_SRC_ZIP) -C netbeans ; \
+	fi
+
+	if ! test -d visualvm ; \
+	then \
+	  $(TAR) xf $(VISUALVM_SRC_ZIP) ; \
+	fi
+endif
+	mkdir -p stamps
+	touch $@
+
 clean-nbplatform:
 	rm -rf netbeans
 	rm -f stamps/nbplatform.stamp
@@ -1842,6 +3093,14 @@ bootstrap-directory-symlink: stamps/bootstrap-directory-symlink.stamp
 
 cacao: stamps/cacao.stamp
 
+clone-ecj: stamps/clone-ecj.stamp
+
+visualvm: stamps/visualvm.stamp
+
+nbplatform: stamps/nbplatform.stamp
+
+extract-visualvm: stamps/extract-visualvm.stamp
+
 visualvm: stamps/visualvm.stamp
 
 nbplatform: stamps/nbplatform.stamp
@@ -1852,7 +3111,9 @@ download: stamps/download.stamp
 
 extract: stamps/extract.stamp
 
-extract-ecj: stamps/extract-ecj.stamp
+extract-cacao: stamps/extract-cacao.stamp
+
+generated: stamps/generated.stamp
 
 icedtea: stamps/icedtea.stamp
 
@@ -1881,6 +3142,10 @@ hotspot-tools-class-files: stamps/hotspot-tools-class-files.stamp
 hotspot-tools-copy-source-files: stamps/hotspot-tools-copy-source-files.stamp
 
 hotspot-tools: stamps/hotspot-tools.stamp
+
+hotspot-ports: stamps/ports.stamp
+
+tools-class-files: stamps/tools-class-files.stamp
 
 hotspot-ports: stamps/ports.stamp
 

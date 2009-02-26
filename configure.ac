@@ -1,4 +1,4 @@
-AC_INIT([icedtea6], [pre-1.5], [distro-pkg-dev@openjdk.java.net])
+AC_INIT([icedtea], [1.9-pre], [distro-pkg-dev@openjdk.java.net])
 AM_INIT_AUTOMAKE([1.10 tar-pax foreign])
 AC_CONFIG_FILES([Makefile])
 AC_CANONICAL_HOST
@@ -73,6 +73,24 @@ AC_ARG_WITH([netbeans-home],
 AC_MSG_RESULT([${SYSTEM_NETBEANS_DIR}])
 AC_SUBST(SYSTEM_NETBEANS_DIR)
 
+AC_MSG_CHECKING([for a NetBeans installation])
+AC_ARG_WITH([netbeans-home],
+           [AS_HELP_STRING([--with-netbeans-home],
+                            [NetBeans home directory (default is /usr/share/netbeans)])],
+            [
+              if test "x${withval}" = x
+              then
+                SYSTEM_NETBEANS_DIR=/usr/share/netbeans
+              else
+                SYSTEM_NETBEANS_DIR=${withval}
+              fi
+            ],
+            [
+              SYSTEM_NETBEANS_DIR=/usr/share/netbeans
+            ])
+AC_MSG_RESULT([${SYSTEM_NETBEANS_DIR}])
+AC_SUBST(SYSTEM_NETBEANS_DIR)
+
 AC_MSG_CHECKING([whether to build using an existing installation of OpenJDK])
 AC_ARG_WITH([openjdk],
         [AS_HELP_STRING([--with-openjdk],
@@ -106,8 +124,16 @@ AC_ARG_WITH([ant-home],
             [
               SYSTEM_ANT_DIR=/usr/share/ant
             ])
-AC_SUBST(SYSTEM_ANT_DIR)
 AC_MSG_RESULT(${SYSTEM_ANT_DIR})
+AC_SUBST(SYSTEM_ANT_DIR)
+
+AC_MSG_CHECKING(whether to build VisualVM)
+AC_ARG_ENABLE([visualvm],
+              [AS_HELP_STRING([--enable-visualvm],
+                                         [Enable compilation of visualvm.])],
+              [enable_visualvm="${enableval}"], [enable_visualvm="no"])
+AM_CONDITIONAL(WITH_VISUALVM, test "x${enable_visualvm}" = "xyes")
+AC_MSG_RESULT(${enable_visualvm})
 
 AC_MSG_CHECKING(whether to build VisualVM)
 AC_ARG_ENABLE([visualvm],
@@ -125,14 +151,6 @@ AC_ARG_ENABLE([liveconnect],
 AM_CONDITIONAL(ENABLE_PLUGIN, test "x${enable_plugin}" = "xyes")
 AC_MSG_RESULT(${enable_plugin})
 
-AC_MSG_CHECKING([whether to build gcjwebplugin])
-AC_ARG_ENABLE([gcjwebplugin],
-              [AS_HELP_STRING([--enable-gcjwebplugin],
-                              [Build the GCJ Web Plugin plugin (deprecated)])],
-              [enable_gcjwebplugin="${enableval}"], [enable_gcjwebplugin="no"])
-AM_CONDITIONAL(ENABLE_GCJWEBPLUGIN, test "x${enable_gcjwebplugin}" = "xyes")
-AC_MSG_RESULT(${enable_gcjwebplugin})
-
 AC_MSG_CHECKING([whether to include PulseAudio support])
 AC_ARG_ENABLE([pulse-java],
               [AS_HELP_STRING([--enable-pulse-java],
@@ -141,7 +159,7 @@ AC_ARG_ENABLE([pulse-java],
 AM_CONDITIONAL(ENABLE_PULSE_JAVA, test "x${enable_pulse_java}" = "xyes")
 AC_MSG_RESULT(${enable_pulse_java})
 
-AC_MSG_CHECKING(whether to build documentation)
+AC_MSG_CHECKING([whether to build documentation])
 AC_ARG_ENABLE([docs],
 	      [AS_HELP_STRING([--disable-docs],
 	      		      [Disable generation of documentation])],
@@ -149,7 +167,7 @@ AC_ARG_ENABLE([docs],
 AM_CONDITIONAL([ENABLE_DOCS], [test x$ENABLE_DOCS = xyes])
 AC_MSG_RESULT(${ENABLE_DOCS})
 
-AC_MSG_CHECKING(whether to include the XRender pipeline)
+AC_MSG_CHECKING([whether to include the XRender pipeline])
 AC_ARG_ENABLE([xrender],
 	      [AS_HELP_STRING([--disable-xrender],
 	      		      [Disable inclusion of xrender pipeline])],
@@ -161,11 +179,11 @@ AC_MSG_CHECKING(whether to include NIO2 support)
 AC_ARG_ENABLE([nio2],
 	      [AS_HELP_STRING([--disable-nio2],
 	      		      [Disable inclusion of backported NIO2])],
-	      [ENABLE_NIO2="${enableval}"], [ENABLE_NIO2='no'])
+	      [ENABLE_NIO2="${enableval}"], [ENABLE_NIO2='yes'])
 AM_CONDITIONAL([ENABLE_NIO2], [test x$ENABLE_NIO2 = xyes])
 AC_MSG_RESULT(${ENABLE_NIO2})
 
-AC_MSG_CHECKING(how many parallel build jobs to execute)
+AC_MSG_CHECKING([how many parallel build jobs to execute])
 AC_ARG_WITH([parallel-jobs],
 	[AS_HELP_STRING([--with-parallel-jobs],
 			[build IcedTea using the specified number of parallel jobs])],
@@ -262,8 +280,26 @@ AC_CHECK_WITH_CACAO_SRC_ZIP
 ENABLE_OPTIMIZATIONS
 ENABLE_ZERO_BUILD
 SET_CORE_OR_SHARK_BUILD
+WITH_VERSION_SUFFIX
+WITH_PROJECT
 ENABLE_HG
+
+AC_PATH_TOOL([HG],[hg])
+if test "x${enable_hg}" = "xyes"; then
+  if test "x${HG}" = x; then
+    AC_MSG_ERROR([Mercurial not found; this is required for a hg build])
+  fi
+fi
+AC_SUBST([HG])
 AC_CHECK_WITH_HG_REVISION
+
+AC_PATH_TOOL([GCJ],[gcj])
+AC_SUBST([GCJ])
+
+if test "x${enable_visualvm}" = "xyes"
+then
+  FIND_NETBEANS
+fi
 
 if test "x${enable_visualvm}" = "xyes"
 then
@@ -275,7 +311,7 @@ then
   FIND_PULSEAUDIO
 fi
 
-dnl pkgconfig cannot be used to finid these headers and libraries.
+dnl pkgconfig cannot be used to find these headers and libraries.
 AC_CHECK_HEADERS([cups/cups.h cups/ppd.h],[]
 	,[AC_MSG_ERROR("CUPS headers were not found -
 	try installing cups-devel.")])

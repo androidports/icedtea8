@@ -1,5 +1,9 @@
 /*
+<<<<<<< local
+ * Copyright 2007 Sun Microsystems, Inc.  All Rights Reserved.
+=======
  * Copyright 2007-2008 Sun Microsystems, Inc.  All Rights Reserved.
+>>>>>>> other
  *
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
@@ -26,12 +30,15 @@
  */
 // AUTOMATICALLY GENERATED FILE - DO NOT EDIT                                  
 package sun.nio.ch;                                                            
+
+import java.net.SocketOption;                                                  
+import java.net.StandardSocketOption;                                          
+import java.net.ProtocolFamily;                                                
+import java.net.StandardProtocolFamily;                                        
+
 import java.util.Map;                                                          
 import java.util.HashMap;                                                      
-import org.classpath.icedtea.java.net.ProtocolFamily;                                                
-import org.classpath.icedtea.java.net.StandardProtocolFamily;                                        
-import org.classpath.icedtea.java.net.SocketOption;                            
-import org.classpath.icedtea.java.net.StandardSocketOption;                    
+
 class SocketOptionRegistry {                                                   
     private SocketOptionRegistry() { }                                         
     private static class RegistryKey {                                         
