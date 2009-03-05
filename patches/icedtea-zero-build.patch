@@ -1,7 +1,7 @@
-diff -r c9fa8e3d5aa2 openjdk/jdk/make/common/Defs-linux.gmk
---- openjdk/jdk/make/common/Defs-linux.gmk	Thu Mar 20 13:42:48 2008 +0000
-+++ openjdk/jdk/make/common/Defs-linux.gmk	Thu Mar 20 13:45:05 2008 +0000
-@@ -109,8 +109,16 @@ LDFLAGS_COMMON_sparcv9  += -m64 -mcpu=v9
+diff -Nru openjdk.orig/corba/make/common/Defs-linux.gmk openjdk/corba/make/common/Defs-linux.gmk
+--- openjdk.orig/corba/make/common/Defs-linux.gmk	2008-09-01 01:34:18.000000000 +0100
++++ openjdk/corba/make/common/Defs-linux.gmk	2008-09-01 01:37:11.000000000 +0100
+@@ -99,8 +99,16 @@
  LDFLAGS_COMMON_sparcv9  += -m64 -mcpu=v9
  CFLAGS_REQUIRED_sparc   += -m32 -mcpu=v9
  LDFLAGS_COMMON_sparc    += -m32 -mcpu=v9
@@ -20,10 +20,10 @@ diff -r c9fa8e3d5aa2 openjdk/jdk/make/common/Defs-linux.gmk
  
  # Add in platform specific optimizations for all opt levels
  CC_HIGHEST_OPT += $(_OPT_$(ARCH))
-diff -r c9fa8e3d5aa2 openjdk/jdk/make/common/shared/Compiler-gcc.gmk
---- openjdk/jdk/make/common/shared/Compiler-gcc.gmk	Thu Mar 20 13:42:48 2008 +0000
-+++ openjdk/jdk/make/common/shared/Compiler-gcc.gmk	Thu Mar 20 13:48:12 2008 +0000
-@@ -70,6 +70,11 @@ ifeq ($(PLATFORM), linux)
+diff -Nru openjdk.orig/corba/make/common/shared/Compiler-gcc.gmk openjdk/corba/make/common/shared/Compiler-gcc.gmk
+--- openjdk.orig/corba/make/common/shared/Compiler-gcc.gmk	2008-09-01 01:34:18.000000000 +0100
++++ openjdk/corba/make/common/shared/Compiler-gcc.gmk	2008-09-01 01:37:11.000000000 +0100
+@@ -70,6 +70,11 @@
    else
      CXX            = $(COMPILER_PATH)g++$(GCC_SUFFIX)
    endif
@@ -35,18 +35,18 @@ diff -r c9fa8e3d5aa2 openjdk/jdk/make/common/shared/Compiler-gcc.gmk
    ifneq ("$(findstring sparc,$(ARCH))", "")
      # sparc or sparcv9
      REQUIRED_CC_VER = 4.0
-@@ -90,6 +95,7 @@ ifeq ($(PLATFORM), linux)
-     # ia64
-     REQUIRED_CC_VER = 3.2
-     REQUIRED_GCC_VER = 2.9[56789].*
+@@ -93,6 +98,7 @@
+   endif
+   endif
+   endif
 +  endif
-   endif
-   endif
-   endif
-diff -r c9fa8e3d5aa2 openjdk/jdk/make/common/shared/Platform.gmk
---- openjdk/jdk/make/common/shared/Platform.gmk	Thu Mar 20 13:42:48 2008 +0000
-+++ openjdk/jdk/make/common/shared/Platform.gmk	Thu Mar 20 13:59:46 2008 +0000
-@@ -213,6 +213,11 @@ ifeq ($(SYSTEM_UNAME), Linux)
+   # Option used to create a shared library
+   SHARED_LIBRARY_FLAG = -shared -mimpure-text
+   SUN_COMP_VER := $(shell $(CC) --verbose 2>&1 )
+diff -Nru openjdk.orig/corba/make/common/shared/Platform.gmk openjdk/corba/make/common/shared/Platform.gmk
+--- openjdk.orig/corba/make/common/shared/Platform.gmk	2008-08-14 08:39:29.000000000 +0100
++++ openjdk/corba/make/common/shared/Platform.gmk	2008-09-01 01:37:11.000000000 +0100
+@@ -202,6 +202,11 @@
    ARCH_FAMILY := $(ARCH)
  
    # Linux builds may be 32-bit or 64-bit data model.
@@ -58,40 +58,103 @@ diff -r c9fa8e3d5aa2 openjdk/jdk/make/common/shared/Platform.gmk
    ifeq ($(ARCH), sparc)
      # Linux sparc build can be either 32-bit or 64-bit.
      #   Default to 32, but allow explicit setting to 32 or 64.
-diff -r c9fa8e3d5aa2 openjdk/jdk/make/javax/sound/SoundDefs.gmk
---- openjdk/jdk/make/javax/sound/SoundDefs.gmk	Thu Mar 20 13:42:48 2008 +0000
-+++ openjdk/jdk/make/javax/sound/SoundDefs.gmk	Thu Mar 20 14:11:46 2008 +0000
-@@ -55,21 +55,25 @@ ifeq ($(PLATFORM), solaris)
+diff -Nru openjdk.orig/jdk/make/common/Defs-linux.gmk openjdk/jdk/make/common/Defs-linux.gmk
+--- openjdk.orig/jdk/make/common/Defs-linux.gmk	2008-09-01 01:34:18.000000000 +0100
++++ openjdk/jdk/make/common/Defs-linux.gmk	2008-09-01 01:37:11.000000000 +0100
+@@ -113,8 +113,16 @@
+ LDFLAGS_COMMON_sparcv9  += -m64 -mcpu=v9
+ CFLAGS_REQUIRED_sparc   += -m32 -mcpu=v9
+ LDFLAGS_COMMON_sparc    += -m32 -mcpu=v9
+-CFLAGS_REQUIRED         =  $(CFLAGS_REQUIRED_$(ARCH))
+-LDFLAGS_COMMON          += $(LDFLAGS_COMMON_$(ARCH))
++ifdef ICEDTEA_ZERO_BUILD
++  CFLAGS_REQUIRED       =  $(ZERO_ARCHFLAG)
++  ifeq ($(ZERO_ENDIANNESS), little)
++    CFLAGS_REQUIRED     += -D_LITTLE_ENDIAN
++  endif
++  LDFLAGS_COMMON        += $(ZERO_ARCHFLAG)
++else
++  CFLAGS_REQUIRED       =  $(CFLAGS_REQUIRED_$(ARCH))
++  LDFLAGS_COMMON        += $(LDFLAGS_COMMON_$(ARCH))
++endif
+ 
+ #
+ # Selection of warning messages
+diff -Nru openjdk.orig/jdk/make/common/shared/Compiler-gcc.gmk openjdk/jdk/make/common/shared/Compiler-gcc.gmk
+--- openjdk.orig/jdk/make/common/shared/Compiler-gcc.gmk	2008-09-01 01:34:18.000000000 +0100
++++ openjdk/jdk/make/common/shared/Compiler-gcc.gmk	2008-09-01 01:38:18.000000000 +0100
+@@ -68,6 +68,11 @@
+   else
+     CXX            = $(COMPILER_PATH)g++$(GCC_SUFFIX)
+   endif
++  ifdef ICEDTEA_ZERO_BUILD
++    # zero
++    REQUIRED_CC_VER = 3.2
++    REQUIRED_GCC_VER = 3.2.*
++  else
+   ifneq ("$(findstring sparc,$(ARCH))", "")
+     # sparc or sparcv9
+     REQUIRED_CC_VER = 4.0
+@@ -86,6 +91,7 @@
+       endif
+     endif
+   endif
++  endif
+   # Option used to create a shared library
+   SHARED_LIBRARY_FLAG = -shared -mimpure-text
+   SUN_COMP_VER := $(shell $(CC) --verbose 2>&1 )
+diff -Nru openjdk.orig/jdk/make/common/shared/Platform.gmk openjdk/jdk/make/common/shared/Platform.gmk
+--- openjdk.orig/jdk/make/common/shared/Platform.gmk	2008-08-14 08:42:49.000000000 +0100
++++ openjdk/jdk/make/common/shared/Platform.gmk	2008-09-01 01:37:11.000000000 +0100
+@@ -208,6 +208,11 @@
+   ARCH_FAMILY := $(ARCH)
+ 
+   # Linux builds may be 32-bit or 64-bit data model.
++  ifdef ICEDTEA_ZERO_BUILD
++    ifndef ARCH_DATA_MODEL
++      ARCH_DATA_MODEL = $(ZERO_BITSPERWORD)
++    endif
++  endif
+   ifeq ($(ARCH), sparc)
+     # Linux sparc build can be either 32-bit or 64-bit.
+     #   Default to 32, but allow explicit setting to 32 or 64.
+diff -Nru openjdk.orig/jdk/make/javax/sound/SoundDefs.gmk openjdk/jdk/make/javax/sound/SoundDefs.gmk
+--- openjdk.orig/jdk/make/javax/sound/SoundDefs.gmk	2008-08-14 08:42:49.000000000 +0100
++++ openjdk/jdk/make/javax/sound/SoundDefs.gmk	2008-09-01 01:37:11.000000000 +0100
+@@ -55,21 +55,25 @@
  
  endif # PLATFORM solaris
  
 -ifeq ($(ARCH), i586)
 -  CPPFLAGS += -DX_ARCH=X_I586
 -endif # ARCH i586
+-
+-ifeq ($(ARCH), sparc)
+-  CPPFLAGS += -DX_ARCH=X_SPARC
+-endif # ARCH sparc
+-
+-ifeq ($(ARCH), sparcv9)
+-  CPPFLAGS += -DX_ARCH=X_SPARCV9
+-endif # ARCH sparcv9
+-
+-ifeq ($(ARCH), amd64)
+-  CPPFLAGS += -DX_ARCH=X_AMD64
+-endif # ARCH amd64
 +ifdef ICEDTEA_ZERO_BUILD
 +  CPPFLAGS += -DX_ARCH=X_ZERO
 +else
 +  ifeq ($(ARCH), i586)
 +    CPPFLAGS += -DX_ARCH=X_I586
 +  endif # ARCH i586
- 
--ifeq ($(ARCH), sparc)
--  CPPFLAGS += -DX_ARCH=X_SPARC
--endif # ARCH sparc
++
 +  ifeq ($(ARCH), sparc)
 +    CPPFLAGS += -DX_ARCH=X_SPARC
 +  endif # ARCH sparc
- 
--ifeq ($(ARCH), sparcv9)
--  CPPFLAGS += -DX_ARCH=X_SPARCV9
--endif # ARCH sparcv9
++
 +  ifeq ($(ARCH), sparcv9)
 +    CPPFLAGS += -DX_ARCH=X_SPARCV9
 +  endif # ARCH sparcv9
- 
--ifeq ($(ARCH), amd64)
--  CPPFLAGS += -DX_ARCH=X_AMD64
--endif # ARCH amd64
++
 +  ifeq ($(ARCH), amd64)
 +    CPPFLAGS += -DX_ARCH=X_AMD64
 +  endif # ARCH amd64
@@ -99,9 +162,9 @@ diff -r c9fa8e3d5aa2 openjdk/jdk/make/javax/sound/SoundDefs.gmk
  
  
  # files needed for MIDI i/o
-diff -r c9fa8e3d5aa2 openjdk/jdk/src/share/native/com/sun/media/sound/SoundDefs.h
---- openjdk/jdk/src/share/native/com/sun/media/sound/SoundDefs.h	Thu Mar 20 13:42:48 2008 +0000
-+++ openjdk/jdk/src/share/native/com/sun/media/sound/SoundDefs.h	Thu Mar 20 14:14:29 2008 +0000
+diff -Nru openjdk.orig/jdk/src/share/native/com/sun/media/sound/SoundDefs.h openjdk/jdk/src/share/native/com/sun/media/sound/SoundDefs.h
+--- openjdk.orig/jdk/src/share/native/com/sun/media/sound/SoundDefs.h	2008-08-14 08:43:23.000000000 +0100
++++ openjdk/jdk/src/share/native/com/sun/media/sound/SoundDefs.h	2008-09-01 01:37:11.000000000 +0100
 @@ -38,6 +38,7 @@
  #define X_SPARCV9       3
  #define X_IA64          4
@@ -110,67 +173,6 @@ diff -r c9fa8e3d5aa2 openjdk/jdk/src/share/native/com/sun/media/sound/SoundDefs.
  
  // **********************************
  // Make sure you set X_PLATFORM and X_ARCH defines correctly.
-diff -r c9fa8e3d5aa2 openjdk/corba/make/common/Defs-linux.gmk
---- openjdk/corba/make/common/Defs-linux.gmk	Thu Mar 20 13:42:48 2008 +0000
-+++ openjdk/corba/make/common/Defs-linux.gmk	Thu Mar 20 13:57:50 2008 +0000
-@@ -99,8 +99,16 @@ LDFLAGS_COMMON_sparcv9  += -m64 -mcpu=v9
- LDFLAGS_COMMON_sparcv9  += -m64 -mcpu=v9
- CFLAGS_REQUIRED_sparc   += -m32 -mcpu=v9
- LDFLAGS_COMMON_sparc    += -m32 -mcpu=v9
--CFLAGS_REQUIRED         =  $(CFLAGS_REQUIRED_$(ARCH))
--LDFLAGS_COMMON          += $(LDFLAGS_COMMON_$(ARCH))
-+ifdef ICEDTEA_ZERO_BUILD
-+  CFLAGS_REQUIRED       =  $(ZERO_ARCHFLAG)
-+  ifeq ($(ZERO_ENDIANNESS), little)
-+    CFLAGS_REQUIRED     += -D_LITTLE_ENDIAN
-+  endif
-+  LDFLAGS_COMMON        += $(ZERO_ARCHFLAG)
-+else
-+  CFLAGS_REQUIRED       =  $(CFLAGS_REQUIRED_$(ARCH))
-+  LDFLAGS_COMMON        += $(LDFLAGS_COMMON_$(ARCH))
-+endif
- 
- # Add in platform specific optimizations for all opt levels
- CC_HIGHEST_OPT += $(_OPT_$(ARCH))
-diff -r c9fa8e3d5aa2 openjdk/corba/make/common/shared/Compiler-gcc.gmk
---- openjdk/corba/make/common/shared/Compiler-gcc.gmk	Thu Mar 20 13:42:48 2008 +0000
-+++ openjdk/corba/make/common/shared/Compiler-gcc.gmk	Thu Mar 20 13:59:09 2008 +0000
-@@ -70,6 +70,11 @@ ifeq ($(PLATFORM), linux)
-   else
-     CXX            = $(COMPILER_PATH)g++$(GCC_SUFFIX)
-   endif
-+  ifdef ICEDTEA_ZERO_BUILD
-+    # zero
-+    REQUIRED_CC_VER = 3.2
-+    REQUIRED_GCC_VER = 3.2.*
-+  else
-   ifneq ("$(findstring sparc,$(ARCH))", "")
-     # sparc or sparcv9
-     REQUIRED_CC_VER = 4.0
-@@ -90,6 +95,7 @@ ifeq ($(PLATFORM), linux)
-     # ia64
-     REQUIRED_CC_VER = 3.2
-     REQUIRED_GCC_VER = 2.9[56789].*
-+  endif
-   endif
-   endif
-   endif
-diff -r c9fa8e3d5aa2 openjdk/corba/make/common/shared/Platform.gmk
---- openjdk/corba/make/common/shared/Platform.gmk	Thu Mar 20 13:42:48 2008 +0000
-+++ openjdk/corba/make/common/shared/Platform.gmk	Thu Mar 20 13:59:53 2008 +0000
-@@ -202,6 +202,11 @@ ifeq ($(SYSTEM_UNAME), Linux)
-   ARCH_FAMILY := $(ARCH)
- 
-   # Linux builds may be 32-bit or 64-bit data model.
-+  ifdef ICEDTEA_ZERO_BUILD
-+    ifndef ARCH_DATA_MODEL
-+      ARCH_DATA_MODEL = $(ZERO_BITSPERWORD)
-+    endif
-+  endif
-   ifeq ($(ARCH), sparc)
-     # Linux sparc build can be either 32-bit or 64-bit.
-     #   Default to 32, but allow explicit setting to 32 or 64.
-diff -r b5e5d2ef906a openjdk/hotspot/src/share/vm/runtime/vm_version.cpp
 --- openjdk/hotspot/src/share/vm/runtime/vm_version.cpp	Thu Jun 19 17:05:23 2008 +0100
 +++ openjdk/hotspot/src/share/vm/runtime/vm_version.cpp	Fri Jun 20 10:29:14 2008 +0100
 @@ -98,7 +98,11 @@
