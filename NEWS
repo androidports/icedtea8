@@ -1,0 +1,239 @@
+New in release 1.11 (2009-08-06)
+
+- Updated to OpenJDK7 b66 (Milestone 4), including
+  JSR 308: Annotations on Java types.
+- Updates/bug fixes for netx, Shark and the web plugin.
+- Zero is now provided in the upstream forest rather than in-tree.
+- The options
+  - --with-openjdk
+  - --with-icedtea
+  - --with-openjdk-home
+  - --with-icedtea-home
+  - --with-gcj-jdk
+  have been removed.  The JDK is now specified by --with-jdk-home
+  and whether or not do a full bootstrap or not is now decided
+  by --disable-bootstrap (the default is yes).  This is in preparation
+  for making the two stages independent of the JDK used, but some
+  artefacts still remain in this release; the supported behaviour
+  is still the use of gcj jdk for a full bootstrap and icedtea
+  for a quick build.
+- Added java method tracing using systemtap version 0.9.9+.
+- Added latest security fixes.
+
+New in release 1.10 (2009-05-29)
+
+- Updated to OpenJDK7 b59 build via IcedTea forest.  Now includes
+  SCTP and Nimbus Swing look and feel.
+- Static trace support through systemtap.
+  When given the configure option --enable-systemtap IcedTea will build
+  hotspot with the dtrace static markers enabled and install an hotspot
+  tapset that can be used to dynamically trace execution of java
+  applications at runtime. See the tapset/hotspot.stp file for
+  documentation of the various trace points and arguments available.
+- Allow building of other virtual machines besides the default VM. Additional
+  virtual machines on architectures where hotspot is available are cacao
+  and zero (or shark), and cacao, where zero (or shark) is available. It's
+  not possible to build cacao as the default VM, and zero as additional VM.
+- New options --enable-nimbus and --enable-nimbus-generation.  The default
+  is that the first is on but the second is off, so Nimbus is built but
+  without needing to generate the files using JIBX (http://jibx.sourceforge.net/).
+- VisualVM updated to 1.1.1.
+- Many build fixes, notably to make netx/the plugin work.  IcedTea7 now
+  avoids the binary plug mechanism in favour of using the same method as
+  CORBA, JAXP, JAXWS and langtools to import the plugin/netx code.
+- Several web browser plugin and javaws support fixes:
+  - Fixed security handling to prevent access denials when there is a site
+  specific exception in the policy file
+  - Allow extensions (chrome) to run Java code with full permissions
+  - Added non-trusted SSL support to WebStart (javaws)
+  - Added proxy support
+  - Other improvements that were breaking specific sites (tag parser fix,
+    nested jar support, etc.)
+  - Added JVM Console (used by http://chrispederick.com/work/web-developer/)
+  - Experimental new plugin enabled by --enable-npplugin.
+  - Original plugin is now enabled by --enable-plugin, not --enable-liveconnect.
+- LCMS security fixes.
+- Many build improvements.
+- Many zero/shark jtreg fixes.
+- Other bug fixes.
+
+New in release 1.9 (2009-03-20)
+
+- Security fixes for:
+  CVE-2008-5360 - Temporary files have guessable file names.
+  CVE-2008-5350 - Allows to list files within the user home directory.
+  CVE-2008-5348 - Denial-Of-Service in kerberos authentication.
+  CVE-2008-5359 - Buffer overflow in image processing.
+  CVE-2008-5351 - UTF-8 decoder accepts non-shortest form sequences.
+  CVE-2008-5356 - Font processing vulnerability.
+  CVE-2008-5353 - Calendar object deserialization allows privilege escalation.
+  CVE-2008-5354 - Privilege escalation in command line applications.
+  CVE-2008-5357 - Truetype Font processing vulnerability.
+  CVE-2008-5352 - Jar200 Decompression buffer overflow.
+  CVE-2008-5358 - Buffer Overflow in GIF image processing.
+- Updated to OpenJDK7 b50 build.
+- XRender pipeline support: Java2D are noticably faster and running over a 
+  remote X connection feels like it is all local. Build by default
+  (disable with --disable-xrender). Runtime enabled by running java
+  -Dsun.java2d.xrender=True (default is to use the old X renderer for now).
+- IcedTeaPlugin now supports HTTPS sites and adds a user prompt for
+  untrusted https certificates.
+- Use the ALSA 'default' device. Makes Java play nicer with PulseAudio.
+- VisualVM integration updated to 1.1.1
+- Gervill soft synthesizer integration updated to latest CVS version.
+- Integrated jtreg upgraded to 4_0-src-b02-15_oct_2008.
+- make check runs much faster now. jtreg -samevm support has been
+  integrated into the langtools and jdk subsystems. Please package the
+  test/jtreg-summary.log file with your distribution package so end users
+  can compare the test results.
+- Shark (--enable-shark) now builds on 64 bit platforms, but is a
+  pre-alpha technology preview and not recommended for use.
+- Better support for bootstrapping with different jar programs
+  (supporting -J options).
+- If --with-pkgversion isn't given the short mercurial rev node version
+  will be used.  Package distributors are encouraged to build packages with
+  --with-pkgversion to uniquely identify their distribution version number
+  when java -version is run to help distribution specific bug reporting.
+- Various freetype font, pisces renderer and awt X window size fixes
+  to fix visual anomalies.
+- Build fixes for gcc 4.3 and 4.4-pre-release.
+- Added support for building against a specific openjdk src dir
+  or hg revision (--with-openjdk-src-dir or --with-hg-revision).
+- Many other Plugin, Zero, Shark and PulseAudio bug fixes.
+- Build clean up.
+- Updated to CACAO 0.99.4.
+
+New in release 1.8 (2008-11-20)
+
+  IcedTea is based on the hard work of a lot of people that contributed to
+  IcedTea6 and OpenJDK. The following noteworthy changes were added in
+  this release:
+
+- Updated to b39 build.
+- Support for external projects (closures, caciocavallo, cvmi, bsd, nio2).
+  Note that these are based on Mercurial repositories so may require local
+  changes for a working build due to noticeable differences between the
+  repository and the reference OpenJDK b39 build.  At the time of release,
+  NIO2 was buildable out of the box.
+- Fixed to use new sound service, Gervill.
+- Many Netx fixes and now built by default.
+- LiveConnect support replaces gcjwebplugin.
+- Implemented JavaScript->Java security.
+- PulseAudio integrated (--enable-pulse-java)
+- VisualVM tool integrated (--enable-visualvm).
+- Added out-of-the-box CACAO support (--with-cacao).
+- Added the experimental Shark JIT for Zero.
+- Cleaned up crypto support, all algorithms and key sizes are fully
+  supported now without any (regional) restrictions. No more need for
+  separate crypto policy jars.
+- Integration of Mozilla Rhino javascript support for javax.script.
+  (See http://icedtea.classpath.org/bugzilla/show_bug.cgi?id=179 when
+   you want to enable non-system-installed versions of Rhino).
+- Add support for Zero builds on alpha, arm, mips, mipsel, m68k, s390.
+- Various build fixes.
+- Several bug and security fixes.
+- Plugin including LiveConnect support built as default.
+- Various bugs fixed: renderer patch, version string updated, 
+chinese fonts filename fix for Fedora etc.
+- More progress on Shark and Cacao.
+- Several plugin bug fixes.
+- Several build fixes.
+
+New in release 1.7 (2008-06-02)
+
+  IcedTea is based on the hard work of a lot of people that contributed to
+  IcedTea6 and OpenJDK. The following noteworthy changes were added in
+  this release:
+
+  - Paul Hohensee published a GNU/Linux hotspot Sparc port and Matthias
+   Klose integrated it into IcedTea.
+  - Keith Seiths and Andrew Haley made fixes to the awt color package so
+   that it now provides the lcms library with PYCC and LINEAR_RGB ICC
+   profiles, fixing several applications that did complex color
+   transformations.
+  - Karl Helgason wrote a midi software synthesizer called Gervill that
+   is now integrated in IcedTea so that javax.sound.midi support works
+   now. Mark Wielaard integrated it and made some fixes so that it works
+   better with javax.sound.sampled.
+  - Jonathan Gibbons released a free version of jtreg, which was imported
+   into IcedTea by Mark Wielaard so that a make check now runs all the
+   functional unit tests integrated into OpenJDK.
+  - Joshua Sumali made lots of fixes to the javaws/netx support. Including
+   improved security, namely catching Socket permissions during runtime,
+   implementing the remaining JNLP services api (PrintService and
+   JNLPRandomAccessFile), and applet focusing bug fixes, so now netx
+   plays nice with gcjwebplugin.
+  - Kelly O'Hair resolved the license issues with the (j)hat tool which is
+   now integrated.
+  - Lillian Angel and Tom Fitzsimmons added several .desktop files for
+   the various tools included for better GNU/Linux desktop integration.
+  - Thomas Fitzsimmons rewrote the cacert support to resolve issues with
+   applications like Glashfish and Eclipse which access the keystore
+   directly.
+  - Lillian Angel made lots of bug fixes to the packaging and integration
+   support, include improving the font support.
+  - IcedTea6 1.2 and IcedTea[7] 1.7 are completely synced up again thanks
+   to Andrew John Hughes.
+  - Andrew also did all the work to make sure IcedTea[7] is now based on
+   OpenJDK7 b26 as released by Xiomara Jayasena.
+  - Thomas Fitzsimmons rewrote the certificate keystore support.
+  - Christian Thalinger made various cacao integration fixes.
+
+New in release 1.6 (2008-02-13)
+
+- Zero-assembler implemented.
+- Netx support added. Still a work-in-progress.
+- Updated to build with gcc 4.3.
+- Many bug fixes.
+
+New in release 1.5 (2008-01-03)
+
+- ppc/ppc64 support.
+- ecj bootstrapping re-implemented.
+- Updated to OpenJDK b24 build (now uses mercurial).
+- System libraries (libpng, libjpeg, zlib, giflib) are used 
+instead of OpenJDK's implementations.
+- Several bug fixes.
+
+New in release 1.4 (2007-10-12)
+
+* Updated to OpenJDK b21 build (README and INSTALL updated accordingly).
+* Now using SSL/Crypto support included in b21, OpenSSL certs
+still read directly.
+* TZdata fix: uses System's timezone data.
+* Memory issue fix: maximum PermGen space set to 128M and MaxHeap
+to 512M.
+* Xinerama fix: uses system installed library instead.
+* DebugInfo fix: generates full debuginfo, regardless of
+optimization.
+* Fixed JConsole crash.
+* Several other bug fixes.
+
+New in release 1.3 (2007-08-29)
+
+* Updated to OpenJDK b18 build.
+* Web browser plugin support using gcjwebplugin.
+* Now using Font supported included in b18.
+* Graphics fixes.
+* SSL/Crypto fixes.
+* Refactored build process.
+
+New in release 1.2 (2007-08-01)
+
+* Updated to OpenJDK b16 build.
+* Freetype font support fully replacing the encumbered libt2k.
+* Path widening imported from GNU Classpath.
+* Window decorations on x86_64 fixed.
+* Bug fixes in various graphics classes.
+* Anti-aliasing support explicitly disabled (instead of crashing).
+* OpenSSL certs read directly
+* Various crypto bug fixes.
+
+New in release 1.1 (2007-07-12)
+
+* Color management and raster fixes for compatibility with LittleCMS.
+* Debuginfo is always generated.
+* Initial work to satisfy libt2k requirement with Freetype.
+* The GNU Crypto security providers have been imported from GNU
+  Classpath.
+* IcedTls security provider.

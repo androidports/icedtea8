@@ -1,0 +1,79 @@
+diff -Nru openjdk.orig/jdk/make/sun/awt/mapfile-mawt-vers openjdk/jdk/make/sun/awt/mapfile-mawt-vers
+--- openjdk.orig/jdk/make/sun/awt/mapfile-mawt-vers	2008-12-09 19:27:39.000000000 +0000
++++ openjdk/jdk/make/sun/awt/mapfile-mawt-vers	2008-12-09 19:34:01.000000000 +0000
+@@ -444,7 +444,6 @@
+         	Java_sun_java2d_xr_XRRenderer_devCopyArea;
+ 		Java_sun_java2d_xr_XRMaskFill_maskFill;
+ 		Java_sun_java2d_xr_XRMaskBlit_maskBlit;
+- 		XRT_DrawGlyphList;
+ 
+                 Java_sun_java2d_opengl_OGLContext_getOGLIdString;
+                 Java_sun_java2d_opengl_OGLMaskFill_maskFill;
+@@ -542,6 +541,7 @@
+                 AWTCharAscent;
+                 AWTCharDescent;
+                 AWTDrawGlyphList;
++ 		XRT_DrawGlyphList;
+                 AccelGlyphCache_RemoveAllCellInfos;
+ 
+ 	local:
+diff -Nru openjdk.orig/jdk/make/sun/awt/mapfile-vers-linux openjdk/jdk/make/sun/awt/mapfile-vers-linux
+--- openjdk.orig/jdk/make/sun/awt/mapfile-vers-linux	2008-11-20 08:44:12.000000000 +0000
++++ openjdk/jdk/make/sun/awt/mapfile-vers-linux	2008-12-09 19:34:30.000000000 +0000
+@@ -568,6 +568,7 @@
+                 AWTCharAscent;
+                 AWTCharDescent;
+                 AWTDrawGlyphList;
++		XRT_DrawGlyphList;
+                 AccelGlyphCache_RemoveAllCellInfos;
+ 
+ 	local:
+diff -Nru openjdk.orig/jdk/make/sun/headless/mapfile-vers openjdk/jdk/make/sun/headless/mapfile-vers
+--- openjdk.orig/jdk/make/sun/headless/mapfile-vers	2008-12-09 19:27:39.000000000 +0000
++++ openjdk/jdk/make/sun/headless/mapfile-vers	2008-12-09 19:34:51.000000000 +0000
+@@ -57,8 +57,6 @@
+                 Java_sun_java2d_x11_X11SurfaceData_XSetXorMode;
+                 Java_sun_java2d_x11_X11SurfaceData_XSetForeground;
+ 
+-		XRT_DrawGlyphList;
+-
+ 		X11SurfaceData_GetOps;
+ 		Java_java_awt_Font_initIDs;
+                 Java_sun_font_FontManager_getFontConfig;
+@@ -101,6 +99,7 @@
+                 AWTCharAscent;
+                 AWTCharDescent;
+                 AWTDrawGlyphList;
++		XRT_DrawGlyphList;
+                 AccelGlyphCache_RemoveAllCellInfos;
+ 
+ 
+diff -Nru openjdk.orig/jdk/src/solaris/native/sun/java2d/x11/XRPMBlitLoops.c openjdk/jdk/src/solaris/native/sun/java2d/x11/XRPMBlitLoops.c
+--- openjdk.orig/jdk/src/solaris/native/sun/java2d/x11/XRPMBlitLoops.c	2008-12-09 19:27:39.000000000 +0000
++++ openjdk/jdk/src/solaris/native/sun/java2d/x11/XRPMBlitLoops.c	2008-12-09 19:33:01.000000000 +0000
+@@ -67,6 +67,9 @@
+ 
+ 
+ #ifndef HEADLESS
++/**
++ * Prepares a mask-picture according to the mask and the properties currently set, which is used for composition later.
++ */
+ static Picture prepareMaskPM(JNIEnv *env, jbyteArray maskArray, jint maskoff, jint maskscan, jint w, jint h)
+ {
+     int line, pix;
+@@ -107,6 +110,7 @@
+             }
+           }
+ 
++          /*Upload Image to X-Server*/
+           XPutImage(awt_display, maskBuffer->maskPixmap, maskBuffer->maskGC, img, 0, 0, 0, 0, w, h);
+           (*env)->ReleasePrimitiveArrayCritical(env, maskArray, mask, JNI_ABORT);
+ 
+@@ -124,6 +128,7 @@
+         }
+     }else
+     {
++      /*If we haven't got a mask (full coverage), we have to return the EA mask, if EA is used*/
+       if(useEA) {
+         return xrSrcData.alphaMask;
+       }

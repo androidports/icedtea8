@@ -1,0 +1,67 @@
+diff -Nru openjdk.orig/jdk/make/common/internal/Defs-liveconnect.gmk openjdk/jdk/make/common/internal/Defs-liveconnect.gmk
+--- openjdk.orig/jdk/make/common/internal/Defs-liveconnect.gmk	1970-01-01 01:00:00.000000000 +0100
++++ openjdk/jdk/make/common/internal/Defs-liveconnect.gmk	2009-05-29 16:49:35.000000000 +0100
+@@ -0,0 +1,27 @@
++#
++# Copyright 2009 Red Hat, Inc.  All Rights Reserved.
++# DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
++#
++# This code is free software; you can redistribute it and/or modify it
++# under the terms of the GNU General Public License version 2 only, as
++# published by the Free Software Foundation.  Red Hat designates this
++# particular file as subject to the "Classpath" exception as provided
++# by Sun in the LICENSE file that accompanied this code.
++#
++# This code is distributed in the hope that it will be useful, but WITHOUT
++# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
++# FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
++# version 2 for more details (a copy is included in the LICENSE file that
++# accompanied this code).
++#
++# You should have received a copy of the GNU General Public License version
++# 2 along with this work; if not, write to the Free Software Foundation,
++# Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
++#
++
++# The specific packages that come from or go to rt.jar and tools.jar
++IMPORT_RT_PACKAGES += \
++     netscape/javascript
++
++IMPORT_TOOLS_PACKAGES +=
++
+diff -Nru openjdk.orig/jdk/make/common/internal/ImportComponents.gmk openjdk/jdk/make/common/internal/ImportComponents.gmk
+--- openjdk.orig/jdk/make/common/internal/ImportComponents.gmk	2009-05-29 16:48:26.000000000 +0100
++++ openjdk/jdk/make/common/internal/ImportComponents.gmk	2009-05-29 16:50:02.000000000 +0100
+@@ -49,6 +49,9 @@
+ ifndef NETX_DIST
+   include $(BUILDDIR)/common/internal/Defs-netx.gmk
+ endif
++ifndef LIVECONNECT_DIST
++  include $(BUILDDIR)/common/internal/Defs-liveconnect.gmk
++endif
+ 
+ # Clean up these lists so empty lists are empty
+ IMPORT_TOOLS_PACKAGES := $(strip $(IMPORT_TOOLS_PACKAGES))
+@@ -162,6 +165,7 @@
+ $(call import-one-classes,JAXP_DIST,$1)
+ $(call import-one-classes,JAXWS_DIST,$1)
+ $(call import-one-classes,NETX_DIST,$1)
++$(call import-one-classes,LIVECONNECT_DIST,$1)
+ endef
+ 
+ # Clean up import files
+diff -Nru openjdk.orig/jdk/make/common/shared/Defs.gmk openjdk/jdk/make/common/shared/Defs.gmk
+--- openjdk.orig/jdk/make/common/shared/Defs.gmk	2009-05-29 16:48:26.000000000 +0100
++++ openjdk/jdk/make/common/shared/Defs.gmk	2009-05-29 16:49:35.000000000 +0100
+@@ -349,6 +349,11 @@
+ else
+   NETX_DIST =
+ endif
++ifdef ALT_LIVECONNECT_DIST
++  LIVECONNECT_DIST := $(call FullPath,$(ALT_LIVECONNECT_DIST))
++else
++  LIVECONNECT_DIST =
++endif
+ 
+ # HOTSPOT_DOCS_IMPORT_PATH: Path to hotspot docs files to import into the docs generation
+ ifdef ALT_HOTSPOT_DOCS_IMPORT_PATH

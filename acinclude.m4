@@ -1,0 +1,1649 @@
+ AC_DEFUN([SET_ARCH_DIRS],
+[
+  case "${host}" in
+    x86_64-*-*)
+      BUILD_ARCH_DIR=amd64
+      INSTALL_ARCH_DIR=amd64
+      JRE_ARCH_DIR=amd64
+      ;;
+    i?86-*-*)
+      BUILD_ARCH_DIR=i586
+      INSTALL_ARCH_DIR=i386
+      JRE_ARCH_DIR=i386
+      ARCH_PREFIX=${LINUX32}
+      ;;
+    alpha*-*-*)
+      BUILD_ARCH_DIR=alpha
+      INSTALL_ARCH_DIR=alpha
+      JRE_ARCH_DIR=alpha
+      ;;
+    arm*-*-*)
+      BUILD_ARCH_DIR=arm
+      INSTALL_ARCH_DIR=arm
+      JRE_ARCH_DIR=arm
+      ;;
+    mips-*-*)
+      BUILD_ARCH_DIR=mips
+      INSTALL_ARCH_DIR=mips
+      JRE_ARCH_DIR=mips
+       ;;
+    mipsel-*-*)
+      BUILD_ARCH_DIR=mipsel
+      INSTALL_ARCH_DIR=mipsel
+      JRE_ARCH_DIR=mipsel
+       ;;
+    powerpc-*-*)
+      BUILD_ARCH_DIR=ppc
+      INSTALL_ARCH_DIR=ppc
+      JRE_ARCH_DIR=ppc
+      ARCH_PREFIX=${LINUX32}
+       ;;
+    powerpc64-*-*)
+      BUILD_ARCH_DIR=ppc64
+      INSTALL_ARCH_DIR=ppc64
+      JRE_ARCH_DIR=ppc64
+       ;;
+    sparc64-*-*)
+      BUILD_ARCH_DIR=sparcv9
+      INSTALL_ARCH_DIR=sparcv9
+      JRE_ARCH_DIR=sparc64
+       ;;
+    s390-*-*)
+      BUILD_ARCH_DIR=s390
+      INSTALL_ARCH_DIR=s390
+      JRE_ARCH_DIR=s390
+      ARCH_PREFIX=${LINUX32}
+       ;;
+    *)
+      BUILD_ARCH_DIR=`uname -m`
+      INSTALL_ARCH_DIR=$BUILD_ARCH_DIR
+      JRE_ARCH_DIR=$INSTALL_ARCH_DIR
+      ;;
+  esac
+  AC_SUBST(BUILD_ARCH_DIR)
+  AC_SUBST(INSTALL_ARCH_DIR)
+  AC_SUBST(JRE_ARCH_DIR)
+  AC_SUBST(ARCH_PREFIX)
+])
+
+AC_DEFUN([SET_OS_DIRS],
+[
+  case "${host_os}" in
+    *linux*)
+      BUILD_OS_DIR=linux
+      OS_PATH=
+      ;;
+    *solaris*)
+      BUILD_OS_DIR=solaris
+      OS_PATH=/opt/SunStudioExpress/bin:/opt/SUNWpro/bin:/usr/gnu/bin
+      ;;
+    *darwin*|*bsd*)
+      BUILD_OS_DIR=bsd
+      OS_PATH=
+      ;;
+    *)
+      AC_MSG_ERROR([unsupported operating system ${host_os}])
+      ;;
+  esac
+  AC_SUBST(BUILD_OS_DIR)
+  AC_SUBST(OS_PATH)
+])
+
+AC_DEFUN([FIND_JAVAC],
+[
+  JAVAC=${SYSTEM_JDK_DIR}/bin/javac
+  IT_FIND_JAVAC
+  IT_FIND_ECJ
+  IT_USING_ECJ
+
+  AC_SUBST(JAVAC)
+])
+
+AC_DEFUN([IT_FIND_ECJ],
+[
+  AC_ARG_WITH([ecj],
+	      [AS_HELP_STRING(--with-ecj,bytecode compilation with ecj)],
+  [
+    if test "x${withval}" != x && test "x${withval}" != xyes && test "x${withval}" != xno; then
+      IT_CHECK_ECJ(${withval})
+    else
+      if test "x${withval}" != xno; then
+        IT_CHECK_ECJ
+      fi
+    fi
+  ],
+  [ 
+    IT_CHECK_ECJ
+  ])
+  if test "x${JAVAC}" = "x"; then
+    if test "x{ECJ}" != "x"; then
+      JAVAC="${ECJ}"
+    fi
+  fi
+])
+
+AC_DEFUN([IT_CHECK_ECJ],
+[
+  if test "x$1" != x; then
+    if test -f "$1"; then
+      AC_MSG_CHECKING(for ecj)
+      ECJ="$1"
+      AC_MSG_RESULT(${ECJ})
+    else
+      AC_PATH_PROG(ECJ, "$1")
+    fi
+  else
+    AC_PATH_PROG(ECJ, "ecj")
+    if test -z "${ECJ}"; then
+      AC_PATH_PROG(ECJ, "ecj-3.1")
+    fi
+    if test -z "${ECJ}"; then
+      AC_PATH_PROG(ECJ, "ecj-3.2")
+    fi
+    if test -z "${ECJ}"; then
+      AC_PATH_PROG(ECJ, "ecj-3.3")
+    fi
+  fi
+])
+
+AC_DEFUN([IT_FIND_JAVAC],
+[
+  AC_ARG_WITH([javac],
+	      [AS_HELP_STRING(--with-javac,bytecode compilation with javac)],
+  [
+    if test "x${withval}" != x && test "x${withval}" != xyes && test "x${withval}" != xno; then
+      IT_CHECK_JAVAC(${withval})
+    else
+      if test "x${withval}" != xno; then
+        IT_CHECK_JAVAC(${JAVAC})
+      fi
+    fi
+  ],
+  [ 
+    IT_CHECK_JAVAC(${JAVAC})
+  ])
+])
+
+AC_DEFUN([IT_CHECK_JAVAC],
+[
+  if test "x$1" != x; then
+    if test -f "$1"; then
+      AC_MSG_CHECKING(for javac)
+      JAVAC="$1"
+      AC_MSG_RESULT(${JAVAC})
+    else
+      AC_PATH_PROG(JAVAC, "$1")
+    fi
+  else
+    AC_PATH_PROG(JAVAC, "javac")
+  fi
+])
+
+AC_DEFUN([FIND_JAVA],
+[
+  AC_MSG_CHECKING(for java)
+  AC_ARG_WITH([java],
+              [AS_HELP_STRING(--with-java,specify location of the 1.5 java vm)],
+  [
+    JAVA="${withval}"
+  ],
+  [
+    JAVA=${SYSTEM_JDK_DIR}/bin/java
+  ])
+  if ! test -f "${JAVA}"; then
+    AC_PATH_PROG(JAVA, "${JAVA}")
+  fi
+  if test -z "${JAVA}"; then
+    AC_PATH_PROG(JAVA, "gij")
+  fi
+  if test -z "${JAVA}"; then
+    AC_PATH_PROG(JAVA, "java")
+  fi
+  if test -z "${JAVA}"; then
+    AC_MSG_ERROR("A 1.5-compatible Java VM is required.")
+  fi
+  AC_MSG_RESULT(${JAVA})
+  AC_SUBST(JAVA)
+])
+
+AC_DEFUN([WITH_OPENJDK_SRC_DIR],
+[
+  AC_MSG_CHECKING(for an OpenJDK source directory)
+  AC_ARG_WITH([openjdk-src-dir],
+              [AS_HELP_STRING(--with-openjdk-src-dir,specify the location of the openjdk sources)],
+  [
+    OPENJDK_SRC_DIR=${withval}
+    AC_MSG_RESULT(${withval})
+    conditional_with_openjdk_sources=true
+  ],
+  [ 
+    conditional_with_openjdk_sources=false
+    OPENJDK_SRC_DIR=`pwd`/openjdk
+    AC_MSG_RESULT(${OPENJDK_SRC_DIR})
+  ])
+  AC_SUBST(OPENJDK_SRC_DIR)
+  AM_CONDITIONAL(OPENJDK_SRC_DIR_FOUND, test "x${conditional_with_openjdk_sources}" = xtrue)
+])
+
+AC_DEFUN([FIND_ECJ_JAR],
+[
+  AC_MSG_CHECKING([for an ecj JAR file])
+  AC_ARG_WITH([ecj-jar],
+              [AS_HELP_STRING(--with-ecj-jar,specify location of the ECJ jar)],
+  [
+    if test -f "${withval}"; then
+      ECJ_JAR="${withval}"
+    fi
+  ],
+  [
+    ECJ_JAR=
+  ])
+  if test -z "${ECJ_JAR}"; then
+    if test -e "/usr/share/java/eclipse-ecj.jar"; then
+      ECJ_JAR=/usr/share/java/eclipse-ecj.jar
+    elif test -e "/usr/share/java/ecj.jar"; then
+      ECJ_JAR=/usr/share/java/ecj.jar
+    elif test -e "/usr/share/eclipse-ecj-3.3/lib/ecj.jar"; then
+      ECJ_JAR=/usr/share/eclipse-ecj-3.3/lib/ecj.jar
+    elif test -e "/usr/share/eclipse-ecj-3.2/lib/ecj.jar"; then
+      ECJ_JAR=/usr/share/eclipse-ecj-3.2/lib/ecj.jar
+    elif test -e "/usr/share/eclipse-ecj-3.1/lib/ecj.jar"; then
+      ECJ_JAR=/usr/share/eclipse-ecj-3.1/lib/ecj.jar
+    else
+      ECJ_JAR=no
+    fi
+  fi
+  AC_MSG_RESULT(${ECJ_JAR})
+  if test "x${ECJ_JAR}" = "xno"; then
+    if test "x${JAVAC}" = "x"; then
+      AC_MSG_ERROR("No compiler or ecj JAR file was found.")
+    fi
+  fi
+  AC_SUBST(ECJ_JAR)
+])
+
+AC_DEFUN([AC_CHECK_GCC_VERSION],
+[
+  AC_MSG_CHECKING([version of GCC])
+  gcc_ver=`${CC} -dumpversion`
+  gcc_major_ver=`echo ${gcc_ver}|cut -d'.' -f1`
+  gcc_minor_ver=`echo ${gcc_ver}|cut -d'.' -f2`
+  AM_CONDITIONAL(GCC_OLD, test ! ${gcc_major_ver} -ge 4 -a ${gcc_minor_ver} -ge 3)
+  AC_MSG_RESULT([${gcc_ver} (major version ${gcc_major_ver}, minor version ${gcc_minor_ver})])
+])
+
+AC_DEFUN([FIND_JAVAH],
+[
+  AC_MSG_CHECKING(for javah)
+  AC_ARG_WITH([javah],
+              [AS_HELP_STRING(--with-javah,specify location of the Java header generator)],
+  [
+    JAVAH="${withval}"
+  ],
+  [
+    JAVAH=${SYSTEM_JDK_DIR}/bin/javah
+  ])
+  if ! test -f "${JAVAH}"; then
+    AC_PATH_PROG(JAVAH, "${JAVAH}")
+  fi
+  if test -z "${JAVAH}"; then
+    AC_PATH_PROG(JAVAH, "gjavah")
+  fi
+  if test -z "${JAVAH}"; then
+    AC_PATH_PROG(JAVAH, "javah")
+  fi
+  if test -z "${JAVAH}"; then
+    AC_MSG_ERROR("A Java header generator was not found.")
+  fi
+  AC_MSG_RESULT(${JAVAH})
+  AC_SUBST(JAVAH)
+])
+
+AC_DEFUN([FIND_JAR],
+[
+  AC_MSG_CHECKING(for jar)
+  AC_ARG_WITH([jar],
+              [AS_HELP_STRING(--with-jar,specify location of the Java archive tool (jar))],
+  [
+    JAR="${withval}"
+  ],
+  [
+    JAR=${SYSTEM_JDK_DIR}/bin/jar
+  ])
+  if ! test -f "${JAR}"; then
+    AC_PATH_PROG(JAR, "${JAR}")
+  fi
+  if test -z "${JAR}"; then
+    AC_PATH_PROG(JAR, "gjar")
+  fi
+  if test -z "${JAR}"; then
+    AC_PATH_PROG(JAR, "jar")
+  fi
+  if test -z "${JAR}"; then
+    AC_MSG_ERROR("No Java archive tool was found.")
+  fi
+  AC_MSG_RESULT(${JAR})
+  AC_MSG_CHECKING([whether jar supports @<file> argument])
+  touch _config.txt
+  cat >_config.list <<EOF
+_config.txt
+EOF
+  if $JAR cf _config.jar @_config.list 2>&AS_MESSAGE_LOG_FD; then
+    JAR_KNOWS_ATFILE=1
+    AC_MSG_RESULT(yes)
+  else
+    JAR_KNOWS_ATFILE=
+    AC_MSG_RESULT(no)
+  fi
+  AC_MSG_CHECKING([whether jar supports stdin file arguments])
+  if cat _config.list | $JAR cf@ _config.jar 2>&AS_MESSAGE_LOG_FD; then
+    JAR_ACCEPTS_STDIN_LIST=1
+    AC_MSG_RESULT(yes)
+  else
+    JAR_ACCEPTS_STDIN_LIST=
+    AC_MSG_RESULT(no)
+  fi
+  rm -f _config.list _config.jar
+  AC_MSG_CHECKING([whether jar supports -J options at the end])
+  if $JAR cf _config.jar _config.txt -J-Xmx896m 2>&AS_MESSAGE_LOG_FD; then
+    JAR_KNOWS_J_OPTIONS=1
+    AC_MSG_RESULT(yes)
+  else
+    JAR_KNOWS_J_OPTIONS=
+    AC_MSG_RESULT(no)
+  fi
+  rm -f _config.txt _config.jar
+  AC_SUBST(JAR)
+  AC_SUBST(JAR_KNOWS_ATFILE)
+  AC_SUBST(JAR_ACCEPTS_STDIN_LIST)
+  AC_SUBST(JAR_KNOWS_J_OPTIONS)
+])
+
+AC_DEFUN([FIND_RMIC],
+[
+  AC_MSG_CHECKING(for rmic)
+  AC_ARG_WITH([rmic],
+              [AS_HELP_STRING(--with-rmic,specify location of the RMI compiler)],
+  [
+    RMIC="${withval}"
+  ],
+  [
+    RMIC=${SYSTEM_JDK_DIR}/bin/rmic
+  ])
+  if ! test -f "${RMIC}"; then
+    AC_PATH_PROG(RMIC, "${RMIC}")
+  fi
+  if test -z "${RMIC}"; then
+    AC_PATH_PROG(RMIC, "grmic")
+  fi
+  if test -z "${RMIC}"; then
+    AC_PATH_PROG(RMIC, "rmic")
+  fi
+  if test -z "${RMIC}"; then
+    AC_MSG_ERROR("An RMI compiler was not found.")
+  fi
+  AC_MSG_RESULT(${RMIC})
+  AC_SUBST(RMIC)
+])
+
+AC_DEFUN([FIND_ENDORSED_JARS],
+[
+  AC_MSG_CHECKING(for endorsed jars dir)
+  AC_ARG_WITH([endorsed-dir],
+              [AS_HELP_STRING(--with-endorsed-dir,specify directory of endorsed jars (xalan-j2.jar, xalan-j2-serializer.jar, xerces-j2.jar))],
+  [
+    if test "x${withval}" = "xno"; then
+        ENDORSED_JARS="${withval}"
+        AC_MSG_RESULT(${withval})
+    else if test -f "${withval}/xalan-j2.jar"; then
+      if test -f "${withval}/xalan-j2-serializer.jar"; then
+        if test -f "${withval}/xerces-j2.jar"; then
+          ENDORSED_JARS="${withval}"
+          AC_MSG_RESULT(${withval})
+        fi
+      fi
+    fi
+  ],
+  [
+    ENDORSED_JARS=
+  ])
+  if test -z "${ENDORSED_JARS}"; then
+    if test -f "/usr/share/java/xalan-j2.jar"; then
+      if test -f "/usr/share/java/xalan-j2-serializer.jar"; then
+        if test -f "/usr/share/java/xerces-j2.jar"; then
+          ENDORSED_JARS="/usr/share/java/xalan-j2.jar /usr/share/java/xalan-j2-serializer.jar /usr/share/java/xerces-j2.jar"
+          AC_MSG_RESULT(/usr/share/java)
+        fi
+      fi
+    fi
+    if test -z "${ENDORSED_JARS}"; then
+      AC_MSG_RESULT(missing)
+    fi
+  fi
+  if test -z "${ENDORSED_JARS}"; then
+    AC_MSG_ERROR("A directory containing required jars (xalan-j2.jar, xalan-j2-serializer.jar, xerces-j2.jar) was not found.")
+  fi
+  AC_SUBST(ENDORSED_JARS)
+])
+
+AC_DEFUN([WITH_OPENJDK_SRC_ZIP],
+[
+  AC_MSG_CHECKING(for an OpenJDK source zip)
+  AC_ARG_WITH([openjdk-src-zip],
+              [AS_HELP_STRING(--with-openjdk-src-zip,specify the location of the openjdk source zip)],
+  [
+    ALT_OPENJDK_SRC_ZIP=${withval}
+    AM_CONDITIONAL(USE_ALT_OPENJDK_SRC_ZIP, test x = x)
+    AC_SUBST(ALT_OPENJDK_SRC_ZIP)
+  ],
+  [ 
+    ALT_OPENJDK_SRC_ZIP="not specified"
+    AM_CONDITIONAL(USE_ALT_OPENJDK_SRC_ZIP, test x != x)
+  ])
+  AC_MSG_RESULT(${ALT_OPENJDK_SRC_ZIP})
+  AC_SUBST(ALT_OPENJDK_SRC_ZIP)
+])
+
+AC_DEFUN([WITH_ALT_JAR_BINARY],
+[
+  AC_MSG_CHECKING(for an alternate jar command)
+  AC_ARG_WITH([alt-jar],
+              [AS_HELP_STRING(--with-alt-jar, specify the location of an alternate jar binary to use for building)],
+  [
+    ALT_JAR_CMD=${withval}
+    AM_CONDITIONAL(USE_ALT_JAR, test x = x)
+  ],
+  [ 
+    ALT_JAR_CMD="not specified"
+    AM_CONDITIONAL(USE_ALT_JAR, test x != x)
+  ])
+  AC_MSG_RESULT(${ALT_JAR_CMD})
+  AC_SUBST(ALT_JAR_CMD)
+])
+
+AC_DEFUN([FIND_XALAN2_JAR],
+[
+  AC_MSG_CHECKING(xalan2 jar)
+  AC_ARG_WITH([xalan2-jar],
+              [AS_HELP_STRING(--with-xalan2-jar,specify location of the xalan2 jar)],
+  [
+    if test -f "${withval}" ; then
+      XALAN2_JAR="${withval}"
+    fi
+  ],
+  [
+    XALAN2_JAR=
+  ])
+  if test -z "${XALAN2_JAR}"; then
+    if test -e "/usr/share/java/xalan-j2.jar"; then
+      XALAN2_JAR=/usr/share/java/xalan-j2.jar
+    elif test -e "/usr/share/java/xalan2.jar"; then
+      XALAN2_JAR=/usr/share/java/xalan2.jar
+    elif test -e "/usr/share/xalan/lib/xalan.jar"; then
+      XALAN2_JAR=/usr/share/xalan/lib/xalan.jar
+    else
+      AC_MSG_RESULT(no)
+    fi
+  fi
+  if test -z "${XALAN2_JAR}"; then
+    AC_MSG_ERROR("A xalan2 jar was not found.")
+  fi
+  AC_MSG_RESULT(${XALAN2_JAR})
+  AC_SUBST(XALAN2_JAR)
+])
+
+AC_DEFUN([FIND_XALAN2_SERIALIZER_JAR],
+[
+  AC_MSG_CHECKING(for xalan2 serializer jar)
+  AC_ARG_WITH([xalan2-serializer-jar],
+              [AS_HELP_STRING(--with-xalan2-serializer-jar,specify location of the xalan2-serializer jar)],
+  [
+    if test -f "${withval}" ; then
+      XALAN2_SERIALIZER_JAR="${withval}"
+    fi
+  ],
+  [
+    XALAN2_SERIALIZER_JAR=
+  ])
+  if test -z "${XALAN2_SERIALIZER_JAR}"; then
+    if test -e "/usr/share/java/xalan-j2-serializer.jar"; then
+      XALAN2_SERIALIZER_JAR=/usr/share/java/xalan-j2-serializer.jar
+    elif test -e "/usr/share/xalan-serializer/lib/serializer.jar"; then
+      XALAN2_SERIALIZER_JAR=/usr/share/xalan-serializer/lib/serializer.jar
+    elif test -e "/usr/share/java/serializer.jar"; then
+      XALAN2_SERIALIZER_JAR=/usr/share/java/serializer.jar
+    else
+      AC_MSG_RESULT(no)
+    fi
+  fi
+  if test -z "${XALAN2_SERIALIZER_JAR}"; then
+    AC_MSG_ERROR("A xalan2-serializer jar was not found.")
+  fi
+  AC_MSG_RESULT(${XALAN2_SERIALIZER_JAR})
+  AC_SUBST(XALAN2_SERIALIZER_JAR)
+])
+
+AC_DEFUN([FIND_XERCES2_JAR],
+[
+  AC_MSG_CHECKING(for xerces2 jar)
+  AC_ARG_WITH([xerces2-jar],
+              [AS_HELP_STRING(--with-xerces2-jar,specify location of the xerces2 jar)],
+  [
+    if test -f "${withval}" ; then
+      XERCES2_JAR="${withval}"
+    fi
+  ],
+  [
+    XERCES2_JAR=
+  ])
+  if test -z "${XERCES2_JAR}"; then
+    if test -e "/usr/share/java/xerces-j2.jar"; then
+      XERCES2_JAR=/usr/share/java/xerces-j2.jar
+    elif test -e "/usr/share/java/xerces2.jar"; then
+      XERCES2_JAR=/usr/share/java/xerces2.jar
+    elif test -e "/usr/share/xerces-2/lib/xercesImpl.jar"; then
+      XERCES2_JAR=/usr/share/xerces-2/lib/xercesImpl.jar
+    elif test -e "/usr/share/java/xercesImpl.jar"; then
+      XERCES2_JAR=/usr/share/java/xercesImpl.jar
+    else
+      AC_MSG_RESULT(no)
+    fi
+  fi
+  if test -z "${XERCES2_JAR}"; then
+    AC_MSG_ERROR("A xerces2 jar was not found.")
+  fi
+  AC_MSG_RESULT(${XERCES2_JAR})
+  AC_SUBST(XERCES2_JAR)
+])
+
+AC_DEFUN([FIND_NETBEANS],
+[
+  AC_ARG_WITH([netbeans],
+              [AS_HELP_STRING(--with-netbeans,specify location of netbeans)],
+  [
+    if test -f "${withval}"; then
+      AC_MSG_CHECKING(netbeans)
+      NETBEANS="${withval}"
+      AC_MSG_RESULT(${withval})
+    else
+      AC_PATH_PROG(NETBEANS, "${withval}")
+    fi
+  ],
+  [
+    NETBEANS=
+  ])
+  if test -z "${NETBEANS}"; then
+    AC_PATH_PROG(NETBEANS, "netbeans")
+  fi
+  if test -z "${NETBEANS}"; then
+    AC_MSG_ERROR("NetBeans was not found.")
+  fi
+  AC_SUBST(NETBEANS)
+])
+
+AC_DEFUN([FIND_NETBEANS],
+[
+  AC_ARG_WITH([netbeans],
+              [AS_HELP_STRING(--with-netbeans,specify location of netbeans)],
+  [
+    if test -f "${withval}"; then
+      AC_MSG_CHECKING(netbeans)
+      NETBEANS="${withval}"
+      AC_MSG_RESULT(${withval})
+    else
+      AC_PATH_PROG(NETBEANS, "${withval}")
+    fi
+  ],
+  [
+    NETBEANS=
+  ])
+  if test -z "${NETBEANS}"; then
+    AC_PATH_PROG(NETBEANS, "netbeans")
+  fi
+  if test -z "${NETBEANS}"; then
+    AC_MSG_ERROR("NetBeans was not found.")
+  fi
+  AC_SUBST(NETBEANS)
+])
+
+AC_DEFUN([FIND_RHINO_JAR],
+[
+  AC_MSG_CHECKING(whether to include Javascript support via Rhino)
+  AC_ARG_WITH([rhino],
+              [AS_HELP_STRING(--with-rhino,specify location of the rhino jar)],
+  [
+    case "${withval}" in
+      yes)
+	RHINO_JAR=yes
+        ;;
+      no)
+        RHINO_JAR=no
+        ;;
+      *)
+    	if test -f "${withval}"; then
+          RHINO_JAR="${withval}"
+        else
+	  AC_MSG_RESULT([not found])
+          AC_MSG_ERROR("The rhino jar ${withval} was not found.")
+        fi
+	;;
+     esac
+  ],
+  [
+    RHINO_JAR=yes
+  ])
+  if test x"${RHINO_JAR}" = "xyes"; then
+    if test -e "/usr/share/java/rhino.jar"; then
+      RHINO_JAR=/usr/share/java/rhino.jar
+    elif test -e "/usr/share/java/js.jar"; then
+      RHINO_JAR=/usr/share/java/js.jar
+    elif test -e "/usr/share/rhino-1.6/lib/js.jar"; then
+      RHINO_JAR=/usr/share/rhino-1.6/lib/js.jar
+    fi
+    if test x"${RHINO_JAR}" = "xyes"; then
+      AC_MSG_RESULT([not found])
+      AC_MSG_ERROR("A rhino jar was not found in /usr/share/java as either rhino.jar or js.jar.")
+    fi
+  fi
+  AC_MSG_RESULT(${RHINO_JAR})
+  AM_CONDITIONAL(WITH_RHINO, test x"${RHINO_JAR}" != "xno")
+  AC_SUBST(RHINO_JAR)
+])
+
+AC_DEFUN([FIND_PULSEAUDIO],
+[
+  AC_PATH_PROG(PULSEAUDIO_BIN, "pulseaudio")
+  if test -z "${PULSEAUDIO_BIN}"; then
+    AC_MSG_ERROR("pulseaudio was not found.")
+  fi
+  AC_SUBST(PULSEAUDIO_BIN)
+])
+
+AC_DEFUN([DISABLE_OPTIMIZATIONS],
+[
+  AC_MSG_CHECKING([whether to disable optimizations and build with -O0 -g])
+  AC_ARG_ENABLE([optimizations],
+                [AS_HELP_STRING(--disable-optimizations,build with -O0 -g [[default=no]])],
+  [
+    case "${enableval}" in
+      no)
+        disable_optimizations=yes
+        ;;
+      *)
+        disable_optimizations=no
+        ;;
+    esac
+  ],
+  [
+    disable_optimizations=no
+  ])
+  AC_MSG_RESULT([$disable_optimizations])
+  AM_CONDITIONAL([DISABLE_OPTIMIZATIONS], test x"${disable_optimizations}" = "xyes")
+])
+
+AC_DEFUN([FIND_TOOL],
+[AC_PATH_TOOL([$1],[$2])
+ if test x"$$1" = x ; then
+   AC_MSG_ERROR([$2 program not found in PATH])
+ fi
+ AC_SUBST([$1])
+])
+
+AC_DEFUN([ENABLE_ZERO_BUILD],
+[
+  AC_MSG_CHECKING(whether to use the zero-assembler port)
+  use_zero=no
+  AC_ARG_ENABLE([zero],
+                [AS_HELP_STRING(--enable-zero,
+                               use zero-assembler port on non-zero platforms)],
+  [
+    case "${enableval}" in
+      no)
+        use_zero=no
+        ;;
+      *)
+        use_zero=yes
+        ;;
+    esac
+  ],
+  [
+    if test "x${use_shark}" = "xyes"; then
+      use_zero=yes;
+    else
+      case "${host}" in
+        i?86-*-*) ;;
+        sparc*-*-*) ;;
+        x86_64-*-*) ;;
+        *)
+          if test "x${WITH_CACAO}" != xno; then
+            use_zero=no
+          else
+            use_zero=yes
+          fi
+          ;;
+      esac
+    fi
+  ])
+  AC_MSG_RESULT($use_zero)
+  AM_CONDITIONAL(ZERO_BUILD, test "x${use_zero}" = xyes)
+
+  use_core=no
+  if test "x${WITH_CACAO}" != "xno"; then
+    use_core=yes;
+  elif test "x${use_zero}" = "xyes"; then
+    if test "x${use_shark}" = "xno"; then
+      use_core=yes;
+    fi
+  fi
+  AM_CONDITIONAL(CORE_BUILD, test "x${use_core}" = xyes)
+
+  ZERO_LIBARCH=
+  ZERO_BITSPERWORD=
+  ZERO_ENDIANNESS=
+  ZERO_ARCHDEF=
+  ZERO_ARCHFLAG=
+  if test "x${use_zero}" = xyes; then
+    ZERO_LIBARCH="${INSTALL_ARCH_DIR}"
+    dnl can't use AC_CHECK_SIZEOF on multilib
+    case "${ZERO_LIBARCH}" in
+      i386|ppc|s390|sparc)
+        ZERO_BITSPERWORD=32
+        ;;
+      amd64|ppc64|s390x|sparc64)
+        ZERO_BITSPERWORD=64
+        ;;
+      *)
+        AC_CHECK_SIZEOF(void *)
+        ZERO_BITSPERWORD=`expr "${ac_cv_sizeof_void_p}" "*" 8`
+    esac
+    AC_C_BIGENDIAN([ZERO_ENDIANNESS="big"], [ZERO_ENDIANNESS="little"])
+    case "${ZERO_LIBARCH}" in
+      i386)
+        ZERO_ARCHDEF="IA32"
+        ;;
+      ppc*)
+        ZERO_ARCHDEF="PPC"
+        ;;
+      s390*)
+        ZERO_ARCHDEF="S390"
+        ;;
+      sparc*)
+        ZERO_ARCHDEF="SPARC"
+        ;;
+      *)
+        ZERO_ARCHDEF=`echo ${ZERO_LIBARCH} | tr a-z A-Z`
+    esac
+    dnl multilib machines need telling which mode to build for
+    case "${ZERO_LIBARCH}" in
+      i386|ppc|sparc)
+        ZERO_ARCHFLAG="-m32"
+        ;;
+      s390)
+        ZERO_ARCHFLAG="-m31"
+        ;;
+      amd64|ppc64|s390x|sparc64)
+        ZERO_ARCHFLAG="-m64"
+        ;;
+    esac
+  fi
+  AC_SUBST(ZERO_LIBARCH)
+  AC_SUBST(ZERO_BITSPERWORD)
+  AC_SUBST(ZERO_ENDIANNESS)
+  AC_SUBST(ZERO_ARCHDEF)
+  AC_SUBST(ZERO_ARCHFLAG)
+  AC_CONFIG_FILES([jvm.cfg])
+  AC_CONFIG_FILES([ergo.c])
+])
+
+AC_DEFUN([SET_SHARK_BUILD],
+[
+  AC_MSG_CHECKING(whether to use the Shark JIT)
+  shark_selected=no
+  AC_ARG_ENABLE([shark], [AS_HELP_STRING(--enable-shark, use Shark JIT)],
+  [
+    case "${enableval}" in
+      no)
+        ;;
+      *)
+        shark_selected=yes
+        ;;
+    esac
+  ])
+
+  use_shark=no
+  if test "x${shark_selected}" = "xyes"; then
+      use_shark=yes
+  fi
+  AC_MSG_RESULT($use_shark)
+
+  AM_CONDITIONAL(SHARK_BUILD, test "x${use_shark}" = xyes)
+])
+
+AC_DEFUN([AC_CHECK_ENABLE_CACAO],
+[
+  AC_MSG_CHECKING(whether to use CACAO as VM)
+  AC_ARG_ENABLE([cacao],
+	      [AS_HELP_STRING(--enable-cacao,use CACAO as VM [[default=no]])],
+  [
+    WITH_CACAO="${enableval}"
+  ],
+  [
+    WITH_CACAO=no
+  ])
+
+  AC_MSG_RESULT(${WITH_CACAO})
+  AM_CONDITIONAL(WITH_CACAO, test x"${WITH_CACAO}" = "xyes")
+  AC_SUBST(WITH_CACAO)
+])
+
+AC_DEFUN([AC_CHECK_WITH_CACAO_HOME],
+[
+  AC_MSG_CHECKING(for CACAO home directory)
+  AC_ARG_WITH([cacao-home],
+              [AS_HELP_STRING([--with-cacao-home],
+                              [CACAO home directory [[default=/usr/local/cacao]]])],
+              [
+                case "${withval}" in
+                yes)
+                  CACAO_IMPORT_PATH=/usr/local/cacao
+                  ;;
+                *)
+                  CACAO_IMPORT_PATH=${withval}
+                  ;;
+                esac
+                AM_CONDITIONAL(USE_SYSTEM_CACAO, true)
+              ],
+              [
+                CACAO_IMPORT_PATH="\$(abs_top_builddir)/cacao/install"
+                AM_CONDITIONAL(USE_SYSTEM_CACAO, false)
+              ])
+  AC_MSG_RESULT(${CACAO_IMPORT_PATH})
+  AC_SUBST(CACAO_IMPORT_PATH)
+])
+
+AC_DEFUN([AC_CHECK_WITH_CACAO_SRC_ZIP],
+[
+  AC_MSG_CHECKING(for a CACAO source zip)
+  AC_ARG_WITH([cacao-src-zip],
+              [AS_HELP_STRING(--with-cacao-src-zip,specify the location of the CACAO source zip)],
+  [
+    ALT_CACAO_SRC_ZIP=${withval}
+    AM_CONDITIONAL(USE_ALT_CACAO_SRC_ZIP, test x = x)
+  ],
+  [ 
+    ALT_CACAO_SRC_ZIP="not specified"
+    AM_CONDITIONAL(USE_ALT_CACAO_SRC_ZIP, test x != x)
+  ])
+  AC_MSG_RESULT(${ALT_CACAO_SRC_ZIP})
+  AC_SUBST(ALT_CACAO_SRC_ZIP)
+])
+
+AC_DEFUN([ENABLE_HG],
+[
+  AC_MSG_CHECKING(whether to retrieve the source code from Mercurial)
+  AC_ARG_ENABLE([hg],
+                [AS_HELP_STRING(--enable-hg,download source code from Mercurial [[default=depends on project]])],
+  [
+    case "${enableval}" in
+      no)
+	enable_hg=no
+        ;;
+      *)
+        enable_hg=yes
+        ;;
+    esac
+  ],
+  [
+    case "${project}" in
+      icedtea)
+        enable_hg=no
+        ;;
+      *)
+        enable_hg=yes
+        ;;
+    esac
+  ])
+  AC_MSG_RESULT([${enable_hg}])
+  AM_CONDITIONAL([USE_HG], test x"${enable_hg}" = "xyes")
+])
+
+AC_DEFUN([WITH_VERSION_SUFFIX],
+[
+  AC_MSG_CHECKING(if a version suffix has been specified)
+  AC_ARG_WITH([version-suffix],
+              [AS_HELP_STRING(--with-version-suffix,appends the given text to the JDK version)],
+  [
+    case "${withval}" in
+      yes)
+	version_suffix=
+	AC_MSG_RESULT([no])
+        ;;
+      no)
+	version_suffix=
+	AC_MSG_RESULT([no])
+	;;
+      *)
+        version_suffix=${withval}
+	AC_MSG_RESULT([${version_suffix}])
+        ;;
+    esac
+  ],
+  [
+    version_suffix=
+    AC_MSG_RESULT([no])
+  ])
+  AC_SUBST(VERSION_SUFFIX, $version_suffix)
+])
+
+AC_DEFUN([WITH_PROJECT],
+[
+  AC_MSG_CHECKING(which OpenJDK project is being used)
+  AC_ARG_WITH([project],
+              [AS_HELP_STRING(--with-project,choose the OpenJDK project to use: icedtea jdk7 closures cvmi caciocavallo bsd nio2 [[default=icedtea]])],
+  [
+    case "${withval}" in
+      yes)
+	project=icedtea
+        ;;
+      no)
+	AC_MSG_ERROR([argument passed to --with-project should be a supported OpenJDK project (see help)])
+	;;
+      *)
+        project=${withval}
+        ;;
+    esac
+  ],
+  [
+    project=icedtea
+  ])
+  AC_MSG_RESULT([${project}])
+  AC_SUBST(PROJECT_NAME, $project)
+  AM_CONDITIONAL([USE_CLOSURES], test x"${project}" = "xclosures")
+  AM_CONDITIONAL([USE_CVMI], test x"${project}" = "xcvmi")
+  AM_CONDITIONAL([USE_CACIOCAVALLO], test x"${project}" = "xcaciocavallo")
+  AM_CONDITIONAL([USE_BSD], test x"${project}" = "xbsd")
+  AM_CONDITIONAL([USE_NIO2], test x"${project}" = "xnio2")
+  AM_CONDITIONAL([USE_JDK7], test x"${project}" = "xjdk7")
+])
+
+AC_DEFUN([AC_CHECK_WITH_GCJ],
+[
+  AC_MSG_CHECKING([whether to compile ecj natively])
+  AC_ARG_WITH([gcj],
+	      [AS_HELP_STRING(--with-gcj,location of gcj for natively compiling ecj)],
+  [
+    GCJ="${withval}"
+  ],
+  [ 
+    GCJ="no"
+  ])
+  AC_MSG_RESULT([${GCJ}])
+  if test "x${GCJ}" = xyes; then
+    AC_PATH_TOOL([GCJ],[gcj])
+  fi
+  AM_CONDITIONAL([BUILD_NATIVE_ECJ], test x"${GCJ}" != xno)
+  AC_SUBST([GCJ])
+])
+
+AC_DEFUN([AC_CHECK_WITH_HOTSPOT_BUILD],
+[
+  DEFAULT_BUILD="default"
+  AC_MSG_CHECKING([which HotSpot build to use])
+  AC_ARG_WITH([hotspot-build],
+	      [AS_HELP_STRING(--with-hotspot-build,the HotSpot build to use)],
+  [
+    HSBUILD="${withval}"
+  ],
+  [ 
+    HSBUILD="${DEFAULT_BUILD}"
+  ])
+  if test "x${HSBUILD}" = xyes; then
+	HSBUILD="${DEFAULT_BUILD}"
+  elif test "x${HSBUILD}" = xno; then
+	HSBUILD="default"
+  fi
+  AC_MSG_RESULT([${HSBUILD}])
+  AC_SUBST([HSBUILD])
+  AM_CONDITIONAL(WITH_ALT_HSBUILD, test "x${HSBUILD}" != "xdefault")
+])
+
+AC_DEFUN([WITH_HOTSPOT_SRC_ZIP],
+[
+  AC_MSG_CHECKING(for a HotSpot source zip)
+  AC_ARG_WITH([hotspot-src-zip],
+              [AS_HELP_STRING(--with-hotspot-src-zip,specify the location of the hotspot source zip)],
+  [
+    ALT_HOTSPOT_SRC_ZIP=${withval}
+    AM_CONDITIONAL(USE_ALT_HOTSPOT_SRC_ZIP, test x = x)
+  ],
+  [ 
+    ALT_HOTSPOT_SRC_ZIP="not specified"
+    AM_CONDITIONAL(USE_ALT_HOTSPOT_SRC_ZIP, test x != x)
+  ])
+  AC_MSG_RESULT(${ALT_HOTSPOT_SRC_ZIP})
+  AC_SUBST(ALT_HOTSPOT_SRC_ZIP)
+])
+
+AC_DEFUN([WITH_CORBA_SRC_ZIP],
+[
+  AC_MSG_CHECKING(for a CORBA source zip)
+  AC_ARG_WITH([corba-src-zip],
+              [AS_HELP_STRING(--with-corba-src-zip,specify the location of the corba source zip)],
+  [
+    ALT_CORBA_SRC_ZIP=${withval}
+    AM_CONDITIONAL(USE_ALT_CORBA_SRC_ZIP, test x = x)
+  ],
+  [ 
+    ALT_CORBA_SRC_ZIP="not specified"
+    AM_CONDITIONAL(USE_ALT_CORBA_SRC_ZIP, test x != x)
+  ])
+  AC_MSG_RESULT(${ALT_CORBA_SRC_ZIP})
+  AC_SUBST(ALT_CORBA_SRC_ZIP)
+])
+
+AC_DEFUN([WITH_JAXP_SRC_ZIP],
+[
+  AC_MSG_CHECKING(for a JAXP source zip)
+  AC_ARG_WITH([jaxp-src-zip],
+              [AS_HELP_STRING(--with-jaxp-src-zip,specify the location of the jaxp source zip)],
+  [
+    ALT_JAXP_SRC_ZIP=${withval}
+    AM_CONDITIONAL(USE_ALT_JAXP_SRC_ZIP, test x = x)
+  ],
+  [ 
+    ALT_JAXP_SRC_ZIP="not specified"
+    AM_CONDITIONAL(USE_ALT_JAXP_SRC_ZIP, test x != x)
+  ])
+  AC_MSG_RESULT(${ALT_JAXP_SRC_ZIP})
+  AC_SUBST(ALT_JAXP_SRC_ZIP)
+])
+
+AC_DEFUN([WITH_JAXWS_SRC_ZIP],
+[
+  AC_MSG_CHECKING(for a JAXWS source zip)
+  AC_ARG_WITH([jaxws-src-zip],
+              [AS_HELP_STRING(--with-jaxws-src-zip,specify the location of the jaxws source zip)],
+  [
+    ALT_JAXWS_SRC_ZIP=${withval}
+    AM_CONDITIONAL(USE_ALT_JAXWS_SRC_ZIP, test x = x)
+  ],
+  [ 
+    ALT_JAXWS_SRC_ZIP="not specified"
+    AM_CONDITIONAL(USE_ALT_JAXWS_SRC_ZIP, test x != x)
+  ])
+  AC_MSG_RESULT(${ALT_JAXWS_SRC_ZIP})
+  AC_SUBST(ALT_JAXWS_SRC_ZIP)
+])
+
+AC_DEFUN([WITH_JDK_SRC_ZIP],
+[
+  AC_MSG_CHECKING(for a JDK source zip)
+  AC_ARG_WITH([jdk-src-zip],
+              [AS_HELP_STRING(--with-jdk-src-zip,specify the location of the jdk source zip)],
+  [
+    ALT_JDK_SRC_ZIP=${withval}
+    AM_CONDITIONAL(USE_ALT_JDK_SRC_ZIP, test x = x)
+  ],
+  [ 
+    ALT_JDK_SRC_ZIP="not specified"
+    AM_CONDITIONAL(USE_ALT_JDK_SRC_ZIP, test x != x)
+  ])
+  AC_MSG_RESULT(${ALT_JDK_SRC_ZIP})
+  AC_SUBST(ALT_JDK_SRC_ZIP)
+])
+
+AC_DEFUN([WITH_LANGTOOLS_SRC_ZIP],
+[
+  AC_MSG_CHECKING(for a langtools source zip)
+  AC_ARG_WITH([langtools-src-zip],
+              [AS_HELP_STRING(--with-langtools-src-zip,specify the location of the langtools source zip)],
+  [
+    ALT_LANGTOOLS_SRC_ZIP=${withval}
+    AM_CONDITIONAL(USE_ALT_LANGTOOLS_SRC_ZIP, test x = x)
+  ],
+  [ 
+    ALT_LANGTOOLS_SRC_ZIP="not specified"
+    AM_CONDITIONAL(USE_ALT_LANGTOOLS_SRC_ZIP, test x != x)
+  ])
+  AC_MSG_RESULT(${ALT_LANGTOOLS_SRC_ZIP})
+  AC_SUBST(ALT_LANGTOOLS_SRC_ZIP)
+])
+
+AC_DEFUN([ENABLE_HG],
+[
+  AC_MSG_CHECKING(whether to retrieve the source code from Mercurial)
+  AC_ARG_ENABLE([hg],
+                [AS_HELP_STRING(--enable-hg,download source code from Mercurial [[default=no]])],
+  [
+    case "${enableval}" in
+      no)
+	enable_hg=no
+        ;;
+      *)
+        enable_hg=yes
+        ;;
+    esac
+  ],
+  [
+        enable_hg=no
+  ])
+  AC_MSG_RESULT([${enable_hg}])
+  AM_CONDITIONAL([USE_HG], test x"${enable_hg}" = "xyes")
+])
+
+AC_DEFUN([AC_CHECK_WITH_HG_REVISION],
+[
+  AC_MSG_CHECKING([which Mercurial revision to use])
+  AC_ARG_WITH([hg-revision],
+	      [AS_HELP_STRING(--with-hg-revision,the Mercurial revision to use)],
+  [
+    HGREV="${withval}"
+    AC_MSG_RESULT([${HGREV}])
+  ],
+  [ 
+    HGREV=""
+    AC_MSG_RESULT([tip])
+  ])
+  AC_SUBST([HGREV])
+  AM_CONDITIONAL(WITH_HGREV, test "x${HGREV}" != "x")
+])
+
+AC_DEFUN([IT_CHECK_IF_BOOTSTRAPPING],
+[
+  AC_MSG_CHECKING([whether to build a bootstrap version first])
+  AC_ARG_ENABLE([bootstrap],
+                [AS_HELP_STRING(--disable-bootstrap, don't build a bootstrap version [[default=no]])],
+  [
+    case "${enableval}" in
+      no)
+	enable_bootstrap=no
+        ;;
+      *)
+        enable_bootstrap=yes
+        ;;
+    esac
+  ],
+  [
+        enable_bootstrap=yes
+  ])
+  AC_MSG_RESULT([${enable_bootstrap}])
+  AM_CONDITIONAL([BOOTSTRAPPING], test x"${enable_bootstrap}" = "xyes")
+])
+
+AC_DEFUN([IT_CHECK_FOR_JDK],
+[
+  AC_MSG_CHECKING([for a JDK home directory])
+  AC_ARG_WITH([jdk-home],
+	      [AS_HELP_STRING([--with-jdk-home],
+                              [jdk home directory \
+                               (default is first predefined JDK found)])],
+              [
+                if test "x${withval}" = xyes
+                then
+                  SYSTEM_JDK_DIR=
+                elif test "x${withval}" = xno
+                then
+	          SYSTEM_JDK_DIR=
+	        else
+                  SYSTEM_JDK_DIR=${withval}
+                fi
+              ],
+              [
+	        SYSTEM_JDK_DIR=
+              ])
+  if test -z "${SYSTEM_JDK_DIR}"; then
+    if test "x${enable_bootstrap}" = "xyes"; then
+      BOOTSTRAP_VMS="/usr/lib/jvm/java-gcj /usr/lib/jvm/gcj-jdk /usr/lib/jvm/cacao";
+    fi
+    for dir in ${BOOTSTRAP_VMS} /usr/lib/jvm/java-openjdk \
+    	       /usr/lib/jvm/icedtea6 /usr/lib/jvm/java-6-openjdk \
+	       /usr/lib/jvm/openjdk /usr/lib/jvm/java-icedtea ; do
+       if test -d $dir; then
+         SYSTEM_JDK_DIR=$dir
+	 break
+       fi
+    done
+  fi
+  AC_MSG_RESULT(${SYSTEM_JDK_DIR})
+  if ! test -d "${SYSTEM_JDK_DIR}"; then
+    AC_MSG_ERROR("A JDK JDK home directory could not be found.")
+  fi
+  AC_SUBST(SYSTEM_JDK_DIR)
+])
+
+AC_DEFUN([IT_JAVAH],[
+AC_CACHE_CHECK([if $JAVAH exhibits Classpath bug 39408], it_cv_cp39408_javah, [
+SUPERCLASS=Test.java
+SUBCLASS=TestImpl.java
+SUB=$(echo $SUBCLASS|sed 's#\.java##')
+SUBHEADER=$(echo $SUBCLASS|sed 's#\.java#.h#')
+mkdir tmp.$$
+cd tmp.$$
+cat << \EOF > $SUPERCLASS
+/* [#]line __oline__ "configure" */
+public class Test 
+{
+  public static final int POTATO = 0;
+  public static final int CABBAGE = 1;
+}
+EOF
+cat << \EOF > $SUBCLASS
+/* [#]line __oline__ "configure" */
+public class TestImpl
+  extends Test
+{
+  public native void doStuff();
+}
+EOF
+if $JAVAC -cp . $JAVACFLAGS $SUBCLASS >&AS_MESSAGE_LOG_FD 2>&1; then
+  if $JAVAH -classpath . $SUB >&AS_MESSAGE_LOG_FD 2>&1; then
+    if cat $SUBHEADER | grep POTATO >&AS_MESSAGE_LOG_FD 2>&1; then
+      it_cv_cp39408_javah=no;
+    else
+      it_cv_cp39408_javah=yes;
+    fi
+  else
+    AC_MSG_ERROR([The Java header generator $JAVAH failed])
+    echo "configure: failed program was:" >&AC_FD_CC
+    cat $SUBCLASS >&AC_FD_CC
+  fi
+else
+  AC_MSG_ERROR([The Java compiler $JAVAC failed])
+  echo "configure: failed program was:" >&AC_FD_CC
+  cat $SUBCLASS >&AC_FD_CC
+fi
+])
+AC_CACHE_CHECK([if $JAVAH exhibits Classpath bug 40188], it_cv_cp40188_javah, [
+  if test -e $SUBHEADER ; then
+    if cat $SUBHEADER | grep TestImpl_POTATO >&AS_MESSAGE_LOG_FD 2>&1; then
+      it_cv_cp40188_javah=no;
+    else
+      it_cv_cp40188_javah=yes;
+    fi
+  fi
+])
+rm -f $SUBCLASS $SUPERCLASS $SUBHEADER *.class
+cd ..
+rmdir tmp.$$
+AM_CONDITIONAL([CP39408_JAVAH], test x"${it_cv_cp39408_javah}" = "xyes")
+AM_CONDITIONAL([CP40188_JAVAH], test x"${it_cv_cp40188_javah}" = "xyes")
+AC_PROVIDE([$0])dnl
+])
+
+AC_DEFUN([FIND_BCEL_JAR],
+[
+  AC_MSG_CHECKING([for bytecode engineering library (BCEL)])
+  AC_ARG_WITH([bcel],
+              [AS_HELP_STRING(--with-bcel,specify location of the bcel jar)],
+  [
+    case "${withval}" in
+      yes)
+	BCEL_JAR=yes
+        ;;
+      no)
+        BCEL_JAR=no
+        ;;
+      *)
+        BCEL_JAR="${withval}"
+	;;
+     esac
+  ],
+  [
+    BCEL_JAR=yes
+  ])
+  if test x"${BCEL_JAR}" = "xyes"; then
+    if test -e "/usr/share/bcel/lib/bcel.jar"; then
+      BCEL_JAR="/usr/share/bcel/lib/bcel.jar"
+    elif test -e "/usr/share/java/bcel.jar"; then
+      BCEL_JAR="/usr/share/java/bcel.jar"
+    fi
+  fi
+  if ! test -f "${BCEL_JAR}"; then
+      AC_MSG_RESULT([not found])
+      AC_MSG_ERROR("A BCEL jar ${BCEL_JAR} was not found.")
+  fi
+  AC_MSG_RESULT(${BCEL_JAR})
+  AC_SUBST(BCEL_JAR)
+])
+
+AC_DEFUN([FIND_XPP3_JAR],
+[
+  AC_MSG_CHECKING([for XML Pull Parser 3 (XPP3)])
+  AC_ARG_WITH([xpp3],
+              [AS_HELP_STRING(--with-xpp3,specify location of the xpp3 jar)],
+  [
+    case "${withval}" in
+      yes)
+	XPP3_JAR=yes
+        ;;
+      no)
+        XPP3_JAR=no
+        ;;
+      *)
+        XPP3_JAR="${withval}"
+	;;
+     esac
+  ],
+  [
+    XPP3_JAR=yes
+  ])
+  if test x"${XPP3_JAR}" = "xyes"; then
+    if test -e "/usr/share/xpp3/lib/xpp3.jar"; then
+      XPP3_JAR="/usr/share/xpp3/lib/xpp3.jar"
+    elif test -e "/usr/share/java/xpp3.jar"; then
+      XPP3_JAR="/usr/share/java/xpp3.jar"
+    fi
+  fi
+  if ! test -f "${XPP3_JAR}"; then
+      AC_MSG_RESULT([not found])
+      AC_MSG_ERROR("A XPP3 jar ${XPP3_JAR} was not found.")
+  fi
+  AC_MSG_RESULT(${XPP3_JAR})
+  AC_SUBST(XPP3_JAR)
+])
+
+AC_DEFUN([FIND_JIBX_DIR],
+[
+  AC_MSG_CHECKING([for JIBX])
+  AC_ARG_WITH([jibx],
+              [AS_HELP_STRING(--with-jibx,specify location of the jibx jars)],
+  [
+    case "${withval}" in
+      yes)
+	JIBX_DIR=yes
+        ;;
+      no)
+        JIBX_DIR=no
+        ;;
+      *)
+        JIBX_DIR="${withval}"
+	;;
+     esac
+  ],
+  [
+    JIBX_DIR=yes
+  ])
+  if test x"${JIBX_DIR}" = "xyes"; then
+    if test -e "/usr/share/jibx/lib/jibx-run.jar"; then
+      JIBX_DIR=/usr/share/jibx/lib
+    elif test -e "/usr/share/java/jibx-run.jar"; then
+      JIBX_DIR=/usr/share/java
+    fi
+  fi
+  if ! test -d "${JIBX_DIR}"; then
+      AC_MSG_RESULT([not found])
+      AC_MSG_ERROR("A JIBX jar directory ${JIBX_JAR} was not found.")
+  fi
+  AC_MSG_RESULT(${JIBX_DIR})
+  AC_SUBST(JIBX_DIR)
+])
+
+AC_DEFUN([AC_CHECK_ENABLE_NIMBUS],
+[
+  AC_MSG_CHECKING(whether to build the Nimbus L'n'F)
+  AC_ARG_ENABLE([nimbus],
+	      [AS_HELP_STRING(--enable-nimbus,build the Nimbus L'n'F [[default=yes]])],
+  [
+    ENABLE_NIMBUS="${enableval}"
+  ],
+  [
+    ENABLE_NIMBUS=yes
+  ])
+
+  AC_MSG_RESULT(${ENABLE_NIMBUS})
+  AM_CONDITIONAL(ENABLE_NIMBUS, test x"${ENABLE_NIMBUS}" = "xyes")
+  AC_SUBST(ENABLE_NIMBUS)
+])
+
+AC_DEFUN([IT_XULRUNNER_VERSION],
+[
+AC_LANG_PUSH([C++])
+OLDCPPFLAGS="$CPPFLAGS"
+CPPFLAGS="$CPPFLAGS $XULRUNNER_CFLAGS"
+
+AC_CACHE_CHECK([for xulrunner version], [xulrunner_cv_collapsed_version],
+    [AC_RUN_IFELSE(
+      [AC_LANG_PROGRAM([[
+#include <mozilla-config.h>
+#include <math.h>
+#include <string.h>
+#include <stdlib.h>
+#include <stdio.h>
+]],[[
+int version = 0;
+const char* token = NULL;
+int power=6;
+FILE *datafile;
+
+datafile = fopen ("conftest.vdata", "w");
+if (!datafile) return 1;
+
+// 32 chars is more than enough to hold version
+char* mozilla_version = (char*) malloc(32*sizeof(char));
+snprintf(mozilla_version, 32, "%s", MOZILLA_VERSION);
+
+token = strtok(mozilla_version, ".");
+while (token)
+{
+    version += atoi(token)*(pow(10, power));
+    power -=2;
+    token = strtok(NULL, ".");
+}
+
+fprintf (datafile, "%d\n", version);
+free(mozilla_version);
+if (fclose(datafile)) return 1;
+
+return EXIT_SUCCESS;
+]])],
+    [xulrunner_cv_collapsed_version="$(cat conftest.vdata)"],
+    [AC_MSG_FAILURE([cannot determine xulrunner version])])],
+  [xulrunner_cv_collapsed_version="190000"])
+
+CPPFLAGS="$OLDCPPFLAGS"
+AC_LANG_POP([C++])
+
+AC_SUBST(MOZILLA_VERSION_COLLAPSED, $xulrunner_cv_collapsed_version)
+])
+
+AC_DEFUN([AC_CHECK_ENABLE_NIMBUS_GENERATION],
+[
+  AC_MSG_CHECKING(whether to generate the Nimbus source files using JIBX)
+  AC_ARG_ENABLE([nimbus-generation],
+	      [AS_HELP_STRING(--enable-nimbus-generation,generate the Nimbus source with JIBX [[default=no]])],
+  [
+    ENABLE_NIMBUS_GENERATION="${enableval}"
+  ],
+  [
+    ENABLE_NIMBUS_GENERATION=no
+  ])
+
+  AC_MSG_RESULT(${ENABLE_NIMBUS_GENERATION})
+  AM_CONDITIONAL(ENABLE_NIMBUS_GENERATION, test x"${ENABLE_NIMBUS_GENERATION}" = "xyes")
+  AC_SUBST(ENABLE_NIMBUS_GENERATION)
+])
+
+AC_DEFUN([IT_CHECK_ADDITIONAL_VMS],
+[
+AC_MSG_CHECKING([for additional virtual machines to build])
+AC_ARG_WITH(additional-vms,
+            AC_HELP_STRING([--with-additional-vms=vm-list],
+	    [build additional virtual machines. Valid value is a comma separated string with the backend names `cacao', `zero' and `shark'.]),
+[
+if test "x${withval}" != x ; then
+  with_additional_vms=${withval}
+  for vm in `echo ${with_additional_vms} | sed 's/,/ /g'`; do
+    case "x$vm" in
+      xcacao) add_vm_cacao=yes;;
+      xzero)  add_vm_zero=yes;;
+      xshark) add_vm_shark=yes;;
+      *) AC_MSG_ERROR([proper usage is --with-additional-vms=vm1,vm2,...])
+    esac
+  done
+fi])
+
+if test "x${with_additional_vms}" = x; then
+   with_additional_vms="none";
+fi
+AC_MSG_RESULT($with_additional_vms)
+
+AM_CONDITIONAL(ADD_CACAO_BUILD, test x$add_vm_cacao != x)
+AM_CONDITIONAL(ADD_ZERO_BUILD,  test x$add_vm_zero  != x || test x$add_vm_shark != x)
+AM_CONDITIONAL(ADD_SHARK_BUILD, test x$add_vm_shark != x)
+AM_CONDITIONAL(BUILD_CACAO, test x$add_vm_cacao != x || test "x${WITH_CACAO}" = xyes)
+
+if test "x${WITH_CACAO}" = xyes && test "x${ADD_CACAO_BUILD_TRUE}" = x; then
+  AC_MSG_ERROR([additional vm is the default vm])
+fi
+if test "x${ZERO_BUILD_TRUE}" = x && test "x${ADD_ZERO_BUILD_TRUE}" = x; then
+  AC_MSG_ERROR([additional vm is the default vm])
+fi
+if test "x${USE_SYSTEM_CACAO_TRUE}" = x; then
+  AC_MSG_ERROR([cannot build with system cacao as additional vm])
+fi
+if test "x${ADD_ZERO_BUILD_TRUE}" = x && test "x${abs_top_builddir}" = "x${abs_top_srcdir}"; then
+  AC_MSG_ERROR([build of additional zero/shark VM requires build with srcdir != builddir])
+fi
+])
+
+AC_DEFUN([IT_LIBRARY_CHECK],[
+AC_CACHE_CHECK([if java.io.PrintStream is missing the 1.5 constructors (PR40616)], it_cv_cp40616, [
+CLASS=Test.java
+BYTECODE=$(echo $CLASS|sed 's#\.java##')
+mkdir tmp.$$
+cd tmp.$$
+cat << \EOF > $CLASS
+[/* [#]line __oline__ "configure" */
+import java.io.File;
+import java.io.PrintStream;
+
+public class Test 
+{
+  public static void main(String[] args)
+  throws Exception
+  {
+    PrintStream p = new PrintStream(new File("bluh"), "UTF-8");
+    p.close();
+  }
+}]
+EOF
+if $JAVAC -cp . $JAVACFLAGS $CLASS >&AS_MESSAGE_LOG_FD 2>&1 ; then
+  if $JAVA -classpath . $BYTECODE >&AS_MESSAGE_LOG_FD 2>&1 ; then
+    it_cv_cp40616=no;
+  else
+    it_cv_cp40616=yes;
+  fi
+else
+  it_cv_cp40616=yes;
+fi
+])
+rm -f $CLASS *.class bluh
+cd ..
+rmdir tmp.$$
+AM_CONDITIONAL([CP40616], test x"${it_cv_cp40616}" = "xyes")
+AC_PROVIDE([$0])dnl
+])
+
+AC_DEFUN([IT_SCANNER_CHECK],[
+AC_CACHE_CHECK([if java.util.Scanner is missing], it_cv_cp30436, [
+CLASS=Test.java
+BYTECODE=$(echo $CLASS|sed 's#\.java##')
+mkdir tmp.$$
+cd tmp.$$
+cat << \EOF > $CLASS
+[/* [#]line __oline__ "configure" */
+public class Test 
+{
+  public static void main(String[] args)
+  throws Exception
+  {
+    new java.util.Scanner("Hello");
+  }
+}]
+EOF
+if $JAVAC -cp . $JAVACFLAGS $CLASS >&AS_MESSAGE_LOG_FD 2>&1; then
+  if $JAVA -classpath . $BYTECODE; >&AS_MESSAGE_LOG_FD 2>&1; then
+      it_cv_cp30436=no;
+  else
+      it_cv_cp30436=yes;
+  fi
+else
+  it_cv_cp30436=yes;
+fi
+])
+rm -f $CLASS *.class
+cd ..
+rmdir tmp.$$
+AM_CONDITIONAL([LACKS_JAVA_UTIL_SCANNER], test x"${it_cv_cp30436}" = "xyes")
+AC_PROVIDE([$0])dnl
+])
+AC_DEFUN([IT_PR40630_CHECK],[
+if test "x${it_cv_cp30436}" = "xno"; then
+  AC_CACHE_CHECK([if java.util.Scanner exhibits Classpath bug 40630], it_cv_cp40630, [
+  CLASS=Test.java
+  BYTECODE=$(echo $CLASS|sed 's#\.java##')
+  mkdir tmp.$$
+  cd tmp.$$
+  cat << \EOF > $CLASS
+[/* [#]line __oline__ "configure" */
+import java.util.Scanner;
+
+public class Test 
+{
+  public static void main(String[] args)
+  throws Exception
+  {
+    Scanner s = new Scanner("Blah\nBlah\n\nBlah\n\n");
+    for (int i = 0; i < 5; ++i)
+      s.nextLine();
+    s.hasNextLine();
+  }
+}]
+EOF
+  if $JAVAC -cp . $JAVACFLAGS $CLASS >&AS_MESSAGE_LOG_FD 2>&1; then
+    if $JAVA -classpath . $BYTECODE >&AS_MESSAGE_LOG_FD 2>&1; then
+      it_cv_cp40630=no;
+    else
+      it_cv_cp40630=yes;
+    fi
+  else
+    it_cv_cp40630=yes;
+  fi
+  ])
+  rm -f $CLASS *.class
+  cd ..
+  rmdir tmp.$$
+fi
+AM_CONDITIONAL([CP40630], test x"${it_cv_cp40630}" = "xyes")
+AC_PROVIDE([$0])dnl
+])
+
+AC_DEFUN([IT_USING_ECJ],[
+AC_CACHE_CHECK([if we are using ecj as javac], it_cv_ecj, [
+if $JAVAC -version 2>&1| grep '^Eclipse' >&AS_MESSAGE_LOG_FD ; then
+  it_cv_ecj=yes;
+else
+  it_cv_ecj=no;
+fi
+])
+USING_ECJ=$it_cv_ecj
+AC_SUBST(USING_ECJ)
+AC_PROVIDE([$0])dnl
+])
+
+AC_DEFUN([IT_CHECK_ENABLE_WARNINGS],
+[
+  AC_MSG_CHECKING(whether to enable Java compiler warnings)
+  AC_ARG_ENABLE([warnings],
+	      [AS_HELP_STRING(--enable-warnings,produce warnings from javac/ecj [[default=no]])],
+  [
+    ENABLE_WARNINGS="${enableval}"
+  ],
+  [
+    ENABLE_WARNINGS=no
+  ])
+
+  AC_MSG_RESULT(${ENABLE_WARNINGS})
+  AM_CONDITIONAL(ENABLE_WARNINGS, test x"${ENABLE_WARNINGS}" = "xyes")
+  AC_SUBST(ENABLE_WARNINGS)
+])

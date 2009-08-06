@@ -1,0 +1,54 @@
+diff -Nru openjdk.orig/jdk/make/com/sun/java/pack/Makefile openjdk/jdk/make/com/sun/java/pack/Makefile
+--- openjdk.orig/jdk/make/com/sun/java/pack/Makefile	2009-07-14 17:28:33.000000000 +0100
++++ openjdk/jdk/make/com/sun/java/pack/Makefile	2009-07-14 17:32:29.000000000 +0100
+@@ -75,12 +75,12 @@
+ 	     $(ZIPOBJDIR)/infutil.$(OBJECT_SUFFIX) \
+ 	     $(ZIPOBJDIR)/inffast.$(OBJECT_SUFFIX)
+ 
+-  OTHER_LDLIBS += -lz
+ else
+   OTHER_CXXFLAGS += -DNO_ZLIB -DUNPACK_JNI
+-  OTHER_LDLIBS += -lz $(JVMLIB)
++  OTHER_LDLIBS += $(JVMLIB)
+ endif
+ 
++OTHER_LDLIBS += -lz
+ CXXFLAGS_DBG += -DFULL
+ CXXFLAGS_OPT += -DPRODUCT
+ CXXFLAGS_COMMON += -DFULL
+@@ -97,12 +97,11 @@
+   RES = $(OBJDIR)/$(PGRM).res
+ else
+   LDOUTPUT = -o #Have a space 
+-  LDDFLAGS += -lz -lc
+-  OTHER_LDLIBS  += $(LIBCXX)
++  OTHER_LDLIBS += $(LIBCXX) -lc
+ # setup the list of libraries to link in...
+ ifeq ($(PLATFORM), linux)
+ ifeq ("$(CC_VER_MAJOR)", "3")
+-  OTHER_LDLIBS  += -lz -Wl,-Bstatic -lgcc_eh -Wl,-Bdynamic
++  OTHER_LDLIBS  += -Wl,-Bstatic -lgcc_eh -Wl,-Bdynamic
+ endif
+ endif #LINUX
+ endif #PLATFORM
+@@ -145,7 +144,7 @@
+ 
+ $(UNPACK_EXE): $(UNPACK_EXE_FILES_o) updatefiles winres
+ 	$(prep-target)
+-	$(LINKER)  $(LDDFLAGS) $(UNPACK_EXE_FILES_o) $(RES) $(LIBCXX) $(LDOUTPUT)$(TEMPDIR)/unpack200$(EXE_SUFFIX)
++	$(LINKER)  $(LDDFLAGS) $(UNPACK_EXE_FILES_o) $(RES) $(OTHER_LDLIBS) $(LIBCXX) $(LDOUTPUT)$(TEMPDIR)/unpack200$(EXE_SUFFIX)
+ ifdef MT
+ 	$(MT) /manifest $(TEMPDIR)/unpack200$(EXE_SUFFIX).manifest /outputresource:$(TEMPDIR)/unpack200$(EXE_SUFFIX);#1
+ endif
+diff -Nru openjdk.orig/jdk/make/javax/sound/jsoundalsa/Makefile openjdk/jdk/make/javax/sound/jsoundalsa/Makefile
+--- openjdk.orig/jdk/make/javax/sound/jsoundalsa/Makefile	2009-03-30 17:23:03.000000000 +0100
++++ openjdk/jdk/make/javax/sound/jsoundalsa/Makefile	2009-07-14 17:32:29.000000000 +0100
+@@ -65,7 +65,7 @@
+ 	$(MIDIFILES_export) \
+ 	$(PORTFILES_export)
+ 
+-LDFLAGS += -lasound
++OTHER_LDLIBS += -lasound
+ 
+ CPPFLAGS += \
+ 	-DUSE_DAUDIO=TRUE \
