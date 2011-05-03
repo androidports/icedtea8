@@ -1,0 +1,13 @@
+syntax: glob
+*~
+build
+configure
+missing
+aclocal.m4
+autom4te.cache
+config.guess
+config.sub
+config.status
+install-sh
+Makefile.in
+

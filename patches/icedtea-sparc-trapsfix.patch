@@ -1,0 +1,12 @@
+--- openjdk/hotspot/src/os_cpu/linux_sparc/vm/assembler_linux_sparc.cpp.orig	2010-01-16 23:19:45.703450297 +0000
++++ openjdk/hotspot/src/os_cpu/linux_sparc/vm/assembler_linux_sparc.cpp	2010-01-16 23:21:23.942337146 +0000
+@@ -25,7 +25,8 @@
+ #include "incls/_precompiled.incl"
+ #include "incls/_assembler_linux_sparc.cpp.incl"
+ 
+-#include <asm-sparc/traps.h>
++// always found in asm/ with merged sparc/sparc64 headers
++#include <asm/traps.h>
+ 
+ void MacroAssembler::read_ccr_trap(Register ccr_save) {
+   // No implementation

@@ -1,0 +1,366 @@
+Building IcedTea7
+=================
+
+For convenience we've provided make targets that automatically
+download, extract and patch the source code from the IcedTea forest
+(http://hg.openjdk.java.net/icedtea/jdk7/).
+
+The build requirements are as follows:
+
+A bootstrap JDK, either:
+  - GNU libgcj 4.4.0 (or equivalent class library based on GNU Classpath >= 0.95) for --enable-bootstrap mode (the default)
+  - IcedTea6 or IcedTea7 for --disable-bootstrap mode
+Eclipse Java Compiler (ecj)
+CUPS
+libX11 (libXp, libXtst, libXi, libXt)
+Freetype2
+patch
+sed
+tar
+sha256sum (from coreutils)
+wget
+alsa
+xalan
+xerces
+glib2-devel 
+gtk2-devel
+ant >= 1.6.5 with the regexp task from ant-nodeps
+libXinerama-devel
+giflib-devel
+libpng-devel
+libjpeg-devel >= 6b
+zlib-devel
+xulrunner-devel (can be disabled using --disable-plugin)
+rhino (can be disabled using --without-rhino)
+libffi (for --enable-zero or on archs other than x86/x86_64/sparc)
+pulseaudio-libs-devel >= 0.9.11 (for --enable-pulse-java)
+LLVM 2.5 or later (for --enable-shark)
+systemtap-sdl-devel >= 0.9.5 (for --enable-systemtap, Java method tracing requires systemtap >= 0.9.9)
+
+See ./configure --help if you need to override the defaults.
+
+To bootstrap IcedTea with ecj and a GNU Classpath-based JDK:
+./autogen.sh
+./configure 
+make
+
+To build IcedTea with an older version of IcedTea, use:
+./autogen.sh
+./configure --disable-bootstrap 
+make
+
+The following locations are checked for a JDK:
+    * /usr/lib/jvm/java-openjdk
+    * /usr/lib/jvm/icedtea6
+    * /usr/lib/jvm/java-6-openjdk
+    * /usr/lib/jvm/openjdk
+    * /usr/lib/jvm/java-icedtea
+in the order given above.
+
+If bootstrapping is enabled, the following JDK locations are prepended to the above list:
+   * /usr/lib/jvm/java-gcj
+   * /usr/lib/jvm/gcj-jdk
+   * /usr/lib/jvm/cacao
+
+There is currently no install target.  IcedTea ends up in
+openjdk.build when the build completes.
+
+Most targets in IcedTea creat stamp files in the stamps directory to
+determine what and when dependencies were compiled.  Each target has a
+corresponding clean-x target which removes the output and the stamp
+file, allowing it to be rebuilt.  For example, stamps/rt.stamp (alias
+rt) builds the bootstrap classes needed in the bootstrap build and
+clean-rt removes the classes and the stamp file.
+
+Build Modification Options
+==========================
+
+The build process may be modified by passing the following options
+to configure:
+
+* --disable-docs: Don't build the Javadoc documentation.
+* --disable-bootstrap: Perform a quick (no bootstrap) build using an installed
+  copy of IcedTea6 or IcedTea7.  If a directory is not specified, a check against
+  the list presented above is performed.
+* --enable-warnings: Produce warnings from the Java compiler during the build.
+* --with-openjdk-src-dir: Copy the specified OpenJDK tree, rather than
+  downloading and extracting a tarball.
+* --disable-optimizations: Build with -O0.
+* --enable-hg: Checkout the OpenJDK tree from Mercurial, rather than
+  downloading and extracting a tarball.
+* --with-gcj: Compile ecj to native code with gcj prior to building.
+* --with-parallel-jobs: Run the specified number of parallel jobs when
+  building HotSpot and the JDK.  If this option is passed without an
+  argument, the number of online processors plus one is used.
+* --with-netbeans-home: The location of NetBeans for use in the VisualVM build,
+  defaults to /usr/share/netbeans.
+* --with-ant-home: The location of Ant, defaults to /usr/share/ant.
+* --with-pkgversion=PKG: Include the specified distro package information in
+  the output of java -version.
+* --with-gcj-home: Perform a full bootstrap build using an installed
+  copy of a GNU Classpath JDK such as gcj.  If a directory is not specified,
+  a check against the list presented above is performed.
+* --with-java: Specify the location of a 'java' binary.  By default, the path
+  is checked for gij and java.
+* --with-ecj: Specify the location of a 'ecj' binary.  By default, the path
+  is checked for ecj, ecj-3.1, ecj-3.2 and ecj-3.3.
+* --with-javac: Specify the location of a 'javac' binary.  By default, the path
+  is checked for javac.
+* --with-jar: Specify the location of a 'jar' binary.  By default, the path
+  is checked for gjar and jar.
+* --with-javah: Specify the location of a 'javah' binary.  By default, the path
+  is checked for gjavah and javah.
+* --with-rmic: Specify the location of a 'rmic' binary.  By default, the path
+  is checked for grmic and rmic.
+* --with-ecj-jar: Specify the location of an ecj JAR file.  By default, the
+  following paths are checked:
+    - /usr/share/java/eclipse-ecj.jar
+    - /usr/share/java/ecj.jar
+    - /usr/share/eclipse-ecj-3.{2,3,4,5}/lib/ecj.jar
+* --with-xalan2-jar: Specify the location of a xalan2 JAR file.  By default, the
+  following paths are checked:
+    - /usr/share/java/xalan-j2.jar
+    - /usr/share/java/xalan2.jar
+    - /usr/share/xalan/lib/xalan.jar
+* --with-xalan2-serializer-jar: Specify the location of a xalan2 serializer JAR file.
+  By default, the following paths are checked:
+    - /usr/share/java/xalan-j2-serializer.jar
+    - /usr/share/xalan-serializer/lib/serializer.jar
+    - /usr/share/java/serializer.jar
+* --with-xerces2-jar: Specify the location of a xerces2 JAR file.  By default, the
+  following paths are checked:
+    - /usr/share/java/xerces-j2.jar
+    - /usr/share/java/xerces2.jar
+    - /usr/share/xerces-2/lib/xercesImpl.jar
+    - /usr/share/java/xercesImpl.jar
+* --with-openjdk-src-zip: Specify the location of the OpenJDK tarball to avoid downloading.
+* --with-hotspot-src-zip: Specify the location of the HotSpot tarball to avoid downloading.
+* --with-corba-src-zip: Specify the location of the CORBA tarball to avoid downloading.
+* --with-jaxp-src-zip: Specify the location of the JAXP tarball to avoid downloading.
+* --with-jaxws-src-zip: Specify the location of the JAXWS tarball to avoid downloading.
+* --with-jdk-src-zip: Specify the location of the JDK tarball to avoid downloading.
+* --with-langtools-src-zip: Specify the location of the langtools tarball to avoid downloading.
+* --with-alt-jar: Use the specified jar binary in the second stage rather than the one just built.
+* --with-jaxp-drop-zip: Specify the location of the JAXP source drop zip file to avoid downloading.
+* --with-jaf-drop-zip: Specify the location of the JAF source drop zip file to avoid downloading.
+* --with-jaxws-drop-zip: Specify the location of the JAXWS source drop zip file to avoid downloading.
+* --with-cacao-home: Specify the location of an installed CACAO to use rather than downloading
+  and building one.
+* --with-cacao-src-zip: Specify the location of a CACAO tarball to avoid downloading.
+* --with-cacao-src-dir: Specify the location of a CACAO source tree to avoid downloading.
+* --with-hg-revision: Specify a hg revision to use (as opposed to tip) with the --enable-hg option.
+* --with-tzdata-dir: Specify the location of Java timezone data, defaulting to /usr/share/javazi.
+* --with-netbeans: Specify the location of NetBeans for VisualVM, defaulting to the netbeans on the path.
+* --with-abs-install-dir: The final install location of the j2sdk-image, for use in the SystemTap tapset.
+* --with-llvm-config: Specify the location of the llvm-config binary.
+* --with-version-suffix: Appends the given text to the JDK version output.
+* --with-project: Build an OpenJDK project from the following: icedtea, jdk7, closures, cvmi, cacaiocavallo,
+  bsd, nio2.  The default is icedtea.  Use of others is at the user's risk and builds may fail.  This setting
+  affects which forest is checked out when --enable-hg is used and the set of patches applied.
+
+Other options may be supplied which enable or disable new features.
+These are documented fully in the relevant section below.
+
+* --disable-tests: Disable the running of all JTReg tests.
+* --disable-hotspot-tests: Disable the running of the HotSpot JTReg suite.
+* --disable-langtools-tests: Disable the running of the langtools JTReg suite.
+* --disable-jdk-tests: Disable the running of the jdk JTreg suite.
+* --enable-pulse-java: Build the PulseAudio sound provider.
+* --disable-xrender: Don't include the XRender pipeline.
+* --enable-systemtap: Include support for tracing using systemtap.
+* --enable-nss: Enable the NSS security provider.
+* --enable-cacao: Replace HotSpot with the CACAO VM.
+* --enable-shark: Build the Shark LLVM-based JIT.
+* --enable-zero: Build the zero assembler port on x86/x86_64/sparc platforms.
+* --disable-plugin: Don't build the browser plugin.
+* --disable-npplugin: Build the old unsupported plugin rather than NPPlugin.
+* --with-hotspot-build: The HotSpot to use, defaulting to 'original' i.e. hs14 as bundled with OpenJDK.
+* --with-rhino: Include Javascript support using Rhino.
+* --with-additional-vms=vm-list: Additional VMs to build using the system described
+  below.
+
+Testing
+=======
+
+IcedTea7 includes support for running the test suite included with
+OpenJDK, using the in-tree copy of JTReg.  Invoking 'make check' will
+cause the HotSpot, JDK and langtools test suites to be run.  The
+individual test suites may be run using the check-hotspot, check-jdk
+and check-langtools targets respectively.  The --disable-tests option
+can be used to turn off all tests, and the
+--disable-{hotspot,langtools,jdk}-tests options can be used to turn
+off individual suites.  This is useful when using 'make distcheck'
+as a way of avoiding running the extensive JDK test suite which
+takes several hours.
+
+The PulseAudio provider
+=======================
+
+IcedTea7 includes an implementation of the javax.sound.* APIs using
+PulseAudio which can be enabled using --enable-pulse-java.   The resulting
+provider is org.classpath.icedtea.pulseaudio.PulseAudioMixerProvider.
+
+Xrender Support
+===============
+
+IcedTea7 includes support for an Xrender-based rendering pipeline
+developed by Clemens Eisserer (http://linuxhippy.blogspot.com/).  This
+is compiled by default, and can be disabled using --disable-xrender.
+To actually use the pipeline, the sun.java2d.xrender property needs to
+be set to true, e.g.  by passing the -Dsun.java2d.xrender=True option
+to java.
+
+SystemTap
+=========
+
+IcedTea7 includes work to allow the existing DTrace probes included in
+OpenJDK to be used with SystemTap.  This is enabled using the
+--enable-systemtap option, and requires version 0.9.5 or later (0.9.9
+or later if you want Java method tracing).  The tapset needs to know
+the final install location of the JDK, so the --with-abs-install-dir
+should also be used to specify this.  If not set, it defaults to the
+in-tree location of openjdk/build/<os>-<arch>/j2sdk-image and requires
+manual changes to tapset/hotspot.stp to work from elsewhere. For
+example, if you plan to install the resulting build in
+/usr/lib/jvm/java-1.6.0-openjdk, then you should specify
+--enable-systemtap
+--with-abs-install-dir=/usr/lib/jvm/java-1.6.0-openjdk.
+
+NSS Security Provider
+=====================
+
+OpenJDK includes an NSS-based security provider in the form of
+sun.security.pkcs11.SunPKCS11.  However, as this needs to know the
+location of the NSS installation it should use, it is not enabled
+in normal OpenJDK builds.  As IcedTea can detect NSS using configure,
+it can simplify the process of enabling this provider by generating
+a configuration file for the NSS provider.  If --enable-nss is specified,
+this configuration will be turned on in lib/security/java.security.
+This can also be done manually at a later date.
+
+CACAO
+=====
+
+IcedTea7 can use CACAO as the virtual machine, as opposed to HotSpot.
+One advantage of this is that CACAO has a JIT implementation for
+more platforms than HotSpot, including ppc, ppc64, arm and mips.
+When --enable-cacao is specified, CACAO will be downloaded and built,
+followed by the JDK portion of OpenJDK resulting in a CACAO+OpenJDK
+image in openjdk/build/<os>-<arch>/j2sdk-image.  The --with-cacao-home
+option can be used to specify the use of an existing CACAO install
+instead, and --with-cacao-src-zip/dir options exist to allow the use
+of a pre-downloaded zip or source tree respectively.
+
+Zero & Shark
+============
+
+IcedTea7 includes a zero assembler port of HotSpot, which avoids
+architecture-specific code as much as possible, allowing an
+interpreter to be built and run on most platforms (albeit very
+slowly).  As HotSpot only includes JITs for x86, x86_64 and SPARC, the
+zero assembler port is automatically enabled on all other
+architectures.  On x86, x86_64 and SPARC, it may be built using
+--enable-zero.
+
+To overcome the performance issues inherent in zero, a LLVM-based JIT
+called Shark has been developed.  This performs Just-In-Time compilation
+on any architecture supported by LLVM.  To enable it, pass the option
+--enable-shark to configure.  Please note that Shark is still in
+development and builds are still likely to fail at present.
+
+The Browser Plugin
+==================
+
+IcedTea7 contains a Free Software browser plugin based on NPRuntime
+called NPPlugin.  By default, this will be built, and it can be turned
+off using the -disable-plugin option.
+
+A test suite is supplied for the browser plugin.  It can be built
+using 'make plugin-tests' and run by loading the HTML page specified
+into a browser with the plugin installed.
+
+For debugging, the environment variable ICEDTEAPLUGIN_DEBUG should be
+set to 'true'.  This will produce output on the console from the C++
+side, and output from the Java side in $HOME/.icedteaplugin/java.stdout
+and $HOME/.icedteaplugin/java.stderr.  It also starts the debug server
+on port 8787.
+
+Support for Different Versions of HotSpot
+=========================================
+
+IcedTea allows the version of HotSpot provided with the upstream build
+drop to be replaced with another.  Support for this is provided by the
+--with-hotspot-build option which causes IcedTea to probe the
+hotspot.map file for an entry with the given build name.  The
+hotspot.map file maps the name to a changeset from a given repository
+URL.  During the build, it downloads HotSpot from
+${URL}/archive/${CHANGESET}.tar.gz and the resulting file is verified
+using the MD5 sum stored in hotspot.map.
+
+New build selections may be provided by providing further mappings in
+the hotspot.map file.  The name can be anything
+e.g. 'shiny_new_hotspot'.  This is simply used to map the argument to
+--with-hotspot-build to the values in the file and to apply
+appropriate patches (see patches/hotspot, $HSBUILD is available in
+Makefile.am for obtaining the build name).  The special value
+'original' is used for patches/hotspot/original to denote those for
+the upstream HotSpot; this value does not appear in hotspot.map.  
+
+The changeset and URL should refer to a valid HotSpot tree when used
+as above.  The required values can be obtained from a local checkout
+or by using the web interface.  The simplest way to calculate the MD5
+sum is to download the tarball and then run the 'md5sum' application
+on it.  The resulting value should be added to hotspot.map.
+
+As with the OpenJDK build tarballs, the location of an alternate zip
+can be specified using --with-hotspot-src-zip.  This skips the
+download stage and just verifies that the zip's MD5 sum matches that
+of the requested build.
+
+Currently, IcedTea7 only supports the 'original' HotSpot provided as
+part of the upstream IcedTea forest.
+
+Javascript Support
+==================
+
+IcedTea7 adds Javascript support via the javax.script API by using
+an existing installation of Rhino.  Support is enabled by default,
+with the following locations being searched for a Rhino JAR file:
+
+* /usr/share/java/rhino.jar
+* /usr/share/java/js.jar
+* /usr/share/rhino-1.6/lib/js.jar
+
+A JAR file can instead be specified using the --with-rhino option,
+or support may be disabled by specifying --without-rhino.
+
+Note that the final installed JAR file is a modified version with the
+namespace prefixed by 'sun.' as in the proprietary Oracle JDK.  This
+avoids conflicts between the JDK's copy of Rhino and any used by other
+applications.
+
+Building Additional Virtual Machines
+====================================
+
+Although IcedTea can be built multiple times to use a different virtual
+machine, additional VMs can be built without building the other components
+multiple times.
+
+On architectures where hotspot is available, use
+   --with-additional-vms=cacao,zero  (or shark instead of zero)
+on architectures where only zero (or shark) is available, use
+   --with-additional-vms=cacao
+to build the additional VMs.  It's not possible to build cacao as the
+default VM, and zero as additional VM.
+To build zero as the default VM and shark as an additional VM, use
+   --enable-zero --with-additional-vms=shark
+
+The additional VMs are available by calling the java with the option
+`-cacao', `-zero' or `-shark', or by calling the java tools with
+`-J-<vm name>'. If the build was configured with '--enable-shark',
+use `-Xint' to just use the zero VM.
+
+Please note that using this feature does not do as extensive testing
+of the VM as would enabling it in the default full bootstrap mode,
+which compiles IcedTea and then recompiles it using the just-built
+image.
