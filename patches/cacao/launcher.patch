@@ -1,0 +1,50 @@
+--- openjdk/jdk/make/docs/Makefile.orig	2010-08-27 20:01:53.000000000 +0200
++++ openjdk/jdk/make/docs/Makefile	2010-09-07 12:56:00.309691118 +0200
+@@ -70,7 +70,7 @@
+ ifeq ($(ARCH_DATA_MODEL),64)
+   MAX_VM_MEMORY = 1024
+ else
+-  MAX_VM_MEMORY = 512
++  MAX_VM_MEMORY = 768
+ endif
+ 
+ # List of all possible directories for javadoc to look for sources
+--- openjdk/jdk/src/share/bin/java.c.orig	2010-09-07 05:24:49.307192201 +0200
++++ openjdk/jdk/src/share/bin/java.c	2010-09-07 12:56:00.309691118 +0200
+@@ -174,6 +174,8 @@
+   InvocationFunctions ifn;
+ } JavaMainArgs;
+ 
++#define JNI_VERSION_CACAO 0xcaca0000
++
+ /*
+  * Entry point.
+  */
+@@ -1923,6 +1925,8 @@
+ 
+     { /* Create a new thread to create JVM and invoke main method */
+       JavaMainArgs args;
++      struct JDK1_1InitArgs cacao_args;
++      int jvm_init_rv;
+       int rslt;
+ 
+       args.argc = argc;
+@@ -1931,7 +1935,17 @@
+       args.what = what;
+       args.ifn = *ifn;
+ 
+-      rslt = ContinueInNewThread0(JavaMain, threadStackSize, (void*)&args);
++      memset((void*)&cacao_args, 0, sizeof(cacao_args));
++      cacao_args.version = JNI_VERSION_CACAO;
++
++      jvm_init_rv = ifn->GetDefaultJavaVMInitArgs(&cacao_args);
++      JLI_TraceLauncher("using cacao as VM: %s\n", (jvm_init_rv == 0) ? "yes" : "no");
++
++      if (jvm_init_rv == 0)
++          return JavaMain((void*)&args);
++      else
++          return ContinueInNewThread0(JavaMain, threadStackSize, (void*)&args);
++
+       /* If the caller has deemed there is an error we
+        * simply return that, otherwise we return the value of
+        * the callee
